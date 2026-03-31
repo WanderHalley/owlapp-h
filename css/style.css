@@ -4524,6 +4524,308 @@ tbody tr:last-child td {
         justify-content: center;
     }
 }
+   /* ============================================================
+   WIZARD / CREATE APP – Complementos (Fase 11)
+   ============================================================ */
+
+/* Wizard Container */
+.wizard {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+/* Wizard Steps Bar */
+.wizard-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 2rem;
+}
+
+.wizard-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: default;
+}
+
+.wizard-step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    transition: all var(--transition-normal);
+    flex-shrink: 0;
+}
+
+.wizard-step.active .wizard-step-number {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.wizard-step.completed .wizard-step-number {
+    border-color: var(--color-success);
+    background: var(--color-success);
+    color: #fff;
+}
+
+.wizard-step-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color var(--transition-fast);
+}
+
+.wizard-step.active .wizard-step-label {
+    color: var(--text-primary);
+}
+
+.wizard-step.completed .wizard-step-label {
+    color: var(--color-success);
+}
+
+/* Wizard Step Line */
+.wizard-step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--border-color);
+    margin: 0 0.75rem;
+    max-width: 80px;
+    transition: background var(--transition-normal);
+}
+
+.wizard-step-line.completed {
+    background: var(--color-success);
+}
+
+/* Wizard Panels */
+.wizard-panel {
+    display: none;
+}
+
+.wizard-panel.active {
+    display: block;
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Wizard Actions */
+.wizard-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.wizard-actions-spacer {
+    flex: 1;
+}
+
+/* Form Row */
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-group-half {
+    flex: 1;
+}
+
+@media (max-width: 640px) {
+    .form-row {
+        flex-direction: column;
+    }
+}
+
+/* Input Group – Prefix */
+.input-group-prefix {
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-right: none;
+    border-radius: var(--radius) 0 0 var(--radius);
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.input-group-prefix + .form-input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Color Picker Wrap */
+.color-picker-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.color-picker-input {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 2px;
+    cursor: pointer;
+    background: var(--bg-secondary);
+}
+
+.color-picker-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.color-picker-input::-webkit-color-swatch {
+    border: none;
+    border-radius: calc(var(--radius) - 4px);
+}
+
+.color-picker-value {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-family: monospace;
+}
+
+/* Review Grid */
+.review-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 640px) {
+    .review-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Review Preview */
+.review-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.review-app-icon {
+    margin-bottom: 1rem;
+}
+
+.review-app-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.review-app-slug {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    margin-bottom: 0.75rem;
+}
+
+.review-app-desc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Review Details */
+.review-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.review-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.review-row:last-child {
+    border-bottom: none;
+}
+
+.review-label {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.review-value {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.review-value-mono {
+    font-family: monospace;
+}
+
+.review-color-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+/* Text helpers used in form */
+.text-danger {
+    color: var(--color-danger);
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+/* Wizard responsive */
+@media (max-width: 480px) {
+    .wizard-step-label {
+        display: none;
+    }
+    .wizard-step-line {
+        max-width: 40px;
+    }
+    .wizard {
+        max-width: 100%;
+    }
+}
 }
 
 /* ============================================================================
