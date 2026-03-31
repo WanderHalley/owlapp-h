@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Editor do App – OwlApp Creator Hub">
+    <meta name="theme-color" content="#7c3aed">
+    <title>Editor do App – OwlApp</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar"></aside>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+        <main class="main-content">
+            <header class="header" id="header"></header>
+
+            <div class="content-body">
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="page-header-info">
+                        <h1 class="page-title" id="pageTitle">Editor do App</h1>
+                        <p class="page-subtitle" id="pageSubtitle">Carregando...</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <a href="apps.html" class="btn btn-ghost btn-sm">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            Meus Apps
+                        </a>
+                        <a href="#" class="btn btn-ghost btn-sm" id="btnOpenApp" target="_blank" style="display:none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Abrir App
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Editor Tabs -->
+                <div class="editor-nav" id="editorNav">
+                    <button class="editor-nav-item active" data-tab="general" onclick="AppEditorPage.switchTab('general')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        Geral
+                    </button>
+                    <button class="editor-nav-item" data-tab="appearance" onclick="AppEditorPage.switchTab('appearance')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                        Aparência
+                    </button>
+                    <button class="editor-nav-item" data-tab="slugs" onclick="AppEditorPage.switchTab('slugs')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        URLs / Slugs
+                    </button>
+                    <button class="editor-nav-item" data-tab="domains" onclick="AppEditorPage.switchTab('domains')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        Domínios
+                    </button>
+                    <button class="editor-nav-item" data-tab="advanced" onclick="AppEditorPage.switchTab('advanced')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                        Avançado
+                    </button>
+                </div>
+
+                <!-- Loading -->
+                <div class="spinner-container" id="editorSpinner">
+                    <div class="spinner"></div>
+                </div>
+
+                <!-- ═══════════ TAB: GENERAL ═══════════ -->
+                <div class="editor-tab-panel active" id="tabGeneral" style="display:none;">
+                    <form id="formGeneral" onsubmit="return false;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Informações Gerais</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="form-label" for="editAppName">Nome do App <span class="text-danger">*</span></label>
+                                    <input type="text" id="editAppName" class="form-input" maxlength="100" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="editDescription">Descrição</label>
+                                    <textarea id="editDescription" class="form-textarea" rows="3" maxlength="500"></textarea>
+                                    <span class="form-hint"><span id="editDescCount">0</span>/500</span>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group form-group-half">
+                                        <label class="form-label" for="editCategory">Categoria</label>
+                                        <select id="editCategory" class="form-select">
+                                            <option value="">Selecione...</option>
+                                            <option value="education">Educação</option>
+                                            <option value="fitness">Fitness & Saúde</option>
+                                            <option value="business">Negócios</option>
+                                            <option value="technology">Tecnologia</option>
+                                            <option value="marketing">Marketing</option>
+                                            <option value="design">Design</option>
+                                            <option value="finance">Finanças</option>
+                                            <option value="lifestyle">Estilo de Vida</option>
+                                            <option value="music">Música</option>
+                                            <option value="cooking">Culinária</option>
+                                            <option value="other">Outro</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group form-group-half">
+                                        <label class="form-label" for="editVisibility">Visibilidade</label>
+                                        <select id="editVisibility" class="form-select">
+                                            <option value="private">Privado</option>
+                                            <option value="public">Público</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="editPublished">Status de Publicação</label>
+                                    <label class="toggle-switch-label">
+                                        <input type="checkbox" id="editPublished" class="toggle-switch-input">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-switch-text" id="editPublishedText">Rascunho</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-primary" id="btnSaveGeneral" onclick="AppEditorPage.saveGeneral()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                    Salvar Alterações
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Quick Links -->
+                    <div class="card" style="margin-top:1rem;">
+                        <div class="card-header">
+                            <h2 class="card-title">Gerenciar</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-links-grid" id="quickLinksGrid">
+                                <!-- populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════ TAB: APPEARANCE ═══════════ -->
+                <div class="editor-tab-panel" id="tabAppearance" style="display:none;">
+                    <form id="formAppearance" onsubmit="return false;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Cores</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group form-group-half">
+                                        <label class="form-label" for="editPrimaryColor">Cor Principal</label>
+                                        <div class="color-picker-wrap">
+                                            <input type="color" id="editPrimaryColor" class="color-picker-input" value="#7c3aed">
+                                            <span class="color-picker-value" id="editPrimaryColorVal">#7c3aed</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group form-group-half">
+                                        <label class="form-label" for="editSecondaryColor">Cor Secundária</label>
+                                        <div class="color-picker-wrap">
+                                            <input type="color" id="editSecondaryColor" class="color-picker-input" value="#06b6d4">
+                                            <span class="color-picker-value" id="editSecondaryColorVal">#06b6d4</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-top:1rem;">
+                            <div class="card-header">
+                                <h2 class="card-title">Imagens</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="form-label">Ícone do App</label>
+                                    <div class="image-upload" id="editIconArea">
+                                        <div class="image-upload-placeholder" id="editIconPlaceholder">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                            <span>Clique ou arraste uma imagem</span>
+                                            <span class="image-upload-hint">PNG ou JPG, 512×512, máx 2 MB</span>
+                                        </div>
+                                        <div class="image-upload-preview" id="editIconPreview" style="display:none;">
+                                            <img id="editIconPreviewImg" src="" alt="Ícone">
+                                            <button type="button" class="image-upload-remove" onclick="AppEditorPage.removeImage('icon')" title="Remover">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                            </button>
+                                        </div>
+                                        <input type="file" id="editIconFile" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="AppEditorPage.handleImageUpload(event,'icon')">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Logo do App</label>
+                                    <div class="image-upload" id="editLogoArea">
+                                        <div class="image-upload-placeholder" id="editLogoPlaceholder">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                            <span>Clique ou arraste uma imagem</span>
+                                            <span class="image-upload-hint">PNG ou JPG, retangular, máx 2 MB</span>
+                                        </div>
+                                        <div class="image-upload-preview" id="editLogoPreview" style="display:none;">
+                                            <img id="editLogoPreviewImg" src="" alt="Logo">
+                                            <button type="button" class="image-upload-remove" onclick="AppEditorPage.removeImage('logo')" title="Remover">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                            </button>
+                                        </div>
+                                        <input type="file" id="editLogoFile" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="AppEditorPage.handleImageUpload(event,'logo')">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-primary" id="btnSaveAppearance" onclick="AppEditorPage.saveAppearance()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                    Salvar Aparência
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ═══════════ TAB: SLUGS ═══════════ -->
+                <div class="editor-tab-panel" id="tabSlugs" style="display:none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">URLs / Slugs</h2>
+                            <button class="btn btn-primary btn-sm" onclick="AppEditorPage.openAddSlugModal()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Adicionar Slug
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <p class="form-hint" style="margin-bottom:1rem;">O slug primário é a URL principal do seu app. Slugs adicionais redirecionam para o primário.</p>
+                            <div class="spinner-container spinner-sm" id="slugsSpinner" style="display:none;">
+                                <div class="spinner spinner-sm"></div>
+                            </div>
+                            <div id="slugsList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════ TAB: DOMAINS ═══════════ -->
+                <div class="editor-tab-panel" id="tabDomains" style="display:none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Domínios Personalizados</h2>
+                            <button class="btn btn-primary btn-sm" onclick="AppEditorPage.openAddDomainModal()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Adicionar Domínio
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <p class="form-hint" style="margin-bottom:1rem;">Conecte um domínio personalizado ao seu app. Configure o CNAME no seu provedor DNS apontando para <code>owlapp.com</code>.</p>
+                            <div class="spinner-container spinner-sm" id="domainsSpinner" style="display:none;">
+                                <div class="spinner spinner-sm"></div>
+                            </div>
+                            <div id="domainsList"></div>
+                            <div class="empty-state-inline" id="domainsEmpty" style="display:none;">
+                                <p class="text-muted">Nenhum domínio personalizado configurado.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════ TAB: ADVANCED ═══════════ -->
+                <div class="editor-tab-panel" id="tabAdvanced" style="display:none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Configurações do App</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Login com Email</label>
+                                <label class="toggle-switch-label">
+                                    <input type="checkbox" id="editLoginEmail" class="toggle-switch-input" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-switch-text">Permitir login por email</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Aprovação Manual</label>
+                                <label class="toggle-switch-label">
+                                    <input type="checkbox" id="editRequireApproval" class="toggle-switch-input">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-switch-text">Exigir aprovação para novos usuários</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Comunidade</label>
+                                <label class="toggle-switch-label">
+                                    <input type="checkbox" id="editEnableCommunity" class="toggle-switch-input" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-switch-text">Habilitar área de comunidade</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Feed</label>
+                                <label class="toggle-switch-label">
+                                    <input type="checkbox" id="editEnableFeed" class="toggle-switch-input" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-switch-text">Habilitar feed de novidades</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary" id="btnSaveAdvanced" onclick="AppEditorPage.saveAdvanced()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Salvar Configurações
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="card card-danger" style="margin-top:1.5rem;">
+                        <div class="card-header">
+                            <h2 class="card-title text-danger">Zona de Perigo</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="danger-action">
+                                <div class="danger-action-info">
+                                    <strong>Excluir este app</strong>
+                                    <p class="text-muted">Todos os dados serão removidos permanentemente.</p>
+                                </div>
+                                <button class="btn btn-danger-outline btn-sm" onclick="AppEditorPage.openDeleteModal()">Excluir App</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ═══════════ MODALS ═══════════ -->
+
+    <!-- Add Slug Modal -->
+    <div class="modal-backdrop" id="modalAddSlug">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Adicionar Slug</h3>
+                <button class="modal-close" onclick="closeModal('modalAddSlug')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="newSlugInput">Novo Slug</label>
+                    <div class="input-group">
+                        <span class="input-group-prefix">owlapp.com/app/</span>
+                        <input type="text" id="newSlugInput" class="form-input" placeholder="novo-slug" maxlength="60" autocomplete="off">
+                    </div>
+                    <span class="form-hint" id="newSlugHint">Apenas letras minúsculas, números e hifens.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('modalAddSlug')">Cancelar</button>
+                <button class="btn btn-primary" id="btnSaveSlug" onclick="AppEditorPage.saveNewSlug()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Domain Modal -->
+    <div class="modal-backdrop" id="modalAddDomain">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Adicionar Domínio</h3>
+                <button class="modal-close" onclick="closeModal('modalAddDomain')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="newDomainInput">Domínio</label>
+                    <input type="text" id="newDomainInput" class="form-input" placeholder="app.seudominio.com.br" autocomplete="off">
+                    <span class="form-hint">Configure um registro CNAME apontando para <code>owlapp.com</code></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('modalAddDomain')">Cancelar</button>
+                <button class="btn btn-primary" id="btnSaveDomain" onclick="AppEditorPage.saveNewDomain()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete App Modal -->
+    <div class="modal-backdrop" id="modalDeleteApp">
+        <div class="modal confirm-modal">
+            <div class="confirm-modal-icon confirm-modal-icon-danger">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </div>
+            <h3 class="confirm-modal-title">Excluir App</h3>
+            <p class="confirm-modal-text">Esta ação é irreversível. Digite <strong id="deleteConfirmName"></strong> para confirmar.</p>
+            <div class="form-group">
+                <input type="text" id="deleteConfirmInput" class="form-input" placeholder="Digite o nome do app" autocomplete="off">
+            </div>
+            <div class="confirm-modal-actions">
+                <button class="btn btn-ghost" onclick="closeModal('modalDeleteApp')">Cancelar</button>
+                <button class="btn btn-danger" id="btnConfirmDeleteApp" onclick="AppEditorPage.confirmDeleteApp()" disabled>Excluir Permanentemente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/app-editor.js"></script>
+</body>
+</html>
