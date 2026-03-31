@@ -5670,6 +5670,188 @@ code {
         height: 36px;
     }
 }
+/* ============================================================
+   USERS PAGE – Complementos (Fase 15)
+   ============================================================ */
+
+/* Stat Card Small */
+.stats-grid-sm {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.stat-card-sm {
+    padding: 0.875rem 1rem;
+}
+
+.stat-icon-sm {
+    width: 38px;
+    height: 38px;
+}
+
+.stat-icon-danger {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--color-danger);
+}
+
+.stat-value-sm {
+    font-size: 1.25rem;
+}
+
+/* Table Cell – User */
+.table-cell-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.table-cell-email {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+/* User Avatar Small */
+.user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+/* Button Success */
+.btn-success {
+    background: var(--color-success);
+    color: #fff;
+    border: none;
+}
+
+.btn-success:hover {
+    background: #059669;
+}
+
+/* Badge Danger */
+.badge-danger {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--color-danger);
+}
+
+/* User Detail Header (edit modal) */
+.user-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1rem;
+}
+
+.user-detail-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.user-detail-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-detail-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.user-detail-email {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+/* Module Access List */
+.module-access-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.module-access-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.module-access-item:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+}
+
+.module-access-item:has(.form-checkbox:checked) {
+    border-color: var(--color-primary);
+    background: rgba(124, 58, 237, 0.04);
+}
+
+.module-access-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.module-access-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.module-access-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Quick approve/block row */
+.table-actions .btn-success {
+    padding: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-grid-sm {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .user-detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid-sm {
+        grid-template-columns: 1fr;
+    }
+}
 
 }
 
