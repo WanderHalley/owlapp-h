@@ -3602,6 +3602,272 @@ tbody tr:last-child td {
     .badge {
         border: 1px solid #999 !important;
     }
+   /* ============================================================
+   AUTH – Complementos (Fase 8)
+   ============================================================ */
+
+/* Label row (label + forgot link) */
+.auth-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.auth-forgot-link {
+    font-size: 0.8125rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.auth-forgot-link:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+}
+
+/* Info text (forgot password description) */
+.auth-info-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+/* Back button in auth */
+.auth-back-btn {
+    margin-top: 0.75rem;
+    width: 100%;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Input group (input + button) */
+.input-group {
+    display: flex;
+    position: relative;
+}
+
+.input-group .form-input {
+    flex: 1;
+    padding-right: 3rem;
+    border-top-right-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+}
+
+.input-group-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 2.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.input-group-btn:hover {
+    color: var(--text-primary);
+}
+
+/* Password strength bar */
+.auth-password-strength {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.auth-password-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.auth-password-bar-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 2px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.auth-password-bar-fill.strength-weak {
+    background-color: var(--color-danger);
+}
+
+.auth-password-bar-fill.strength-fair {
+    background-color: var(--color-warning);
+}
+
+.auth-password-bar-fill.strength-good {
+    background-color: var(--color-primary);
+}
+
+.auth-password-bar-fill.strength-strong {
+    background-color: var(--color-success);
+}
+
+.auth-password-text {
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.auth-password-text.strength-weak { color: var(--color-danger); }
+.auth-password-text.strength-fair { color: var(--color-warning); }
+.auth-password-text.strength-good { color: var(--color-primary); }
+.auth-password-text.strength-strong { color: var(--color-success); }
+
+/* Checkbox / terms */
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.form-checkbox {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.125rem;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.form-check-label {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.form-check-label a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.form-check-label a:hover {
+    text-decoration: underline;
+}
+
+/* Plan badge in cadastro */
+.auth-plan-badge {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius);
+    padding: 0.625rem 1rem;
+    margin-bottom: 1.25rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+/* Email confirmation screen */
+.auth-confirmation {
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+.auth-confirmation-icon {
+    margin-bottom: 1.25rem;
+}
+
+.auth-confirmation-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.auth-confirmation-text {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.auth-confirmation-text strong {
+    color: var(--text-primary);
+}
+
+/* Logo link */
+.auth-logo-link {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.auth-logo-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+/* Mobile menu (landing – complemento) */
+.landing-mobile-menu {
+    display: none;
+    flex-direction: column;
+    padding: 0.75rem 1rem 1rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.landing-mobile-menu.open {
+    display: flex;
+}
+
+.landing-mobile-link {
+    padding: 0.75rem 0;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.landing-mobile-link:hover {
+    color: var(--text-primary);
+}
+
+.landing-mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.landing-mobile-toggle {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .landing-navbar-links {
+        display: none;
+    }
+    .landing-mobile-toggle {
+        display: flex;
+    }
+    #btnLoginNav,
+    #btnCadastroNav {
+        display: none;
+    }
+}
+
+/* Navbar scrolled state */
+.landing-navbar.scrolled {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(12px);
+}
 }
 
 /* ============================================================================
