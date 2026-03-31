@@ -970,6 +970,579 @@ const SVG_ICONS = {
     whatsapp: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>',
     move: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>',
 };
+/* ============================================================
+   js/apps.js – OwlApp Apps Listing Page
+   ============================================================ */
+
+const AppsPage = (() => {
+
+    // ── State ──────────────────────────────────────────────
+    let apps = [];
+    let filteredApps = [];
+    let total = 0;
+    let deleteId = null;
+    let deleteName = '';
+    let cloneId = null;
+    let cloneName = '';
+    let currentView = 'grid'; // 'grid' | 'list'
+
+    // Pagination
+    let currentPage = 1;
+    const pageSize = 12;
+
+    // Search
+    let searchTerm = '';
+    let filterStatus = '';
+
+    // ── Init ───────────────────────────────────────────────
+
+    function init() {
+        requireAuth();
+        initTheme();
+        generateSidebar('apps');
+        generateHeader('Meus Apps');
+        initSidebar();
+        initSearch();
+        restoreView();
+        loadApps();
+    }
+
+    // ── Search ─────────────────────────────────────────────
+
+    function initSearch() {
+        const input = document.getElementById('searchInput');
+        if (input) {
+            input.addEventListener('input', debounce(() => {
+                searchTerm = input.value.trim().toLowerCase();
+                currentPage = 1;
+                applyFilters();
+            }, 400));
+        }
+    }
+
+    // ── Filter Change ──────────────────────────────────────
+
+    function handleFilterChange() {
+        const select = document.getElementById('filterStatus');
+        filterStatus = select ? select.value : '';
+        currentPage = 1;
+        applyFilters();
+    }
+
+    // ── Clear Filters ──────────────────────────────────────
+
+    function clearFilters() {
+        const input = document.getElementById('searchInput');
+        const select = document.getElementById('filterStatus');
+        if (input) input.value = '';
+        if (select) select.value = '';
+        searchTerm = '';
+        filterStatus = '';
+        currentPage = 1;
+        applyFilters();
+    }
+
+    // ── Apply Filters (client-side) ────────────────────────
+
+    function applyFilters() {
+        filteredApps = apps.filter(app => {
+            // Search
+            if (searchTerm) {
+                const name = (app.app_name || '').toLowerCase();
+                const desc = (app.description || '').toLowerCase();
+                const slug = (app.primary_slug || app.slug || '').toLowerCase();
+                if (!name.includes(searchTerm) && !desc.includes(searchTerm) && !slug.includes(searchTerm)) {
+                    return false;
+                }
+            }
+            // Status
+            if (filterStatus === 'published' && !app.published) return false;
+            if (filterStatus === 'draft' && app.published) return false;
+
+            return true;
+        });
+
+        renderView();
+    }
+
+    // ── Load Apps ──────────────────────────────────────────
+
+    async function loadApps() {
+        const spinner = document.getElementById('appsSpinner');
+        const empty = document.getElementById('appsEmpty');
+        const noResults = document.getElementById('appsNoResults');
+        const grid = document.getElementById('appsGrid');
+        const listWrapper = document.getElementById('appsListWrapper');
+        const pagination = document.getElementById('pagination');
+
+        showEl(spinner);
+        hideEl(empty);
+        hideEl(noResults);
+        hideEl(grid);
+        hideEl(listWrapper);
+        hideEl(pagination);
+
+        try {
+            const res = await apiGet('/api/apps?limit=200');
+
+            if (res.success) {
+                apps = res.data || [];
+                total = res.total || apps.length;
+
+                hideEl(spinner);
+                updateCountText();
+
+                if (apps.length === 0) {
+                    showEl(empty);
+                } else {
+                    applyFilters();
+                }
+            } else {
+                hideEl(spinner);
+                showEl(empty);
+                showToast(res.error || 'Erro ao carregar apps', 'error');
+            }
+        } catch (err) {
+            hideEl(spinner);
+            showEl(empty);
+            showToast('Erro de conexão ao carregar apps', 'error');
+        }
+    }
+
+    // ── Update Count Text ──────────────────────────────────
+
+    function updateCountText() {
+        const el = document.getElementById('appsCountText');
+        if (el) {
+            el.textContent = `${total} app${total !== 1 ? 's' : ''} criado${total !== 1 ? 's' : ''}`;
+        }
+    }
+
+    // ── Render View ────────────────────────────────────────
+
+    function renderView() {
+        const empty = document.getElementById('appsEmpty');
+        const noResults = document.getElementById('appsNoResults');
+        const grid = document.getElementById('appsGrid');
+        const listWrapper = document.getElementById('appsListWrapper');
+        const pagination = document.getElementById('pagination');
+
+        hideEl(empty);
+        hideEl(noResults);
+        hideEl(grid);
+        hideEl(listWrapper);
+        hideEl(pagination);
+
+        if (filteredApps.length === 0) {
+            if (searchTerm || filterStatus) {
+                showEl(noResults);
+            } else {
+                showEl(empty);
+            }
+            return;
+        }
+
+        // Paginate
+        const totalPages = Math.ceil(filteredApps.length / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        const start = (currentPage - 1) * pageSize;
+        const pageApps = filteredApps.slice(start, start + pageSize);
+
+        if (currentView === 'grid') {
+            renderGrid(pageApps);
+            showEl(grid);
+        } else {
+            renderList(pageApps);
+            showEl(listWrapper);
+        }
+
+        if (totalPages > 1) {
+            renderPagination(totalPages);
+            showEl(pagination);
+        }
+    }
+
+    // ── Render Grid ────────────────────────────────────────
+
+    function renderGrid(pageApps) {
+        const grid = document.getElementById('appsGrid');
+        if (!grid) return;
+
+        grid.innerHTML = pageApps.map(app => buildAppCard(app)).join('');
+    }
+
+    function buildAppCard(app) {
+        const iconUrl = app.app_icon_url ? escapeHtml(app.app_icon_url) : null;
+        const statusClass = app.published ? 'badge-success' : 'badge-warning';
+        const statusText = app.published ? 'Publicado' : 'Rascunho';
+        const primarySlug = app.primary_slug || app.slug || '';
+        const appUrl = primarySlug ? `/app/${primarySlug}` : '';
+        const id = escapeHtml(app.id);
+        const name = escapeHtml(app.app_name || 'Sem nome');
+
+        return `
+            <div class="app-card" data-app-id="${id}">
+                <div class="app-card-header">
+                    <div class="app-card-icon">
+                        ${iconUrl
+                            ? `<img src="${iconUrl}" alt="${name}" class="app-card-icon-img">`
+                            : `<div class="app-card-icon-placeholder" style="background:${escapeHtml(app.primary_color || '#7c3aed')}">${escapeHtml((app.app_name || 'A').charAt(0).toUpperCase())}</div>`
+                        }
+                    </div>
+                    <div class="app-card-info">
+                        <h3 class="app-card-name">${name}</h3>
+                        <span class="badge ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="app-card-actions">
+                        <button class="btn btn-ghost btn-icon btn-sm" title="Opções" onclick="AppsPage.toggleAppMenu('${id}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="appMenu_${id}">
+                            <a href="app-editor.html?id=${id}" class="dropdown-item">
+                                ${SVG_ICONS.edit || ''} Editar
+                            </a>
+                            <a href="app-modules.html?id=${id}" class="dropdown-item">
+                                ${SVG_ICONS.layers || ''} Módulos
+                            </a>
+                            <a href="app-users.html?id=${id}" class="dropdown-item">
+                                ${SVG_ICONS.users || ''} Usuários
+                            </a>
+                            ${appUrl ? `
+                            <button class="dropdown-item" onclick="AppsPage.copyAppLink('${escapeHtml(primarySlug)}')">
+                                ${SVG_ICONS.link || ''} Copiar Link
+                            </button>
+                            <a href="${appUrl}" target="_blank" class="dropdown-item">
+                                ${SVG_ICONS.externalLink || ''} Abrir App
+                            </a>` : ''}
+                            <button class="dropdown-item" onclick="AppsPage.openCloneModal('${id}', '${name}')">
+                                ${SVG_ICONS.copy || ''} Clonar
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item dropdown-item-danger" onclick="AppsPage.openDeleteModal('${id}', '${name}')">
+                                ${SVG_ICONS.trash || ''} Excluir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-card-stats">
+                    <div class="app-card-stat">
+                        ${SVG_ICONS.users || ''}
+                        <span>${formatNumber(app.total_users || 0)}</span>
+                    </div>
+                    <div class="app-card-stat">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span>${formatNumber(app.views_count || 0)}</span>
+                    </div>
+                    <div class="app-card-stat">
+                        ${SVG_ICONS.layers || ''}
+                        <span>${app.modules_count || 0}</span>
+                    </div>
+                </div>
+                ${app.description ? `<p class="app-card-desc">${escapeHtml(truncate(app.description, 100))}</p>` : ''}
+                <div class="app-card-footer">
+                    <a href="app-editor.html?id=${id}" class="btn btn-primary btn-sm">Gerenciar</a>
+                    ${appUrl ? `<a href="${appUrl}" target="_blank" class="btn btn-ghost btn-sm">Abrir</a>` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    // ── Render List ────────────────────────────────────────
+
+    function renderList(pageApps) {
+        const tbody = document.getElementById('appsTableBody');
+        if (!tbody) return;
+
+        tbody.innerHTML = pageApps.map(app => {
+            const iconUrl = app.app_icon_url ? escapeHtml(app.app_icon_url) : null;
+            const statusClass = app.published ? 'badge-success' : 'badge-warning';
+            const statusText = app.published ? 'Publicado' : 'Rascunho';
+            const id = escapeHtml(app.id);
+            const name = escapeHtml(app.app_name || 'Sem nome');
+            const primarySlug = app.primary_slug || app.slug || '';
+
+            return `
+                <tr data-app-id="${id}">
+                    <td>
+                        <div class="table-cell-app">
+                            <div class="app-card-icon">
+                                ${iconUrl
+                                    ? `<img src="${iconUrl}" alt="${name}" class="app-card-icon-img" style="width:36px;height:36px;">`
+                                    : `<div class="app-card-icon-placeholder" style="width:36px;height:36px;font-size:0.875rem;background:${escapeHtml(app.primary_color || '#7c3aed')}">${escapeHtml((app.app_name || 'A').charAt(0).toUpperCase())}</div>`
+                                }
+                            </div>
+                            <div>
+                                <span class="table-cell-name">${name}</span>
+                                ${primarySlug ? `<span class="table-cell-slug">${escapeHtml(primarySlug)}</span>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    <td>${formatNumber(app.total_users || 0)}</td>
+                    <td>${formatNumber(app.views_count || 0)}</td>
+                    <td>${app.modules_count || 0}</td>
+                    <td class="text-muted">${formatDate(app.created_at)}</td>
+                    <td>
+                        <div class="table-actions">
+                            <a href="app-editor.html?id=${id}" class="btn btn-ghost btn-icon btn-sm" title="Editar">
+                                ${SVG_ICONS.edit || ''}
+                            </a>
+                            <button class="btn btn-ghost btn-icon btn-sm" title="Clonar" onclick="AppsPage.openCloneModal('${id}', '${name}')">
+                                ${SVG_ICONS.copy || ''}
+                            </button>
+                            <button class="btn btn-ghost btn-icon btn-sm btn-icon-danger" title="Excluir" onclick="AppsPage.openDeleteModal('${id}', '${name}')">
+                                ${SVG_ICONS.trash || ''}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // ── Pagination ─────────────────────────────────────────
+
+    function renderPagination(totalPages) {
+        const info = document.getElementById('paginationInfo');
+        const pages = document.getElementById('paginationPages');
+        const btnPrev = document.getElementById('btnPrevPage');
+        const btnNext = document.getElementById('btnNextPage');
+
+        if (info) {
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, filteredApps.length);
+            info.textContent = `${start}–${end} de ${filteredApps.length}`;
+        }
+
+        if (btnPrev) btnPrev.disabled = currentPage <= 1;
+        if (btnNext) btnNext.disabled = currentPage >= totalPages;
+
+        if (pages) {
+            pages.innerHTML = buildPageButtons(totalPages);
+        }
+    }
+
+    function buildPageButtons(totalPages) {
+        const buttons = [];
+        const maxVisible = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+        if (endPage - startPage < maxVisible - 1) {
+            startPage = Math.max(1, endPage - maxVisible + 1);
+        }
+
+        if (startPage > 1) {
+            buttons.push(`<button class="pagination-btn" onclick="AppsPage.goToPage(1)">1</button>`);
+            if (startPage > 2) {
+                buttons.push(`<span class="pagination-ellipsis">…</span>`);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const activeClass = i === currentPage ? ' active' : '';
+            buttons.push(`<button class="pagination-btn${activeClass}" onclick="AppsPage.goToPage(${i})">${i}</button>`);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                buttons.push(`<span class="pagination-ellipsis">…</span>`);
+            }
+            buttons.push(`<button class="pagination-btn" onclick="AppsPage.goToPage(${totalPages})">${totalPages}</button>`);
+        }
+
+        return buttons.join('');
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        renderView();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevPage() {
+        if (currentPage > 1) goToPage(currentPage - 1);
+    }
+
+    function nextPage() {
+        const totalPages = Math.ceil(filteredApps.length / pageSize);
+        if (currentPage < totalPages) goToPage(currentPage + 1);
+    }
+
+    // ── View Toggle (Grid/List) ────────────────────────────
+
+    function setView(view) {
+        currentView = view;
+        localStorage.setItem('owlapp_apps_view', view);
+
+        const btnGrid = document.getElementById('btnViewGrid');
+        const btnList = document.getElementById('btnViewList');
+
+        if (btnGrid) btnGrid.classList.toggle('active', view === 'grid');
+        if (btnList) btnList.classList.toggle('active', view === 'list');
+
+        renderView();
+    }
+
+    function restoreView() {
+        const saved = localStorage.getItem('owlapp_apps_view');
+        if (saved === 'list' || saved === 'grid') {
+            currentView = saved;
+        }
+
+        const btnGrid = document.getElementById('btnViewGrid');
+        const btnList = document.getElementById('btnViewList');
+        if (btnGrid) btnGrid.classList.toggle('active', currentView === 'grid');
+        if (btnList) btnList.classList.toggle('active', currentView === 'list');
+    }
+
+    // ── App Menu (Dropdown) ────────────────────────────────
+
+    function toggleAppMenu(appId) {
+        document.querySelectorAll('.dropdown-menu.open').forEach(menu => {
+            if (menu.id !== `appMenu_${appId}`) {
+                menu.classList.remove('open');
+            }
+        });
+
+        const menu = document.getElementById(`appMenu_${appId}`);
+        if (menu) menu.classList.toggle('open');
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.app-card-actions') && !e.target.closest('.table-actions')) {
+            document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+        }
+    });
+
+    // ── Copy Link ──────────────────────────────────────────
+
+    function copyAppLink(slug) {
+        const url = `${window.location.origin}/app/${slug}`;
+        copyToClipboard(url);
+        showToast('Link copiado!', 'success');
+        document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+    }
+
+    // ── Delete ─────────────────────────────────────────────
+
+    function openDeleteModal(appId, appName) {
+        deleteId = appId;
+        deleteName = appName;
+        const nameEl = document.getElementById('deleteAppName');
+        if (nameEl) nameEl.textContent = appName;
+        openModal('modalDeleteApp');
+        document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+    }
+
+    function closeDeleteModal() {
+        deleteId = null;
+        deleteName = '';
+        closeModal('modalDeleteApp');
+    }
+
+    async function confirmDelete() {
+        if (!deleteId) return;
+
+        const btn = document.getElementById('btnConfirmDelete');
+        disableBtn(btn, 'Excluindo...');
+
+        try {
+            const res = await apiDelete(`/api/apps/${deleteId}`);
+
+            if (res.success) {
+                showToast('App excluído com sucesso!', 'success');
+                closeDeleteModal();
+                // Remove from local state
+                apps = apps.filter(a => a.id !== deleteId);
+                total = apps.length;
+                updateCountText();
+                applyFilters();
+            } else {
+                showToast(res.error || 'Erro ao excluir', 'error');
+            }
+        } catch (err) {
+            showToast('Erro de conexão', 'error');
+        } finally {
+            enableBtn(btn, 'Excluir');
+        }
+    }
+
+    // ── Clone ──────────────────────────────────────────────
+
+    function openCloneModal(appId, appName) {
+        cloneId = appId;
+        cloneName = appName;
+        const nameEl = document.getElementById('cloneAppName');
+        if (nameEl) nameEl.textContent = appName;
+        openModal('modalCloneApp');
+        document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+    }
+
+    function closeCloneModal() {
+        cloneId = null;
+        cloneName = '';
+        closeModal('modalCloneApp');
+    }
+
+    async function confirmClone() {
+        if (!cloneId) return;
+
+        const btn = document.getElementById('btnConfirmClone');
+        disableBtn(btn, 'Clonando...');
+
+        try {
+            const res = await apiPost(`/api/apps/${cloneId}/clone`);
+
+            if (res.success) {
+                showToast('App clonado com sucesso!', 'success');
+                closeCloneModal();
+                await loadApps();
+            } else {
+                showToast(res.error || 'Erro ao clonar', 'error');
+            }
+        } catch (err) {
+            showToast('Erro de conexão', 'error');
+        } finally {
+            enableBtn(btn, 'Clonar');
+        }
+    }
+
+    // ── Helpers ────────────────────────────────────────────
+
+    function showEl(el) {
+        if (el) el.style.display = '';
+    }
+
+    function hideEl(el) {
+        if (el) el.style.display = 'none';
+    }
+
+    // ── Public API ─────────────────────────────────────────
+
+    return {
+        init,
+        handleFilterChange,
+        clearFilters,
+        setView,
+        toggleAppMenu,
+        copyAppLink,
+        openDeleteModal,
+        closeDeleteModal,
+        confirmDelete,
+        openCloneModal,
+        closeCloneModal,
+        confirmClone,
+        goToPage,
+        prevPage,
+        nextPage
+    };
+
+})();
+
+// ── Boot ───────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', AppsPage.init);
 
 /* ============================================================================
    FIM DO APP.JS
