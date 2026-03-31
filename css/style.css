@@ -5199,6 +5199,241 @@ code {
         align-self: flex-end;
     }
 }
+/* ============================================================
+   MODULES PAGE – Complementos (Fase 13)
+   ============================================================ */
+
+/* Breadcrumb */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.8125rem;
+}
+
+.breadcrumb-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.breadcrumb-link:hover {
+    color: var(--color-primary);
+}
+
+.breadcrumb-sep {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+.breadcrumb-current {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Modules List */
+.modules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Module Item */
+.module-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-normal);
+    cursor: default;
+}
+
+.module-item:hover {
+    border-color: var(--border-hover);
+}
+
+/* Drag Handle */
+.module-item-drag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: grab;
+    flex-shrink: 0;
+    padding: 0.25rem;
+    border-radius: var(--radius);
+    transition: all var(--transition-fast);
+}
+
+.module-item-drag:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+}
+
+.module-item-drag:active {
+    cursor: grabbing;
+}
+
+/* Cover Wrap */
+.module-item-cover-wrap {
+    flex-shrink: 0;
+    width: 80px;
+    height: 54px;
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.module-item-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.module-item-cover-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+}
+
+/* Info */
+.module-item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.module-item-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.module-item-order {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.module-item-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.module-item-desc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.module-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.module-item-meta-text {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.module-item-meta-text svg {
+    flex-shrink: 0;
+}
+
+/* Actions */
+.module-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex-shrink: 0;
+}
+
+/* Drag States */
+.module-item.dragging {
+    opacity: 0.4;
+    border-style: dashed;
+}
+
+.module-item.drag-over-item {
+    border-color: var(--color-primary);
+    background: rgba(124, 58, 237, 0.04);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15);
+}
+
+/* Reorder Hint */
+.reorder-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+/* Badge Purple */
+.badge-purple {
+    background: rgba(124, 58, 237, 0.12);
+    color: var(--color-primary);
+}
+
+/* Badge Info */
+.badge-info {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--color-info);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .module-item {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .module-item-cover-wrap {
+        width: 60px;
+        height: 40px;
+    }
+
+    .module-item-actions {
+        width: 100%;
+        justify-content: flex-end;
+        border-top: 1px solid var(--border-color);
+        padding-top: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .module-item-drag {
+        display: none;
+    }
+
+    .module-item-cover-wrap {
+        display: none;
+    }
+}
 
 }
 
