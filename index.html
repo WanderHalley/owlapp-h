@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OwlApp – Crie seu próprio app de área de membros em minutos. Sem código, sem complicação.">
+    <meta name="theme-color" content="#7c3aed">
+    <title>OwlApp – Crie seu App de Membros</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="landing-navbar" id="landingNavbar">
+        <div class="landing-navbar-inner">
+            <a href="/" class="landing-navbar-logo">
+                <img src="/owlapp-logo.png" alt="OwlApp" class="landing-logo-img" id="landingLogoImg">
+                <span class="landing-logo-text">OwlApp</span>
+            </a>
+            <div class="landing-navbar-links" id="landingNavLinks">
+                <a href="#features" class="landing-nav-link">Recursos</a>
+                <a href="#pricing" class="landing-nav-link">Planos</a>
+                <a href="#faq" class="landing-nav-link">FAQ</a>
+            </div>
+            <div class="landing-navbar-actions">
+                <button class="btn btn-ghost btn-sm" id="btnThemeToggleLanding" onclick="toggleTheme()" aria-label="Alternar tema">
+                    <span id="themeIconLanding"></span>
+                </button>
+                <a href="login.html" class="btn btn-ghost btn-sm" id="btnLoginNav">Entrar</a>
+                <a href="cadastro.html" class="btn btn-primary btn-sm" id="btnCadastroNav">Criar Conta</a>
+                <button class="landing-mobile-toggle btn btn-ghost btn-icon btn-sm" id="btnMobileMenu" onclick="LandingPage.toggleMobileMenu()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="landing-mobile-menu" id="landingMobileMenu">
+            <a href="#features" class="landing-mobile-link" onclick="LandingPage.closeMobileMenu()">Recursos</a>
+            <a href="#pricing" class="landing-mobile-link" onclick="LandingPage.closeMobileMenu()">Planos</a>
+            <a href="#faq" class="landing-mobile-link" onclick="LandingPage.closeMobileMenu()">FAQ</a>
+            <div class="landing-mobile-actions">
+                <a href="login.html" class="btn btn-ghost btn-sm" style="width:100%">Entrar</a>
+                <a href="cadastro.html" class="btn btn-primary btn-sm" style="width:100%">Criar Conta</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== HERO ========== -->
+    <section class="landing-hero" id="hero">
+        <div class="landing-hero-glow"></div>
+        <div class="landing-hero-content">
+            <div class="landing-hero-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Plataforma No-Code para Criadores
+            </div>
+            <h1 class="landing-hero-title">
+                Crie seu <span class="text-gradient">app de membros</span><br>
+                em minutos
+            </h1>
+            <p class="landing-hero-subtitle">
+                Transforme seu conteúdo em um aplicativo profissional. 
+                Módulos, vídeos, comunidade, feed e muito mais — sem escrever uma linha de código.
+            </p>
+            <div class="landing-hero-buttons">
+                <a href="cadastro.html" class="btn btn-gradient btn-xl">
+                    Começar Grátis
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+                <a href="#features" class="btn btn-secondary btn-xl">
+                    Ver Recursos
+                </a>
+            </div>
+            <div class="landing-hero-stats" id="heroStats">
+                <div class="landing-hero-stat">
+                    <span class="landing-hero-stat-number" id="statApps">0</span>
+                    <span class="landing-hero-stat-label">Apps Criados</span>
+                </div>
+                <div class="landing-hero-stat">
+                    <span class="landing-hero-stat-number" id="statCreators">0</span>
+                    <span class="landing-hero-stat-label">Criadores</span>
+                </div>
+                <div class="landing-hero-stat">
+                    <span class="landing-hero-stat-number" id="statUsers">0</span>
+                    <span class="landing-hero-stat-label">Usuários Finais</span>
+                </div>
+            </div>
+        </div>
+        <div class="landing-hero-mockup">
+            <div class="landing-phone-mockup" id="phoneMockup">
+                <div class="landing-phone-screen">
+                    <div class="landing-phone-header">
+                        <div class="landing-phone-notch"></div>
+                    </div>
+                    <div class="landing-phone-content" id="phoneMockupContent">
+                        <div class="landing-mockup-app-header">
+                            <div class="landing-mockup-avatar"></div>
+                            <div>
+                                <div class="landing-mockup-title">Meu App</div>
+                                <div class="landing-mockup-subtitle">Bem-vindo de volta!</div>
+                            </div>
+                        </div>
+                        <div class="landing-mockup-card"></div>
+                        <div class="landing-mockup-card landing-mockup-card-sm"></div>
+                        <div class="landing-mockup-card landing-mockup-card-sm"></div>
+                        <div class="landing-mockup-nav">
+                            <div class="landing-mockup-nav-item active"></div>
+                            <div class="landing-mockup-nav-item"></div>
+                            <div class="landing-mockup-nav-item"></div>
+                            <div class="landing-mockup-nav-item"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== LOGOS ========== -->
+    <section class="landing-logos" id="logos">
+        <p class="landing-logos-text">Integração com as maiores plataformas</p>
+        <div class="landing-logos-row" id="logosRow">
+            <span class="landing-logo-item">Hotmart</span>
+            <span class="landing-logo-item">Kiwify</span>
+            <span class="landing-logo-item">Eduzz</span>
+            <span class="landing-logo-item">Monetizze</span>
+            <span class="landing-logo-item">Braip</span>
+        </div>
+    </section>
+
+    <!-- ========== FEATURES ========== -->
+    <section class="landing-features" id="features">
+        <div class="landing-section-header">
+            <div class="landing-section-badge">Recursos</div>
+            <h2 class="landing-section-title">Tudo que você precisa para <span class="text-gradient">engajar seus alunos</span></h2>
+            <p class="landing-section-subtitle">Ferramentas poderosas em uma plataforma simples e intuitiva</p>
+        </div>
+        <div class="landing-features-grid" id="featuresGrid">
+            <!-- Rendered by JS -->
+        </div>
+    </section>
+
+    <!-- ========== PRICING ========== -->
+    <section class="landing-pricing" id="pricing">
+        <div class="landing-section-header">
+            <div class="landing-section-badge">Planos</div>
+            <h2 class="landing-section-title">Escolha o plano ideal para <span class="text-gradient">seu negócio</span></h2>
+            <p class="landing-section-subtitle">Comece grátis e evolua conforme cresce</p>
+        </div>
+        <div class="landing-billing-toggle" id="billingToggle">
+            <span class="landing-billing-label" id="billingMonthlyLabel">Mensal</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="billingToggleInput" onchange="LandingPage.toggleBilling()">
+                <span class="toggle-slider"></span>
+            </label>
+            <span class="landing-billing-label" id="billingYearlyLabel">
+                Anual <span class="badge badge-success">-20%</span>
+            </span>
+        </div>
+        <div class="landing-pricing-grid" id="pricingGrid">
+            <!-- Rendered by JS -->
+        </div>
+    </section>
+
+    <!-- ========== FAQ ========== -->
+    <section class="landing-faq" id="faq">
+        <div class="landing-section-header">
+            <div class="landing-section-badge">Dúvidas</div>
+            <h2 class="landing-section-title">Perguntas <span class="text-gradient">Frequentes</span></h2>
+        </div>
+        <div class="landing-faq-list" id="faqList">
+            <!-- Rendered by JS -->
+        </div>
+    </section>
+
+    <!-- ========== CTA ========== -->
+    <section class="landing-cta" id="cta">
+        <div class="landing-cta-content">
+            <h2 class="landing-cta-title">Pronto para criar seu app?</h2>
+            <p class="landing-cta-subtitle">Junte-se a centenas de criadores que já transformaram seu conteúdo em aplicativos profissionais.</p>
+            <a href="cadastro.html" class="btn btn-gradient btn-xl">
+                Começar Agora — É Grátis
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="landing-footer" id="footer">
+        <div class="landing-footer-inner">
+            <div class="landing-footer-brand">
+                <img src="/owlapp-logo.png" alt="OwlApp" class="landing-footer-logo">
+                <span class="landing-footer-name">OwlApp</span>
+                <p class="landing-footer-desc">Plataforma no-code para criadores de conteúdo construírem seus próprios apps de membros.</p>
+            </div>
+            <div class="landing-footer-links">
+                <div class="landing-footer-col">
+                    <h4 class="landing-footer-col-title">Produto</h4>
+                    <a href="#features" class="landing-footer-link">Recursos</a>
+                    <a href="#pricing" class="landing-footer-link">Planos</a>
+                    <a href="#faq" class="landing-footer-link">FAQ</a>
+                </div>
+                <div class="landing-footer-col">
+                    <h4 class="landing-footer-col-title">Conta</h4>
+                    <a href="login.html" class="landing-footer-link">Entrar</a>
+                    <a href="cadastro.html" class="landing-footer-link">Criar Conta</a>
+                </div>
+                <div class="landing-footer-col">
+                    <h4 class="landing-footer-col-title">Legal</h4>
+                    <a href="#" class="landing-footer-link">Termos de Uso</a>
+                    <a href="#" class="landing-footer-link">Privacidade</a>
+                </div>
+            </div>
+        </div>
+        <div class="landing-footer-bottom">
+            <p>&copy; <span id="footerYear"></span> OwlApp. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/landing.js"></script>
+</body>
+</html>
