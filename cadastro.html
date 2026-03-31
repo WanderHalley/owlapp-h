@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Criar conta no OwlApp – Comece a criar seu app de membros agora.">
+    <meta name="theme-color" content="#7c3aed">
+    <title>Criar Conta – OwlApp</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="auth-page">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <a href="/" class="auth-logo-link">
+                    <img src="/owlapp-logo.png" alt="OwlApp" class="auth-logo-img">
+                </a>
+                <h1 class="auth-title">Crie sua conta</h1>
+                <p class="auth-subtitle">Comece a construir seu app de membros agora</p>
+            </div>
+
+            <!-- Selected Plan Badge (shown if ?plan= present) -->
+            <div id="selectedPlanBadge" class="auth-plan-badge" style="display:none;">
+                <span id="selectedPlanText"></span>
+            </div>
+
+            <!-- Form -->
+            <form id="cadastroForm" class="auth-form" onsubmit="return false;">
+                <div class="form-group">
+                    <label class="form-label" for="cadastroName">Nome completo</label>
+                    <input
+                        type="text"
+                        id="cadastroName"
+                        class="form-input"
+                        placeholder="Seu nome completo"
+                        required
+                        autocomplete="name"
+                        minlength="3"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="cadastroEmail">Email</label>
+                    <input
+                        type="email"
+                        id="cadastroEmail"
+                        class="form-input"
+                        placeholder="seu@email.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="cadastroPassword">Senha</label>
+                    <div class="input-group">
+                        <input
+                            type="password"
+                            id="cadastroPassword"
+                            class="form-input"
+                            placeholder="Mínimo 6 caracteres"
+                            required
+                            autocomplete="new-password"
+                            minlength="6"
+                        >
+                        <button type="button" class="input-group-btn" id="btnTogglePassword" onclick="CadastroPage.togglePasswordVisibility('cadastroPassword', 'btnTogglePassword')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                    <div class="auth-password-strength" id="passwordStrength">
+                        <div class="auth-password-bar">
+                            <div class="auth-password-bar-fill" id="passwordStrengthBar"></div>
+                        </div>
+                        <span class="auth-password-text" id="passwordStrengthText"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="cadastroPasswordConfirm">Confirmar senha</label>
+                    <div class="input-group">
+                        <input
+                            type="password"
+                            id="cadastroPasswordConfirm"
+                            class="form-input"
+                            placeholder="Repita a senha"
+                            required
+                            autocomplete="new-password"
+                            minlength="6"
+                        >
+                        <button type="button" class="input-group-btn" id="btnTogglePasswordConfirm" onclick="CadastroPage.togglePasswordVisibility('cadastroPasswordConfirm', 'btnTogglePasswordConfirm')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-check">
+                        <input type="checkbox" id="cadastroTerms" class="form-checkbox" required>
+                        <span class="form-check-label">
+                            Concordo com os <a href="#" class="auth-footer-link">Termos de Uso</a> e 
+                            <a href="#" class="auth-footer-link">Política de Privacidade</a>
+                        </span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-gradient btn-lg auth-submit-btn" id="btnCadastro" onclick="CadastroPage.handleCadastro()">
+                    Criar Conta
+                </button>
+            </form>
+
+            <!-- Email Confirmation (hidden) -->
+            <div id="emailConfirmation" class="auth-confirmation" style="display:none;">
+                <div class="auth-confirmation-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <h2 class="auth-confirmation-title">Verifique seu email</h2>
+                <p class="auth-confirmation-text">Enviamos um link de confirmação para <strong id="confirmEmail"></strong>. Clique no link para ativar sua conta.</p>
+                <a href="login.html" class="btn btn-primary btn-lg auth-submit-btn">Ir para o Login</a>
+            </div>
+
+            <!-- Footer -->
+            <div class="auth-footer" id="authFooter">
+                <p>Já tem uma conta? <a href="login.html" class="auth-footer-link">Entrar</a></p>
+            </div>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button class="auth-theme-toggle btn btn-ghost btn-icon btn-sm" id="btnThemeToggleAuth" onclick="toggleTheme()" aria-label="Alternar tema">
+            <span id="themeIconAuth"></span>
+        </button>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/cadastro.js"></script>
+</body>
+</html>
