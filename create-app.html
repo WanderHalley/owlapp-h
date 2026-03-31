@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Criar Novo App – OwlApp Creator Hub">
+    <meta name="theme-color" content="#7c3aed">
+    <title>Criar App – OwlApp</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar"></aside>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+        <!-- Main -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header" id="header"></header>
+
+            <!-- Content -->
+            <div class="content-body">
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="page-header-info">
+                        <h1 class="page-title">Criar Novo App</h1>
+                        <p class="page-subtitle">Configure as informações básicas do seu aplicativo</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <a href="apps.html" class="btn btn-ghost">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            Voltar
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Wizard Steps -->
+                <div class="wizard" id="wizard">
+                    <div class="wizard-steps">
+                        <div class="wizard-step active" id="wizardStep1" data-step="1">
+                            <div class="wizard-step-number">1</div>
+                            <span class="wizard-step-label">Informações</span>
+                        </div>
+                        <div class="wizard-step-line" id="wizardLine1"></div>
+                        <div class="wizard-step" id="wizardStep2" data-step="2">
+                            <div class="wizard-step-number">2</div>
+                            <span class="wizard-step-label">Aparência</span>
+                        </div>
+                        <div class="wizard-step-line" id="wizardLine2"></div>
+                        <div class="wizard-step" id="wizardStep3" data-step="3">
+                            <div class="wizard-step-number">3</div>
+                            <span class="wizard-step-label">Revisão</span>
+                        </div>
+                    </div>
+
+                    <!-- ── STEP 1: Informações ── -->
+                    <div class="wizard-panel active" id="wizardPanel1">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Informações do App</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="form-label" for="appName">Nome do App <span class="text-danger">*</span></label>
+                                    <input
+                                        type="text"
+                                        id="appName"
+                                        class="form-input"
+                                        placeholder="Ex: Curso de Marketing Digital"
+                                        required
+                                        maxlength="100"
+                                        autocomplete="off"
+                                    >
+                                    <span class="form-hint">O nome que seus alunos verão ao acessar o app.</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="appSlug">Slug (URL) <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-prefix" id="slugPrefix">owlapp.com/app/</span>
+                                        <input
+                                            type="text"
+                                            id="appSlug"
+                                            class="form-input"
+                                            placeholder="meu-app"
+                                            required
+                                            maxlength="60"
+                                            autocomplete="off"
+                                        >
+                                    </div>
+                                    <span class="form-hint" id="slugHint">Apenas letras minúsculas, números e hifens.</span>
+                                    <span class="form-error" id="slugError" style="display:none;"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="appDescription">Descrição</label>
+                                    <textarea
+                                        id="appDescription"
+                                        class="form-textarea"
+                                        placeholder="Descreva brevemente o que é o seu app..."
+                                        rows="3"
+                                        maxlength="500"
+                                    ></textarea>
+                                    <span class="form-hint"><span id="descCharCount">0</span>/500 caracteres</span>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group form-group-half">
+                                        <label class="form-label" for="appCategory">Categoria</label>
+                                        <select id="appCategory" class="form-select">
+                                            <option value="">Selecione...</option>
+                                            <option value="education">Educação</option>
+                                            <option value="fitness">Fitness & Saúde</option>
+                                            <option value="business">Negócios</option>
+                                            <option value="technology">Tecnologia</option>
+                                            <option value="marketing">Marketing</option>
+                                            <option value="design">Design</option>
+                                            <option value="finance">Finanças</option>
+                                            <option value="lifestyle">Estilo de Vida</option>
+                                            <option value="music">Música</option>
+                                            <option value="cooking">Culinária</option>
+                                            <option value="other">Outro</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group form-group-half">
+                                        <label class="form-label" for="appVisibility">Visibilidade</label>
+                                        <select id="appVisibility" class="form-select">
+                                            <option value="private">Privado (apenas membros)</option>
+                                            <option value="public">Público (qualquer pessoa)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── STEP 2: Aparência ── -->
+                    <div class="wizard-panel" id="wizardPanel2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Aparência do App</h2>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="form-row">
+                                    <div class="form-group form-group-half">
+                                        <label class="form-label" for="appPrimaryColor">Cor Principal</label>
+                                        <div class="color-picker-wrap">
+                                            <input type="color" id="appPrimaryColor" class="color-picker-input" value="#7c3aed">
+                                            <span class="color-picker-value" id="primaryColorValue">#7c3aed</span>
+                                        </div>
+                                        <span class="form-hint">Usada em botões, links e destaques.</span>
+                                    </div>
+                                    <div class="form-group form-group-half">
+                                        <label class="form-label" for="appSecondaryColor">Cor Secundária</label>
+                                        <div class="color-picker-wrap">
+                                            <input type="color" id="appSecondaryColor" class="color-picker-input" value="#06b6d4">
+                                            <span class="color-picker-value" id="secondaryColorValue">#06b6d4</span>
+                                        </div>
+                                        <span class="form-hint">Usada em detalhes e acentos.</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Ícone do App</label>
+                                    <div class="image-upload" id="iconUploadArea">
+                                        <div class="image-upload-placeholder" id="iconPlaceholder">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                            <span>Clique ou arraste uma imagem</span>
+                                            <span class="image-upload-hint">PNG ou JPG, 512×512 recomendado, máx 2 MB</span>
+                                        </div>
+                                        <div class="image-upload-preview" id="iconPreview" style="display:none;">
+                                            <img id="iconPreviewImg" src="" alt="Ícone">
+                                            <button type="button" class="image-upload-remove" onclick="CreateAppPage.removeIcon()" title="Remover">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                            </button>
+                                        </div>
+                                        <input type="file" id="iconFileInput" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="CreateAppPage.handleIconUpload(event)">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Logo do App</label>
+                                    <div class="image-upload" id="logoUploadArea">
+                                        <div class="image-upload-placeholder" id="logoPlaceholder">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                            <span>Clique ou arraste uma imagem</span>
+                                            <span class="image-upload-hint">PNG ou JPG, retangular recomendado, máx 2 MB</span>
+                                        </div>
+                                        <div class="image-upload-preview" id="logoPreview" style="display:none;">
+                                            <img id="logoPreviewImg" src="" alt="Logo">
+                                            <button type="button" class="image-upload-remove" onclick="CreateAppPage.removeLogo()" title="Remover">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                            </button>
+                                        </div>
+                                        <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="CreateAppPage.handleLogoUpload(event)">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── STEP 3: Revisão ── -->
+                    <div class="wizard-panel" id="wizardPanel3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Revisão Final</h2>
+                            </div>
+                            <div class="card-body">
+                                <p class="form-hint" style="margin-bottom:1.5rem;">Confira os dados antes de criar seu app. Você poderá editar tudo depois.</p>
+
+                                <div class="review-grid" id="reviewGrid">
+                                    <!-- App Preview Card -->
+                                    <div class="review-preview" id="reviewPreview">
+                                        <div class="review-app-icon" id="reviewIcon">
+                                            <div class="app-card-icon-placeholder" id="reviewIconPlaceholder" style="width:64px;height:64px;font-size:1.5rem;border-radius:16px;background:#7c3aed;">A</div>
+                                        </div>
+                                        <h3 class="review-app-name" id="reviewName">Meu App</h3>
+                                        <p class="review-app-slug" id="reviewSlug">owlapp.com/app/meu-app</p>
+                                        <p class="review-app-desc" id="reviewDesc"></p>
+                                    </div>
+
+                                    <!-- Details List -->
+                                    <div class="review-details">
+                                        <div class="review-row">
+                                            <span class="review-label">Nome</span>
+                                            <span class="review-value" id="reviewDetailName">-</span>
+                                        </div>
+                                        <div class="review-row">
+                                            <span class="review-label">Slug</span>
+                                            <span class="review-value review-value-mono" id="reviewDetailSlug">-</span>
+                                        </div>
+                                        <div class="review-row">
+                                            <span class="review-label">Categoria</span>
+                                            <span class="review-value" id="reviewDetailCategory">-</span>
+                                        </div>
+                                        <div class="review-row">
+                                            <span class="review-label">Visibilidade</span>
+                                            <span class="review-value" id="reviewDetailVisibility">-</span>
+                                        </div>
+                                        <div class="review-row">
+                                            <span class="review-label">Cor Principal</span>
+                                            <span class="review-value" id="reviewDetailPrimaryColor">
+                                                <span class="review-color-dot" id="reviewPrimaryColorDot"></span>
+                                                <span id="reviewPrimaryColorText">#7c3aed</span>
+                                            </span>
+                                        </div>
+                                        <div class="review-row">
+                                            <span class="review-label">Cor Secundária</span>
+                                            <span class="review-value" id="reviewDetailSecondaryColor">
+                                                <span class="review-color-dot" id="reviewSecondaryColorDot"></span>
+                                                <span id="reviewSecondaryColorText">#06b6d4</span>
+                                            </span>
+                                        </div>
+                                        <div class="review-row">
+                                            <span class="review-label">Ícone</span>
+                                            <span class="review-value" id="reviewDetailIcon">Não enviado</span>
+                                        </div>
+                                        <div class="review-row">
+                                            <span class="review-label">Logo</span>
+                                            <span class="review-value" id="reviewDetailLogo">Não enviado</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wizard Actions -->
+                    <div class="wizard-actions">
+                        <button class="btn btn-ghost" id="btnWizardPrev" onclick="CreateAppPage.prevStep()" style="display:none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            Anterior
+                        </button>
+                        <div class="wizard-actions-spacer"></div>
+                        <button class="btn btn-primary" id="btnWizardNext" onclick="CreateAppPage.nextStep()">
+                            Próximo
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
+                        <button class="btn btn-gradient" id="btnCreateApp" onclick="CreateAppPage.handleCreate()" style="display:none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Criar App
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/create-app.js"></script>
+</body>
+</html>
