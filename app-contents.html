@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Conteúdos do Módulo – OwlApp Creator Hub">
+    <meta name="theme-color" content="#7c3aed">
+    <title>Conteúdos – OwlApp</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar"></aside>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+        <main class="main-content">
+            <header class="header" id="header"></header>
+
+            <div class="content-body">
+
+                <!-- Breadcrumb -->
+                <div class="breadcrumb" id="breadcrumb">
+                    <a href="apps.html" class="breadcrumb-link">Meus Apps</a>
+                    <span class="breadcrumb-sep">/</span>
+                    <a href="#" class="breadcrumb-link" id="breadcrumbAppLink">Editor</a>
+                    <span class="breadcrumb-sep">/</span>
+                    <a href="#" class="breadcrumb-link" id="breadcrumbModulesLink">Módulos</a>
+                    <span class="breadcrumb-sep">/</span>
+                    <span class="breadcrumb-current" id="breadcrumbModuleName">Conteúdos</span>
+                </div>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="page-header-info">
+                        <h1 class="page-title" id="pageTitle">Conteúdos</h1>
+                        <p class="page-subtitle" id="contentsCountText">Carregando...</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-primary" id="btnAddContent" onclick="ContentsPage.openAddModal()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Novo Conteúdo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div class="spinner-container" id="contentsSpinner">
+                    <div class="spinner"></div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="contentsEmpty" style="display:none;">
+                    <div class="empty-state-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <h3 class="empty-state-title">Nenhum conteúdo</h3>
+                    <p class="empty-state-text">Adicione aulas, vídeos, textos ou arquivos a este módulo.</p>
+                    <button class="btn btn-primary" onclick="ContentsPage.openAddModal()">Adicionar Conteúdo</button>
+                </div>
+
+                <!-- Contents List (Sortable) -->
+                <div class="contents-list" id="contentsList" style="display:none;"></div>
+
+                <!-- Reorder Hint -->
+                <p class="reorder-hint" id="reorderHint" style="display:none;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+                    Arraste para reordenar os conteúdos
+                </p>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ═══════════ ADD / EDIT CONTENT MODAL ═══════════ -->
+    <div class="modal-backdrop" id="modalContent">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalContentTitle">Novo Conteúdo</h3>
+                <button class="modal-close" onclick="closeModal('modalContent')">&times;</button>
+            </div>
+            <div class="modal-body modal-body-scroll">
+
+                <div class="form-group">
+                    <label class="form-label" for="contentTitle">Título <span class="text-danger">*</span></label>
+                    <input type="text" id="contentTitle" class="form-input" placeholder="Ex: Aula 01 – Introdução" maxlength="200" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="contentType">Tipo de Conteúdo <span class="text-danger">*</span></label>
+                        <select id="contentType" class="form-select" onchange="ContentsPage.onTypeChange()">
+                            <option value="video">Vídeo</option>
+                            <option value="text">Texto / Artigo</option>
+                            <option value="image">Imagem</option>
+                            <option value="audio">Áudio</option>
+                            <option value="pdf">PDF / Arquivo</option>
+                            <option value="embed">Embed / Iframe</option>
+                            <option value="quiz">Quiz / Formulário</option>
+                            <option value="paint">Pintura</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-group-half">
+                        <label class="form-label" for="contentStatus">Status</label>
+                        <select id="contentStatus" class="form-select">
+                            <option value="draft">Rascunho</option>
+                            <option value="published">Publicado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dynamic Fields by Content Type -->
+
+                <!-- VIDEO -->
+                <div class="content-type-fields" id="fieldsVideo">
+                    <div class="form-group">
+                        <label class="form-label" for="contentVideoUrl">URL do Vídeo <span class="text-danger">*</span></label>
+                        <input type="url" id="contentVideoUrl" class="form-input" placeholder="https://www.youtube.com/watch?v=... ou Vimeo, Panda, etc.">
+                        <span class="form-hint">YouTube, Vimeo, Panda Video, Bunny Stream ou link direto .mp4</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="contentVideoDuration">Duração (minutos)</label>
+                        <input type="number" id="contentVideoDuration" class="form-input" placeholder="15" min="0" step="1">
+                    </div>
+                </div>
+
+                <!-- TEXT -->
+                <div class="content-type-fields" id="fieldsText" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label" for="contentTextBody">Conteúdo (HTML ou Texto)</label>
+                        <textarea id="contentTextBody" class="form-textarea form-textarea-tall" rows="10" placeholder="Escreva o conteúdo da aula aqui..."></textarea>
+                        <span class="form-hint">Aceita HTML básico: &lt;h2&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;a&gt;, &lt;img&gt;</span>
+                    </div>
+                </div>
+
+                <!-- IMAGE -->
+                <div class="content-type-fields" id="fieldsImage" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label" for="contentImageUrl">URL da Imagem</label>
+                        <input type="url" id="contentImageUrl" class="form-input" placeholder="https://...">
+                        <span class="form-hint">Ou faça upload abaixo.</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Upload de Imagem</label>
+                        <div class="image-upload" id="contentImageArea">
+                            <div class="image-upload-placeholder" id="contentImagePlaceholder">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <span>Clique ou arraste</span>
+                                <span class="image-upload-hint">PNG, JPG ou WebP, máx 2 MB</span>
+                            </div>
+                            <div class="image-upload-preview" id="contentImagePreview" style="display:none;">
+                                <img id="contentImagePreviewImg" src="" alt="Imagem">
+                                <button type="button" class="image-upload-remove" onclick="ContentsPage.removeContentImage()" title="Remover">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </button>
+                            </div>
+                            <input type="file" id="contentImageFile" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="ContentsPage.handleContentImageUpload(event)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AUDIO -->
+                <div class="content-type-fields" id="fieldsAudio" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label" for="contentAudioUrl">URL do Áudio <span class="text-danger">*</span></label>
+                        <input type="url" id="contentAudioUrl" class="form-input" placeholder="https://... (.mp3, .ogg)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="contentAudioDuration">Duração (minutos)</label>
+                        <input type="number" id="contentAudioDuration" class="form-input" placeholder="30" min="0" step="1">
+                    </div>
+                </div>
+
+                <!-- PDF -->
+                <div class="content-type-fields" id="fieldsPdf" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label" for="contentFileUrl">URL do Arquivo <span class="text-danger">*</span></label>
+                        <input type="url" id="contentFileUrl" class="form-input" placeholder="https://... (.pdf, .zip, .docx)">
+                        <span class="form-hint">Link direto para download do arquivo.</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="contentFileName">Nome do Arquivo</label>
+                        <input type="text" id="contentFileName" class="form-input" placeholder="material-aula-01.pdf">
+                    </div>
+                </div>
+
+                <!-- EMBED -->
+                <div class="content-type-fields" id="fieldsEmbed" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label" for="contentEmbedUrl">URL para Embed</label>
+                        <input type="url" id="contentEmbedUrl" class="form-input" placeholder="https://...">
+                        <span class="form-hint">URL que será carregada dentro de um iframe.</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="contentEmbedCode">Ou Código HTML do Embed</label>
+                        <textarea id="contentEmbedCode" class="form-textarea" rows="4" placeholder='<iframe src="..." ...></iframe>'></textarea>
+                    </div>
+                </div>
+
+                <!-- QUIZ -->
+                <div class="content-type-fields" id="fieldsQuiz" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label" for="contentQuizUrl">URL do Formulário</label>
+                        <input type="url" id="contentQuizUrl" class="form-input" placeholder="https://forms.google.com/... ou Typeform">
+                        <span class="form-hint">Google Forms, Typeform ou link externo de quiz.</span>
+                    </div>
+                </div>
+
+                <!-- PAINT -->
+                <div class="content-type-fields" id="fieldsPaint" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label" for="contentPaintBgUrl">Imagem de Fundo (para pintura)</label>
+                        <input type="url" id="contentPaintBgUrl" class="form-input" placeholder="https://... (imagem para colorir)">
+                        <span class="form-hint">Imagem que o usuário poderá pintar/colorir no app.</span>
+                    </div>
+                </div>
+
+                <!-- Common fields -->
+                <div class="form-divider"></div>
+
+                <div class="form-group">
+                    <label class="form-label" for="contentDescription">Descrição (opcional)</label>
+                    <textarea id="contentDescription" class="form-textarea" rows="2" maxlength="500" placeholder="Descrição breve deste conteúdo..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Thumbnail</label>
+                    <div class="image-upload image-upload-sm" id="contentThumbArea">
+                        <div class="image-upload-placeholder" id="contentThumbPlaceholder">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <span>Thumbnail (opcional)</span>
+                        </div>
+                        <div class="image-upload-preview" id="contentThumbPreview" style="display:none;">
+                            <img id="contentThumbPreviewImg" src="" alt="Thumbnail">
+                            <button type="button" class="image-upload-remove" onclick="ContentsPage.removeThumb()" title="Remover">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                        <input type="file" id="contentThumbFile" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="ContentsPage.handleThumbUpload(event)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Conteúdo Gratuito</label>
+                    <label class="toggle-switch-label">
+                        <input type="checkbox" id="contentIsFree" class="toggle-switch-input">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-switch-text">Liberar para todos (ignora restrição do módulo)</span>
+                    </label>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('modalContent')">Cancelar</button>
+                <button class="btn btn-primary" id="btnSaveContent" onclick="ContentsPage.saveContent()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ DELETE CONTENT MODAL ═══════════ -->
+    <div class="modal-backdrop" id="modalDeleteContent">
+        <div class="modal confirm-modal">
+            <div class="confirm-modal-icon confirm-modal-icon-danger">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </div>
+            <h3 class="confirm-modal-title">Excluir Conteúdo</h3>
+            <p class="confirm-modal-text">Tem certeza que deseja excluir <strong id="deleteContentName"></strong>?</p>
+            <div class="confirm-modal-actions">
+                <button class="btn btn-ghost" onclick="closeModal('modalDeleteContent')">Cancelar</button>
+                <button class="btn btn-danger" id="btnConfirmDeleteContent" onclick="ContentsPage.confirmDelete()">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/app-contents.js"></script>
+</body>
+</html>
