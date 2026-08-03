@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7c3aed" id="appThemeColor">
+    <title>App – OwlApp</title>
+    <link rel="icon" href="/owlapp-logo.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="public-app-page">
+    <main class="public-app-shell">
+        <div id="publicAppLoading" class="public-app-state">Carregando app...</div>
+        <div id="publicAppError" class="public-app-state public-app-error" style="display:none"></div>
+        <div id="publicAppContent" style="display:none">
+            <header class="public-app-hero">
+                <img id="publicAppLogo" class="public-app-logo" alt="" style="display:none">
+                <div id="publicAppIcon" class="public-app-icon"></div>
+                <div>
+                    <h1 id="publicAppName"></h1>
+                    <p id="publicAppDescription"></p>
+                </div>
+            </header>
+            <section>
+                <h2 class="public-app-section-title">Conteúdos</h2>
+                <div id="publicAppModules" class="public-app-modules"></div>
+            </section>
+        </div>
+    </main>
+    <script src="/js/app.js"></script>
+    <script src="/js/public-app.js"></script>
+</body>
+</html>

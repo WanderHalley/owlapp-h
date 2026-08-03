@@ -12,6 +12,9 @@ const CreateAppPage = (() => {
     let logoBase64 = null;
     let slugValid = false;
     let slugChecking = false;
+    let slugRequestId = 0;
+    let creating = false;
+    let scheduleSlugValidation = null;
 
     // ── Category Labels ────────────────────────────────────
     const CATEGORY_LABELS = {
@@ -55,13 +58,14 @@ const CreateAppPage = (() => {
         slugInput.addEventListener('input', () => {
             userEditedSlug = true;
             formatSlugInput();
+            scheduleSlugValidation();
         });
 
         nameInput.addEventListener('input', () => {
             if (!userEditedSlug || !slugInput.value.trim()) {
                 slugInput.value = slugify(nameInput.value);
                 userEditedSlug = false;
-                validateSlug();
+                scheduleSlugValidation();
             }
         });
     }
@@ -76,7 +80,6 @@ const CreateAppPage = (() => {
             .replace(/-+/g, '-')
             .replace(/^-/, '');
 
-        validateSlug();
     }
 
     // ── Slug Validation ────────────────────────────────────
@@ -84,19 +87,17 @@ const CreateAppPage = (() => {
     function initSlugValidation() {
         const input = document.getElementById('appSlug');
         if (!input) return;
-
-        input.addEventListener('input', debounce(() => {
-            validateSlug();
-        }, 500));
+        scheduleSlugValidation = debounce(() => validateSlug(), 450);
     }
 
-    async function validateSlug() {
+    async function validateSlug(expectedSlug = null) {
         const input = document.getElementById('appSlug');
         const hint = document.getElementById('slugHint');
         const error = document.getElementById('slugError');
         if (!input || !hint || !error) return;
 
-        const slug = input.value.trim();
+        const slug = (expectedSlug ?? input.value).trim();
+        const requestId = ++slugRequestId;
 
         // Reset
         error.style.display = 'none';
@@ -105,17 +106,20 @@ const CreateAppPage = (() => {
 
         if (!slug) {
             hint.textContent = 'Apenas letras minúsculas, números e hifens.';
-            return;
+            hint.classList.remove('text-success');
+            return false;
         }
 
         if (slug.length < 3) {
             hint.textContent = 'Mínimo 3 caracteres.';
-            return;
+            hint.classList.remove('text-success');
+            return false;
         }
 
         if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(slug) && slug.length >= 3) {
             hint.textContent = 'Deve começar e terminar com letra ou número.';
-            return;
+            hint.classList.remove('text-success');
+            return false;
         }
 
         // Check availability
@@ -124,13 +128,13 @@ const CreateAppPage = (() => {
 
         try {
             const res = await apiGet(`/api/apps/check-slug/${encodeURIComponent(slug)}`);
-
-            slugChecking = false;
+            if (requestId !== slugRequestId || input.value.trim() !== slug) return false;
 
             if (res.success && res.data && res.data.available) {
                 hint.textContent = '✓ Slug disponível!';
                 hint.classList.add('text-success');
                 slugValid = true;
+                return true;
             } else {
                 hint.textContent = '';
                 hint.classList.remove('text-success');
@@ -138,11 +142,16 @@ const CreateAppPage = (() => {
                 error.style.display = 'block';
                 input.classList.add('error');
                 slugValid = false;
+                return false;
             }
         } catch (err) {
-            slugChecking = false;
+            if (requestId !== slugRequestId) return false;
             hint.textContent = 'Não foi possível verificar. Tente novamente.';
             hint.classList.remove('text-success');
+            slugValid = false;
+            return false;
+        } finally {
+            if (requestId === slugRequestId) slugChecking = false;
         }
     }
 
@@ -283,8 +292,12 @@ const CreateAppPage = (() => {
 
     // ── Wizard Navigation ──────────────────────────────────
 
-    function nextStep() {
-        if (!validateCurrentStep()) return;
+    async function nextStep() {
+        const btn = document.getElementById('btnWizardNext');
+        if (btn) disableBtn(btn, 'Validando...');
+        const valid = await validateCurrentStep();
+        if (btn) enableBtn(btn, 'Próximo');
+        if (!valid) return;
 
         if (currentStep < totalSteps) {
             setStep(currentStep + 1);
@@ -339,11 +352,11 @@ const CreateAppPage = (() => {
 
     // ── Step Validation ────────────────────────────────────
 
-    function validateCurrentStep() {
+    async function validateCurrentStep() {
         clearFieldErrors();
 
         if (currentStep === 1) {
-            return validateStep1();
+            return await validateStep1();
         }
         if (currentStep === 2) {
             return validateStep2();
@@ -351,7 +364,7 @@ const CreateAppPage = (() => {
         return true;
     }
 
-    function validateStep1() {
+    async function validateStep1() {
         const name = document.getElementById('appName');
         const slug = document.getElementById('appSlug');
 
@@ -375,12 +388,8 @@ const CreateAppPage = (() => {
             return false;
         }
 
-        if (slugChecking) {
-            showToast('Aguarde a verificação do slug...', 'warning');
-            return false;
-        }
-
-        if (!slugValid) {
+        const available = await validateSlug(slugVal);
+        if (!available || !slugValid) {
             showFieldError(slug, 'Este slug não está disponível.');
             return false;
         }
@@ -455,7 +464,8 @@ const CreateAppPage = (() => {
 
     async function handleCreate() {
         const btn = document.getElementById('btnCreateApp');
-        if (!btn) return;
+        if (!btn || creating) return;
+        creating = true;
 
         disableBtn(btn, 'Criando...');
 
@@ -487,10 +497,12 @@ const CreateAppPage = (() => {
             } else {
                 showToast(res.error || 'Erro ao criar app', 'error');
                 enableBtn(btn, 'Criar App');
+                creating = false;
             }
         } catch (err) {
             showToast('Erro de conexão. Tente novamente.', 'error');
             enableBtn(btn, 'Criar App');
+            creating = false;
         }
     }
 

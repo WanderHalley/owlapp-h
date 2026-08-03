@@ -98,6 +98,40 @@ Deno.serve(async (req: Request) => {
       return ok({ sent: true });
     }
 
+    const publicAppMatch = path.match(/^\/api\/public\/apps\/([^/]+)$/);
+    if (publicAppMatch && method === "GET") {
+      const slug = decodeURIComponent(publicAppMatch[1]).toLowerCase();
+      const { data: slugRow, error: slugError } = await admin
+        .from("app_slugs")
+        .select("slug, apps(*)")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (slugError || !slugRow?.apps) return fail(404, "App não encontrado.");
+      const app = Array.isArray(slugRow.apps) ? slugRow.apps[0] : slugRow.apps;
+      const viewer = await currentUser(req);
+      if (app.visibility !== "public" && viewer?.id !== app.owner_id) {
+        return fail(403, "Este app é privado.");
+      }
+      const { data: modules, error: modulesError } = await admin
+        .from("modules")
+        .select("*")
+        .eq("app_id", app.id)
+        .eq("status", "published")
+        .order("position");
+      if (modulesError) return fail(400, modulesError.message);
+      const hydrated = await Promise.all((modules || []).map(async (module) => {
+        const { data: contents } = await admin
+          .from("contents")
+          .select("*")
+          .eq("module_id", module.id)
+          .eq("status", "published")
+          .order("position");
+        return { ...module, contents: contents || [] };
+      }));
+      const { owner_id: _ownerId, ...safeApp } = app;
+      return ok({ ...safeApp, slug, modules: hydrated });
+    }
+
     const user = await currentUser(req);
     if (!user) return fail(401, "Sessão inválida ou expirada.");
 
