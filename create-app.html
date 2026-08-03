@@ -1,353 +1,1066 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Criar Novo App – OwlApp Creator Hub">
-    <meta name="theme-color" content="#7c3aed">
-    <title>Criar App – OwlApp</title>
-    <link rel="icon" href="owlapp-logo.svg" type="image/svg+xml">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/create-app.css?v=2">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Halley App Studio — gerador de área de membros</title>
+<style>
+:root{
+  --bg:#0e0f1a; --bg2:#151729; --card:#1b1e34; --card2:#232741;
+  --line:#2c3150; --txt:#e9ecf5; --txt2:#8b93ad; --txt3:#5f6884;
+  --acc:#00d4aa; --acc2:#3742fa; --warn:#ffb020; --red:#ff4757;
+  --r:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:radial-gradient(1200px 600px at 80% -10%, #1d2145 0%, var(--bg) 55%) fixed;
+  color:var(--txt);
+  font:14px/1.5 "Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+/* ---------- topbar ---------- */
+.top{
+  position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;
+  padding:12px 20px;background:rgba(14,15,26,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
+.brand .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--acc),var(--acc2));
+  display:grid;place-items:center;font-size:13px;color:#04121a;font-weight:900}
+.brand small{display:block;font-weight:500;color:var(--txt3);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.top .sp{flex:1}
+.btn{
+  border:1px solid var(--line);background:var(--card);color:var(--txt);
+  padding:8px 14px;border-radius:10px;cursor:pointer;transition:.15s;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap
+}
+.btn:hover{background:var(--card2);border-color:#3b4270}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#04121a}
+.btn.p:hover{filter:brightness(1.08)}
+.btn.b{background:var(--acc2);border-color:var(--acc2);color:#fff}
+.btn.d{background:transparent;border-color:#4a2434;color:var(--red)}
+.btn.d:hover{background:#2a1620}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:8px}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:20px;padding:20px;max-width:1440px;margin:0 auto;align-items:start}
+@media(max-width:1080px){.wrap{grid-template-columns:1fr}.preview{position:static!important}}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tab{padding:9px 15px;border-radius:10px;border:1px solid transparent;background:var(--card);
+  color:var(--txt2);cursor:pointer;font-weight:600;font-size:13px}
+.tab:hover{color:var(--txt)}
+.tab.on{background:var(--acc2);color:#fff;border-color:#4c58ff}
+.tab .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:6px;border-radius:20px;
+  background:rgba(0,0,0,.28);font-size:11px;text-align:center}
+
+.panel{display:none}
+.panel.on{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.card h3{margin:0 0 4px;font-size:15px;letter-spacing:.01em}
+.card .hint{margin:0 0 16px;color:var(--txt2);font-size:12.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+.f{margin-bottom:14px}
+.f:last-child{margin-bottom:0}
+label{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--txt3);margin-bottom:6px;font-weight:700}
+input[type=text],input[type=email],input[type=password],input[type=number],input[type=url],select,textarea{
+  width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;transition:.15s
+}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);outline:none}
+textarea{min-height:110px;resize:vertical;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.6}
+input[type=color]{width:100%;height:40px;padding:3px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.sw{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.sw input{accent-color:var(--acc);width:16px;height:16px;cursor:pointer}
+.sw span{font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+.item{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.item .head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.item .head .t{flex:1;font-weight:700}
+.item .head .t small{display:block;font-weight:500;color:var(--txt3);font-size:11.5px}
+.av{width:38px;height:38px;border-radius:11px;object-fit:cover;background:var(--card2);
+  display:grid;place-items:center;font-weight:800;color:var(--acc);flex:none;font-size:14px}
+.empty{padding:34px 16px;text-align:center;color:var(--txt3);border:1px dashed var(--line);border-radius:var(--r)}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:var(--card2);color:var(--txt2)}
+.tag.ok{background:rgba(0,212,170,.13);color:var(--acc)}
+.tag.no{background:rgba(255,71,87,.13);color:var(--red)}
+
+/* icon picker */
+.icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;max-height:150px;overflow:auto;
+  padding:8px;background:var(--bg2);border:1px solid var(--line);border-radius:10px}
+.ic{aspect-ratio:1;display:grid;place-items:center;border-radius:9px;cursor:pointer;border:1px solid transparent}
+.ic:hover{background:var(--card2)}
+.ic.on{background:var(--acc2);border-color:#5b66ff}
+.ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* preview */
+.preview{position:sticky;top:78px}
+.phone{
+  width:100%;max-width:392px;margin:0 auto;background:#000;border-radius:38px;padding:11px;
+  box-shadow:0 30px 70px rgba(0,0,0,.6),0 0 0 1px #2a2f4d
+}
+.phone iframe{width:100%;height:706px;border:0;border-radius:28px;background:#fff;display:block}
+.pbar{display:flex;gap:6px;justify-content:center;margin:0 auto 12px;max-width:392px}
+.pinfo{text-align:center;color:var(--txt3);font-size:11.5px;margin-top:10px}
+
+.code{background:#0a0b14;border:1px solid var(--line);border-radius:10px;padding:12px;
+  font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:#8fd3c0;max-height:230px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.note{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.28);border-radius:10px;padding:12px 14px;font-size:12.5px;color:#f0d9a8}
+.note b{color:var(--warn)}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;position:relative;padding:0 0 14px 34px;font-size:13px;color:var(--txt2)}
+.steps li:before{content:counter(s);position:absolute;left:0;top:-1px;width:23px;height:23px;border-radius:7px;
+  background:var(--card2);color:var(--acc);display:grid;place-items:center;font-size:11px;font-weight:800}
+.steps li b{color:var(--txt)}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,80px);background:var(--card2);
+  border:1px solid var(--line);border-left:3px solid var(--acc);padding:12px 18px;border-radius:10px;
+  z-index:200;transition:.25s;opacity:0;font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+#toast.on{transform:translate(-50%,0);opacity:1}
+</style>
 </head>
 <body>
 
-    <div class="app-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar"></aside>
-        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+<div class="top">
+  <div class="brand"><div class="dot">H</div><div>Halley App Studio<small>gerador de área de membros</small></div></div>
+  <div class="sp"></div>
+  <button class="btn" onclick="projetoNovo()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Novo</button>
+  <button class="btn" onclick="projetoImportar()"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Abrir projeto</button>
+  <button class="btn" onclick="projetoExportar()"><svg viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Salvar projeto</button>
+  <button class="btn p" onclick="baixarApp()"><svg viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Baixar app</button>
+</div>
 
-        <!-- Main -->
-        <main class="main-content">
-            <!-- Header -->
-            <header class="header" id="header"></header>
+<div class="wrap">
+  <div>
+    <div class="tabs" id="tabs"></div>
 
-            <!-- Content -->
-            <div class="content-body creator-page">
-
-                <!-- Page Header -->
-                <div class="page-header">
-                    <div class="page-header-info">
-                        <span class="creator-eyebrow">OwlApp Studio</span>
-                        <h1 class="page-title">Crie seu app do seu jeito</h1>
-                        <p class="page-subtitle">Monte a identidade, personalize a experiência e publique em poucos passos.</p>
-                    </div>
-                    <div class="page-header-actions">
-                        <a href="apps.html" class="btn btn-ghost">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                            Voltar
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Wizard Steps -->
-                <div class="wizard" id="wizard">
-                    <div class="wizard-steps">
-                        <div class="wizard-step active" id="wizardStep1" data-step="1">
-                            <div class="wizard-step-number">1</div>
-                            <span class="wizard-step-label">Informações</span>
-                        </div>
-                        <div class="wizard-step-line" id="wizardLine1"></div>
-                        <div class="wizard-step" id="wizardStep2" data-step="2">
-                            <div class="wizard-step-number">2</div>
-                            <span class="wizard-step-label">Aparência</span>
-                        </div>
-                        <div class="wizard-step-line" id="wizardLine2"></div>
-                        <div class="wizard-step" id="wizardStep3" data-step="3">
-                            <div class="wizard-step-number">3</div>
-                            <span class="wizard-step-label">Revisão</span>
-                        </div>
-                    </div>
-
-                    <div class="creator-workspace">
-                        <div class="creator-form-column">
-
-                    <!-- ── STEP 1: Informações ── -->
-                    <div class="wizard-panel active" id="wizardPanel1">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">Informações do App</h2>
-                            </div>
-                            <div class="card-body">
-                                <div class="creator-section-heading">
-                                    <span class="creator-section-icon">01</span>
-                                    <div><h2>Escolha o formato</h2><p>Selecione a experiência que mais combina com seu conteúdo.</p></div>
-                                </div>
-                                <div class="template-grid" role="radiogroup" aria-label="Formato do app">
-                                    <label class="template-card selected">
-                                        <input type="radio" name="appTemplate" value="courses" checked>
-                                        <span class="template-icon">▶</span><strong>Cursos</strong><small>Aulas e módulos organizados</small>
-                                    </label>
-                                    <label class="template-card">
-                                        <input type="radio" name="appTemplate" value="members">
-                                        <span class="template-icon">♛</span><strong>Área de membros</strong><small>Conteúdo exclusivo e acesso</small>
-                                    </label>
-                                    <label class="template-card">
-                                        <input type="radio" name="appTemplate" value="community">
-                                        <span class="template-icon">✦</span><strong>Comunidade</strong><small>Uma experiência para sua audiência</small>
-                                    </label>
-                                </div>
-                                <div class="creator-divider"></div>
-                                <div class="form-group">
-                                    <label class="form-label" for="appName">Nome do App <span class="text-danger">*</span></label>
-                                    <input
-                                        type="text"
-                                        id="appName"
-                                        class="form-input"
-                                        placeholder="Ex: Curso de Marketing Digital"
-                                        required
-                                        maxlength="100"
-                                        autocomplete="off"
-                                    >
-                                    <span class="form-hint">O nome que seus alunos verão ao acessar o app.</span>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="appSlug">Slug (URL) <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <span class="input-group-prefix" id="slugPrefix">owlapp.com/app/</span>
-                                        <input
-                                            type="text"
-                                            id="appSlug"
-                                            class="form-input"
-                                            placeholder="meu-app"
-                                            required
-                                            maxlength="60"
-                                            autocomplete="off"
-                                        >
-                                    </div>
-                                    <span class="form-hint" id="slugHint">Apenas letras minúsculas, números e hifens.</span>
-                                    <span class="form-error" id="slugError" style="display:none;"></span>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="appDescription">Descrição</label>
-                                    <textarea
-                                        id="appDescription"
-                                        class="form-textarea"
-                                        placeholder="Descreva brevemente o que é o seu app..."
-                                        rows="3"
-                                        maxlength="500"
-                                    ></textarea>
-                                    <span class="form-hint"><span id="descCharCount">0</span>/500 caracteres</span>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group form-group-half">
-                                        <label class="form-label" for="appCategory">Categoria</label>
-                                        <select id="appCategory" class="form-select">
-                                            <option value="">Selecione...</option>
-                                            <option value="education">Educação</option>
-                                            <option value="fitness">Fitness & Saúde</option>
-                                            <option value="business">Negócios</option>
-                                            <option value="technology">Tecnologia</option>
-                                            <option value="marketing">Marketing</option>
-                                            <option value="design">Design</option>
-                                            <option value="finance">Finanças</option>
-                                            <option value="lifestyle">Estilo de Vida</option>
-                                            <option value="music">Música</option>
-                                            <option value="cooking">Culinária</option>
-                                            <option value="other">Outro</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group form-group-half">
-                                        <label class="form-label" for="appVisibility">Visibilidade</label>
-                                        <select id="appVisibility" class="form-select">
-                                            <option value="private">Privado (apenas membros)</option>
-                                            <option value="public">Público (qualquer pessoa)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ── STEP 2: Aparência ── -->
-                    <div class="wizard-panel" id="wizardPanel2">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">Aparência do App</h2>
-                            </div>
-                            <div class="card-body">
-
-                                <div class="form-row">
-                                    <div class="form-group form-group-half">
-                                        <label class="form-label" for="appPrimaryColor">Cor Principal</label>
-                                        <div class="color-picker-wrap">
-                                            <input type="color" id="appPrimaryColor" class="color-picker-input" value="#7c3aed">
-                                            <span class="color-picker-value" id="primaryColorValue">#7c3aed</span>
-                                        </div>
-                                        <span class="form-hint">Usada em botões, links e destaques.</span>
-                                    </div>
-                                    <div class="form-group form-group-half">
-                                        <label class="form-label" for="appSecondaryColor">Cor Secundária</label>
-                                        <div class="color-picker-wrap">
-                                            <input type="color" id="appSecondaryColor" class="color-picker-input" value="#06b6d4">
-                                            <span class="color-picker-value" id="secondaryColorValue">#06b6d4</span>
-                                        </div>
-                                        <span class="form-hint">Usada em detalhes e acentos.</span>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Ícone do App</label>
-                                    <div class="image-upload" id="iconUploadArea">
-                                        <div class="image-upload-placeholder" id="iconPlaceholder">
-                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                                            <span>Clique ou arraste uma imagem</span>
-                                            <span class="image-upload-hint">PNG ou JPG, 512×512 recomendado, máx 2 MB</span>
-                                        </div>
-                                        <div class="image-upload-preview" id="iconPreview" style="display:none;">
-                                            <img id="iconPreviewImg" src="" alt="Ícone">
-                                            <button type="button" class="image-upload-remove" onclick="CreateAppPage.removeIcon()" title="Remover">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                            </button>
-                                        </div>
-                                        <input type="file" id="iconFileInput" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="CreateAppPage.handleIconUpload(event)">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Logo do App</label>
-                                    <div class="image-upload" id="logoUploadArea">
-                                        <div class="image-upload-placeholder" id="logoPlaceholder">
-                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                                            <span>Clique ou arraste uma imagem</span>
-                                            <span class="image-upload-hint">PNG ou JPG, retangular recomendado, máx 2 MB</span>
-                                        </div>
-                                        <div class="image-upload-preview" id="logoPreview" style="display:none;">
-                                            <img id="logoPreviewImg" src="" alt="Logo">
-                                            <button type="button" class="image-upload-remove" onclick="CreateAppPage.removeLogo()" title="Remover">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                            </button>
-                                        </div>
-                                        <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="CreateAppPage.handleLogoUpload(event)">
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ── STEP 3: Revisão ── -->
-                    <div class="wizard-panel" id="wizardPanel3">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">Revisão Final</h2>
-                            </div>
-                            <div class="card-body">
-                                <p class="form-hint" style="margin-bottom:1.5rem;">Confira os dados antes de criar seu app. Você poderá editar tudo depois.</p>
-
-                                <div class="review-grid" id="reviewGrid">
-                                    <!-- App Preview Card -->
-                                    <div class="review-preview" id="reviewPreview">
-                                        <div class="review-app-icon" id="reviewIcon">
-                                            <div class="app-card-icon-placeholder" id="reviewIconPlaceholder" style="width:64px;height:64px;font-size:1.5rem;border-radius:16px;background:#7c3aed;">A</div>
-                                        </div>
-                                        <h3 class="review-app-name" id="reviewName">Meu App</h3>
-                                        <p class="review-app-slug" id="reviewSlug">owlapp.com/app/meu-app</p>
-                                        <p class="review-app-desc" id="reviewDesc"></p>
-                                    </div>
-
-                                    <!-- Details List -->
-                                    <div class="review-details">
-                                        <div class="review-row">
-                                            <span class="review-label">Nome</span>
-                                            <span class="review-value" id="reviewDetailName">-</span>
-                                        </div>
-                                        <div class="review-row">
-                                            <span class="review-label">Slug</span>
-                                            <span class="review-value review-value-mono" id="reviewDetailSlug">-</span>
-                                        </div>
-                                        <div class="review-row">
-                                            <span class="review-label">Categoria</span>
-                                            <span class="review-value" id="reviewDetailCategory">-</span>
-                                        </div>
-                                        <div class="review-row">
-                                            <span class="review-label">Visibilidade</span>
-                                            <span class="review-value" id="reviewDetailVisibility">-</span>
-                                        </div>
-                                        <div class="review-row">
-                                            <span class="review-label">Cor Principal</span>
-                                            <span class="review-value" id="reviewDetailPrimaryColor">
-                                                <span class="review-color-dot" id="reviewPrimaryColorDot"></span>
-                                                <span id="reviewPrimaryColorText">#7c3aed</span>
-                                            </span>
-                                        </div>
-                                        <div class="review-row">
-                                            <span class="review-label">Cor Secundária</span>
-                                            <span class="review-value" id="reviewDetailSecondaryColor">
-                                                <span class="review-color-dot" id="reviewSecondaryColorDot"></span>
-                                                <span id="reviewSecondaryColorText">#06b6d4</span>
-                                            </span>
-                                        </div>
-                                        <div class="review-row">
-                                            <span class="review-label">Ícone</span>
-                                            <span class="review-value" id="reviewDetailIcon">Não enviado</span>
-                                        </div>
-                                        <div class="review-row">
-                                            <span class="review-label">Logo</span>
-                                            <span class="review-value" id="reviewDetailLogo">Não enviado</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                        </div>
-                        <aside class="creator-preview" aria-label="Prévia do aplicativo">
-                            <div class="preview-toolbar"><span>Prévia ao vivo</span><span class="preview-status"><i></i> Atualizando</span></div>
-                            <div class="device-frame" id="livePreviewFrame">
-                                <div class="device-top"><span></span><b id="livePreviewTitle">Seu App</b><em>•••</em></div>
-                                <div class="device-hero" id="livePreviewHero">
-                                    <div class="device-logo" id="livePreviewIcon">O</div>
-                                    <h3 id="livePreviewName">Seu novo app</h3>
-                                    <p id="livePreviewDescription">Sua experiência digital começa aqui.</p>
-                                    <button type="button" tabindex="-1">Começar agora</button>
-                                </div>
-                                <div class="device-content">
-                                    <span>Conteúdo em destaque</span>
-                                    <div class="preview-course"><i></i><div><b>Primeiros passos</b><small>Comece por aqui</small></div></div>
-                                    <div class="preview-course"><i></i><div><b>Conteúdo principal</b><small>Seu material organizado</small></div></div>
-                                </div>
-                                <div class="device-nav"><b>⌂<small>Início</small></b><b>▤<small>Conteúdos</small></b><b>○<small>Perfil</small></b></div>
-                            </div>
-                            <p class="preview-url"><span></span><strong id="livePreviewUrl">owlapp-h.pages.dev/app/seu-app</strong></p>
-                        </aside>
-                    </div>
-
-                    <!-- Wizard Actions -->
-                    <div class="wizard-actions">
-                        <button type="button" class="btn btn-ghost" id="btnWizardPrev" onclick="CreateAppPage.prevStep()" style="display:none;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                            Anterior
-                        </button>
-                        <div class="wizard-actions-spacer"></div>
-                        <button type="button" class="btn btn-primary" id="btnWizardNext" onclick="CreateAppPage.nextStep()">
-                            Próximo
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </button>
-                        <button type="button" class="btn btn-gradient" id="btnCreateApp" onclick="CreateAppPage.handleCreate()" style="display:none;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            Criar App
-                        </button>
-                    </div>
-
-                </div>
-
-            </div>
-        </main>
+    <!-- IDENTIDADE -->
+    <div class="panel" id="p-identidade">
+      <div class="card">
+        <h3>Identidade do app</h3>
+        <p class="hint">É o que o aluno vê no topo da tela e no ícone instalado no celular.</p>
+        <div class="grid2">
+          <div class="f"><label>Nome do app</label><input type="text" data-bind="app.nome" placeholder="Área de Membros"></div>
+          <div class="f"><label>Frase de apoio</label><input type="text" data-bind="app.slogan" placeholder="Seu conteúdo, sempre à mão"></div>
+        </div>
+        <div class="f">
+          <label>Logo / ícone</label>
+          <div class="row">
+            <div class="av" id="logoPrev" style="width:52px;height:52px;border-radius:14px">—</div>
+            <button class="btn sm" onclick="escolherImagem(d=>{cfg.app.logo=d;render()})">Enviar imagem</button>
+            <button class="btn sm d" onclick="cfg.app.logo=null;render()">Remover</button>
+            <span style="color:var(--txt3);font-size:12px">PNG quadrado, 512×512. Vira o ícone do atalho.</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Cores</h3>
+        <p class="hint">A cor de destaque pinta botões, menu ativo e barras de progresso.</p>
+        <div class="grid3">
+          <div class="f"><label>Destaque</label><input type="color" data-bind="app.cor"></div>
+          <div class="f"><label>Fundo</label><input type="color" data-bind="app.fundo"></div>
+          <div class="f"><label>Cartões</label><input type="color" data-bind="app.card"></div>
+        </div>
+        <div class="grid2">
+          <div class="f"><label>Tema</label>
+            <select data-bind="app.tema"><option value="escuro">Escuro</option><option value="claro">Claro</option></select>
+          </div>
+          <div class="f"><label>Cantos</label>
+            <select data-bind="app.raio"><option value="16">Arredondado</option><option value="8">Suave</option><option value="0">Reto</option></select>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn sm" onclick="paleta('#00d4aa','#0e0f1a','#1b1e34')">Halley</button>
+          <button class="btn sm" onclick="paleta('#7c5cff','#0f0d17','#1a1727')">Violeta</button>
+          <button class="btn sm" onclick="paleta('#ff6b35','#12100e','#211c18')">Âmbar</button>
+          <button class="btn sm" onclick="paleta('#0ea5e9','#0b1220','#151f30')">Oceano</button>
+          <button class="btn sm" onclick="paleta('#e11d48','#fdfcfb','#ffffff','claro')">Claro</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toastContainer" class="toast-container"></div>
+    <!-- ACESSO -->
+    <div class="panel" id="p-acesso">
+      <div class="card">
+        <h3>Tela de entrada</h3>
+        <p class="hint">Quem entra usa e-mail e senha cadastrados na aba Usuários.</p>
+        <div class="f"><label class="sw" style="border:0;background:none;padding:0;text-transform:none;letter-spacing:0;font-size:13px">
+          <input type="checkbox" data-bind="auth.ativo"><span>Exigir login para abrir o app</span></label></div>
+        <div class="grid2">
+          <div class="f"><label>Título da tela</label><input type="text" data-bind="auth.titulo" placeholder="Bem-vindo de volta"></div>
+          <div class="f"><label>Texto de apoio</label><input type="text" data-bind="auth.subtitulo" placeholder="Entre para continuar seus estudos"></div>
+        </div>
+        <div class="grid2">
+          <div class="f"><label class="sw" style="border:0;background:none;padding:0;text-transform:none;letter-spacing:0;font-size:13px">
+            <input type="checkbox" data-bind="auth.cadastro"><span>Permitir criar conta pelo app</span></label></div>
+          <div class="f"><label class="sw" style="border:0;background:none;padding:0;text-transform:none;letter-spacing:0;font-size:13px">
+            <input type="checkbox" data-bind="auth.lembrar"><span>Oferecer "manter conectado"</span></label></div>
+        </div>
+        <div class="f"><label>Plano de quem se cadastra sozinho</label><input type="text" data-bind="auth.planoPadrao" placeholder="free"></div>
+        <div class="f"><label>Link de suporte (WhatsApp, e-mail, site)</label><input type="text" data-bind="auth.suporte" placeholder="https://wa.me/5516999999999"></div>
+      </div>
+      <div class="card">
+        <h3>Onde as contas ficam guardadas</h3>
+        <p class="hint">Como o app é um arquivo só, ele guarda a sessão e as edições de perfil no próprio aparelho.</p>
+        <div class="note"><b>Leia antes de vender acesso:</b> a lista de usuários viaja dentro do HTML. As senhas vão embaralhadas, mas alguém com conhecimento técnico consegue abrir o arquivo e ver a lista. Serve muito bem para curso, ebook e conteúdo pago comum — não use para dado bancário ou sigiloso. Para bloqueio real, o passo seguinte é ligar num backend (Supabase) e trocar a lista fixa por uma consulta.</div>
+      </div>
+    </div>
 
-    <!-- Scripts -->
-    <script src="js/app.js"></script>
-    <script src="js/create-app.js"></script>
+    <!-- USUARIOS -->
+    <div class="panel" id="p-usuarios">
+      <div class="card">
+        <h3>Usuários</h3>
+        <p class="hint">Cada pessoa entra com o e-mail e a senha definidos aqui. O plano controla o que ela enxerga.</p>
+        <div id="listaUsuarios"></div>
+        <button class="btn p" onclick="addUsuario()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Adicionar usuário</button>
+        <button class="btn" onclick="importarCSV()"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Importar CSV</button>
+        <p class="hint" style="margin:12px 0 0">CSV: uma linha por pessoa, no formato <code>nome;email;senha;plano</code></p>
+      </div>
+    </div>
+
+    <!-- PAGINAS -->
+    <div class="panel" id="p-paginas">
+      <div class="card">
+        <h3>Páginas</h3>
+        <p class="hint">Cada página é uma tela do app. Ligue-as ao menu do rodapé na aba seguinte.</p>
+        <div id="listaPaginas"></div>
+        <div class="row" style="margin-top:4px">
+          <button class="btn p" onclick="addPagina('texto')">Texto</button>
+          <button class="btn" onclick="addPagina('modulos')">Módulos / aulas</button>
+          <button class="btn" onclick="addPagina('videos')">Vídeos</button>
+          <button class="btn" onclick="addPagina('arquivos')">Downloads</button>
+          <button class="btn" onclick="addPagina('links')">Links</button>
+          <button class="btn" onclick="addPagina('html')">HTML livre</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="panel" id="p-menu">
+      <div class="card">
+        <h3>Menu do rodapé</h3>
+        <p class="hint">De 2 a 5 botões funcionam melhor no celular. O aluno navega só por aqui.</p>
+        <div id="listaMenu"></div>
+        <button class="btn p" onclick="addNav()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Adicionar botão</button>
+      </div>
+    </div>
+
+    <!-- PUBLICAR -->
+    <div class="panel" id="p-publicar">
+      <div class="card">
+        <h3>Gerar o app</h3>
+        <p class="hint">Sai um único arquivo .html. Abre no navegador, no celular e no computador.</p>
+        <div class="row">
+          <button class="btn p" onclick="baixarApp()"><svg viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Baixar app.html</button>
+          <button class="btn" onclick="copiarCodigo()">Copiar código</button>
+          <button class="btn" onclick="baixarPWA()">Baixar manifest + service worker</button>
+        </div>
+        <p class="hint" style="margin-top:12px">Tamanho estimado: <b id="tam">—</b></p>
+      </div>
+      <div class="card">
+        <h3>Colocar no ar</h3>
+        <ol class="steps">
+          <li><b>Netlify Drop</b> — abra app.netlify.com/drop e arraste a pasta com os 3 arquivos. Sai um endereço https na hora.</li>
+          <li><b>GitHub Pages</b> — suba os arquivos num repositório, ative Pages em Settings.</li>
+          <li><b>Hospedagem própria</b> — envie por FTP para a pasta pública. Renomeie para <code>index.html</code>.</li>
+          <li><b>Instalar no celular</b> — abra o endereço no Chrome e toque em "Adicionar à tela inicial". O app abre em tela cheia, sem barra do navegador.</li>
+        </ol>
+        <div class="note" style="margin-top:14px"><b>Abrir por duplo clique não é o mesmo:</b> em <code>file://</code> o navegador bloqueia service worker e às vezes o armazenamento, então login e progresso podem não gravar. Publique em https para o app funcionar inteiro.</div>
+      </div>
+      <div class="card">
+        <h3>Prévia do código</h3>
+        <div class="code" id="codePrev"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview">
+    <div class="pbar">
+      <button class="btn sm" onclick="setPreview('login')" id="pv-login">Tela de entrada</button>
+      <button class="btn sm" onclick="setPreview('app')" id="pv-app">Dentro do app</button>
+      <button class="btn sm" onclick="atualizarPreview(true)">Recarregar</button>
+    </div>
+    <div class="phone"><iframe id="frame" title="Prévia do app"></iframe></div>
+    <div class="pinfo">Prévia ao vivo — é exatamente o arquivo que será baixado</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ================= TEMPLATE DO APP GERADO ================= -->
+<script type="text/plain" id="tpl">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>App</title>
+<style>
+:root{--acc:#00d4aa;--bg:#0e0f1a;--card:#1b1e34;--txt:#e9ecf5;--txt2:#8b93ad;--line:#2c3150;--r:16px;--nav:64px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--txt);font:15px/1.55 "Inter","Segoe UI",system-ui,-apple-system,sans-serif;overscroll-behavior:none}
+button,input,textarea{font:inherit;color:inherit}
+img{max-width:100%}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.hide{display:none!important}
+
+/* ---- login ---- */
+#tela-login{min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:28px 22px;
+  background:radial-gradient(600px 320px at 50% 0%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%)}
+.marca{text-align:center;margin-bottom:26px}
+.marca img,.marca .ini{width:78px;height:78px;border-radius:22px;object-fit:cover;margin:0 auto 14px;display:grid;place-items:center;
+  background:var(--acc);color:#031014;font-size:30px;font-weight:900}
+.marca h1{margin:0;font-size:22px;letter-spacing:-.01em}
+.marca p{margin:5px 0 0;color:var(--txt2);font-size:13.5px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.box h2{margin:0 0 4px;font-size:17px}
+.box .sub{margin:0 0 18px;color:var(--txt2);font-size:13px}
+.campo{margin-bottom:13px}
+.campo label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt2);margin-bottom:6px;font-weight:700}
+.campo input{width:100%;background:color-mix(in srgb,var(--bg) 70%,#000 6%);border:1px solid var(--line);
+  border-radius:calc(var(--r) - 6px);padding:13px 14px}
+.campo input:focus{border-color:var(--acc);outline:none}
+.acao{width:100%;background:var(--acc);color:#031014;border:0;border-radius:calc(var(--r) - 6px);
+  padding:14px;font-weight:800;cursor:pointer;margin-top:6px}
+.acao:active{transform:scale(.99)}
+.acao.sec{background:transparent;color:var(--txt2);border:1px solid var(--line);font-weight:600;margin-top:9px}
+.lembrar{display:flex;align-items:center;gap:9px;color:var(--txt2);font-size:13px;margin:4px 0 2px;cursor:pointer}
+.lembrar input{width:16px;height:16px;accent-color:var(--acc)}
+.erro{background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.35);color:#ff8b95;
+  padding:11px 13px;border-radius:10px;font-size:13px;margin-bottom:13px}
+.rodape-login{text-align:center;margin-top:22px;color:var(--txt2);font-size:12.5px}
+.rodape-login a{color:var(--acc);text-decoration:none}
+
+/* ---- app ---- */
+#tela-app{min-height:100%;display:flex;flex-direction:column}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:11px;padding:12px 16px;
+  padding-top:calc(12px + env(safe-area-inset-top));
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header .lg{width:32px;height:32px;border-radius:10px;object-fit:cover;background:var(--acc);color:#031014;
+  display:grid;place-items:center;font-weight:900;font-size:14px;flex:none}
+header .tt{flex:1;min-width:0}
+header .tt b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header .tt span{display:block;font-size:11.5px;color:var(--txt2)}
+header .me{width:34px;height:34px;border-radius:50%;object-fit:cover;border:0;cursor:pointer;background:var(--card);
+  display:grid;place-items:center;font-weight:800;color:var(--acc);font-size:13px}
+main{flex:1;padding:18px 16px calc(var(--nav) + 32px);animation:sobe .2s ease}
+@keyframes sobe{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+h2.pt{margin:0 0 3px;font-size:20px;letter-spacing:-.01em}
+p.ps{margin:0 0 18px;color:var(--txt2);font-size:13.5px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.c h3{margin:0 0 6px;font-size:15px}
+.c p{margin:0;color:var(--txt2);font-size:13.5px}
+.rico{font-size:15px;line-height:1.7}
+.rico h1,.rico h2,.rico h3{line-height:1.3;margin:22px 0 8px}
+.rico h1:first-child,.rico h2:first-child,.rico h3:first-child{margin-top:0}
+.rico p{margin:0 0 14px;color:var(--txt)}
+.rico ul,.rico ol{padding-left:20px;margin:0 0 14px}
+.rico li{margin-bottom:7px}
+.rico img{border-radius:12px;margin:8px 0}
+.rico a{color:var(--acc)}
+.rico blockquote{margin:0 0 14px;padding:12px 16px;border-left:3px solid var(--acc);background:var(--card);border-radius:0 10px 10px 0;color:var(--txt2)}
+.lin{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r);padding:14px;margin-bottom:10px;text-decoration:none;color:inherit;cursor:pointer;width:100%;text-align:left}
+.lin:active{background:color-mix(in srgb,var(--card) 80%,#fff 4%)}
+.lin .ig{width:42px;height:42px;border-radius:12px;background:color-mix(in srgb,var(--acc) 15%,transparent);
+  display:grid;place-items:center;flex:none;color:var(--acc)}
+.lin .ig svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.lin .tx{flex:1;min-width:0}
+.lin .tx b{display:block;font-size:14.5px}
+.lin .tx span{display:block;color:var(--txt2);font-size:12.5px;margin-top:2px}
+.lin .ar{color:var(--txt2);flex:none}
+.vid{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.vid .fr{position:relative;padding-top:56.25%;background:#000}
+.vid .fr iframe,.vid .fr video{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vid .in{padding:13px 15px}
+.vid .in b{display:block;font-size:14.5px}
+.vid .in span{color:var(--txt2);font-size:12.5px}
+.trava{text-align:center;padding:44px 20px;color:var(--txt2)}
+.trava svg{width:42px;height:42px;stroke:var(--txt2);fill:none;stroke-width:1.6;margin-bottom:14px}
+.trava b{display:block;color:var(--txt);font-size:16px;margin-bottom:6px}
+.pg{height:6px;background:color-mix(in srgb,var(--line) 70%,transparent);border-radius:6px;overflow:hidden;margin-top:10px}
+.pg i{display:block;height:100%;background:var(--acc);border-radius:6px;transition:width .4s}
+.chip{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;
+  background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
+.chip.g{background:color-mix(in srgb,var(--txt2) 18%,transparent);color:var(--txt2)}
+
+/* ---- perfil ---- */
+.perfil-top{text-align:center;margin-bottom:22px}
+.perfil-top .foto{width:92px;height:92px;border-radius:50%;object-fit:cover;margin:0 auto 12px;display:grid;place-items:center;
+  background:var(--card);color:var(--acc);font-size:32px;font-weight:900;border:2px solid var(--line);cursor:pointer;position:relative}
+.perfil-top h2{margin:0;font-size:19px}
+.perfil-top span{color:var(--txt2);font-size:13px}
+
+/* ---- nav ---- */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;
+  background:color-mix(in srgb,var(--card) 96%,transparent);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;padding:9px 4px 10px;cursor:pointer;color:var(--txt2);
+  display:flex;flex-direction:column;align-items:center;gap:4px;transition:color .15s;min-height:var(--nav)}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+nav button span{font-size:10.5px;font-weight:600;letter-spacing:.01em}
+nav button.on{color:var(--acc)}
+nav button.on svg{transform:translateY(-2px)}
+nav button:active svg{transform:scale(.9)}
+
+#aviso{position:fixed;left:16px;right:16px;bottom:calc(var(--nav) + 16px);background:var(--card);
+  border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:12px;padding:12px 15px;
+  z-index:60;font-size:13.5px;font-weight:600;opacity:0;transform:translateY(16px);transition:.25s;pointer-events:none}
+#aviso.on{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="aviso"></div>
+<script>
+const CFG = /*__CFG__*/{};
+
+/* ---------- armazenamento tolerante a file:// ---------- */
+const S=(()=>{let mem={},ok=false;try{localStorage.setItem('_t','1');localStorage.removeItem('_t');ok=true}catch(e){}
+ const k=n=>'hly_'+(CFG.app.id||'app')+'_'+n;
+ return{get:n=>{try{return ok?localStorage.getItem(k(n)):(mem[n]??null)}catch(e){return mem[n]??null}},
+        set:(n,v)=>{try{ok?localStorage.setItem(k(n),v):mem[n]=v}catch(e){mem[n]=v}},
+        del:n=>{try{ok?localStorage.removeItem(k(n)):delete mem[n]}catch(e){delete mem[n]}},
+        obj:(n,f)=>{try{return JSON.parse(S.get(n))||f}catch(e){return f}}}})();
+
+function h(s){let x=5381;for(let i=0;i<s.length;i++)x=((x<<5)+x+s.charCodeAt(i))>>>0;return('0000000'+x.toString(16)).slice(-8)}
+const senhaHash=s=>h('hly:'+s)+h(s+':hly2#'+s.length);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ini=n=>(n||'?').trim().charAt(0).toUpperCase();
+const ICN=CFG.icones;
+const svg=n=>'<svg viewBox="0 0 24 24">'+(ICN[n]||ICN.grid).split('|').map(d=>'<path d="'+d+'"/>').join('')+'</svg>';
+
+/* ---------- usuários ---------- */
+function usuarios(){
+  const extras=S.obj('novos',[]), edits=S.obj('edits',{});
+  return CFG.usuarios.concat(extras).map(u=>Object.assign({},u,edits[u.email.toLowerCase()]||{}));
+}
+function salvarEdit(email,dados){
+  const e=S.obj('edits',{}); e[email.toLowerCase()]=Object.assign(e[email.toLowerCase()]||{},dados);
+  S.set('edits',JSON.stringify(e));
+}
+let U=null;
+
+/* ---------- avisos ---------- */
+let tAviso;
+function aviso(m){const a=document.getElementById('aviso');a.textContent=m;a.classList.add('on');
+  clearTimeout(tAviso);tAviso=setTimeout(()=>a.classList.remove('on'),2600)}
+
+/* ---------- tema ---------- */
+function aplicarTema(){
+  const r=document.documentElement.style, c=CFG.app;
+  r.setProperty('--acc',c.cor); r.setProperty('--bg',c.fundo); r.setProperty('--card',c.card);
+  r.setProperty('--r',c.raio+'px');
+  const claro=c.tema==='claro';
+  r.setProperty('--txt',claro?'#16181f':'#e9ecf5');
+  r.setProperty('--txt2',claro?'#6b7280':'#8b93ad');
+  r.setProperty('--line',claro?'#e3e6ee':'#2c3150');
+  document.title=c.nome;
+  let m=document.querySelector('meta[name=theme-color]');
+  if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m)}
+  m.content=c.fundo;
+  if(c.logo){let l=document.createElement('link');l.rel='icon';l.href=c.logo;document.head.appendChild(l)}
+}
+
+/* ---------- login ---------- */
+function telaLogin(modo,erro){
+  const c=CFG.app,a=CFG.auth;
+  const cadastro=modo==='cadastro';
+  document.getElementById('app').innerHTML=
+  '<div id="tela-login"><div class="marca">'+
+    (c.logo?'<img src="'+c.logo+'" alt="">':'<div class="ini">'+ini(c.nome)+'</div>')+
+    '<h1>'+esc(c.nome)+'</h1>'+(c.slogan?'<p>'+esc(c.slogan)+'</p>':'')+
+  '</div><div class="box">'+
+    '<h2>'+(cadastro?'Criar conta':esc(a.titulo||'Entrar'))+'</h2>'+
+    '<p class="sub">'+(cadastro?'Preencha os dados para começar':esc(a.subtitulo||''))+'</p>'+
+    (erro?'<div class="erro">'+esc(erro)+'</div>':'')+
+    (cadastro?'<div class="campo"><label>Nome</label><input id="i-nome" type="text" autocomplete="name"></div>':'')+
+    '<div class="campo"><label>E-mail</label><input id="i-email" type="email" autocomplete="email" inputmode="email"></div>'+
+    '<div class="campo"><label>Senha</label><input id="i-senha" type="password" autocomplete="'+(cadastro?'new-password':'current-password')+'"></div>'+
+    (!cadastro&&a.lembrar?'<label class="lembrar"><input type="checkbox" id="i-lembrar" checked><span>Manter conectado neste aparelho</span></label>':'')+
+    '<button class="acao" id="b-ok">'+(cadastro?'Criar conta':'Entrar')+'</button>'+
+    (a.cadastro?'<button class="acao sec" id="b-alt">'+(cadastro?'Já tenho conta':'Criar uma conta')+'</button>':'')+
+  '</div>'+
+  (a.suporte?'<div class="rodape-login">Problemas para entrar? <a href="'+esc(a.suporte)+'" target="_blank" rel="noopener">Falar com o suporte</a></div>':'')+
+  '</div>';
+  document.getElementById('b-ok').onclick=()=>cadastro?criarConta():entrar();
+  const alt=document.getElementById('b-alt'); if(alt) alt.onclick=()=>telaLogin(cadastro?'login':'cadastro');
+  document.getElementById('i-senha').onkeydown=e=>{if(e.key==='Enter')cadastro?criarConta():entrar()};
+}
+function entrar(){
+  const em=document.getElementById('i-email').value.trim().toLowerCase();
+  const sn=document.getElementById('i-senha').value;
+  if(!em||!sn) return telaLogin('login','Preencha e-mail e senha.');
+  const u=usuarios().find(x=>x.email.toLowerCase()===em);
+  if(!u||u.senha!==senhaHash(sn)) return telaLogin('login','E-mail ou senha não conferem.');
+  if(u.ativo===false) return telaLogin('login','Este acesso está suspenso. Fale com o suporte.');
+  const lb=document.getElementById('i-lembrar');
+  S.set('sessao',JSON.stringify({email:u.email,em:Date.now(),fixa:lb?lb.checked:true}));
+  U=u; abrirApp();
+}
+function criarConta(){
+  const nm=document.getElementById('i-nome').value.trim();
+  const em=document.getElementById('i-email').value.trim().toLowerCase();
+  const sn=document.getElementById('i-senha').value;
+  if(nm.length<2) return telaLogin('cadastro','Escreva seu nome completo.');
+  if(!/^\S+@\S+\.\S+$/.test(em)) return telaLogin('cadastro','Esse e-mail não parece válido.');
+  if(sn.length<4) return telaLogin('cadastro','A senha precisa de pelo menos 4 caracteres.');
+  if(usuarios().some(x=>x.email.toLowerCase()===em)) return telaLogin('cadastro','Já existe uma conta com esse e-mail.');
+  const novos=S.obj('novos',[]);
+  const u={id:'u'+Date.now(),nome:nm,email:em,senha:senhaHash(sn),avatar:null,
+           plano:CFG.auth.planoPadrao||'free',ativo:true,criadoEm:new Date().toISOString().slice(0,10)};
+  novos.push(u); S.set('novos',JSON.stringify(novos));
+  S.set('sessao',JSON.stringify({email:u.email,em:Date.now(),fixa:true}));
+  U=u; abrirApp(); aviso('Conta criada. Bons estudos!');
+}
+function sair(){S.del('sessao');U=null;telaLogin('login')}
+
+/* ---------- liberação de conteúdo ---------- */
+function diasDesde(d){if(!d)return 9999;const t=(Date.now()-new Date(d+'T00:00:00').getTime())/86400000;return Math.floor(t)}
+function liberada(p){
+  if(!U||!CFG.auth.ativo) return{ok:true};
+  if(p.plano&&p.plano!=='todos'&&String(U.plano||'').toLowerCase()!==String(p.plano).toLowerCase())
+    return{ok:false,motivo:'plano',txt:'Disponível no plano '+p.plano+'.'};
+  const dr=parseInt(p.drip||0);
+  if(dr>0){const d=diasDesde(U.criadoEm),falta=dr-d;
+    if(falta>0) return{ok:false,motivo:'drip',txt:'Libera em '+falta+(falta===1?' dia':' dias')+'.'};}
+  return{ok:true};
+}
+
+/* ---------- progresso ---------- */
+function feitos(){return S.obj('feitos',{})}
+function marcar(id){const f=feitos();f[id]=!f[id];S.set('feitos',JSON.stringify(f));return f[id]}
+
+/* ---------- render de páginas ---------- */
+function linhas(t){return String(t||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>l.split('|').map(x=>x.trim()))}
+function embed(url){
+  const y=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);
+  if(y) return'https://www.youtube.com/embed/'+y[1];
+  const v=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if(v) return'https://player.vimeo.com/video/'+v[1];
+  return url;
+}
+function corpo(p){
+  const lv=liberada(p);
+  if(!lv.ok) return'<div class="trava">'+svg('lock')+'<b>Conteúdo bloqueado</b><p>'+esc(lv.txt)+'</p></div>';
+  const t='<h2 class="pt">'+esc(p.titulo)+'</h2>'+(p.subtitulo?'<p class="ps">'+esc(p.subtitulo)+'</p>':'');
+
+  if(p.tipo==='texto') return t+'<div class="rico">'+p.conteudo+'</div>';
+  if(p.tipo==='html')  return p.conteudo;
+
+  if(p.tipo==='modulos'){
+    const f=feitos(),it=linhas(p.conteudo);
+    const done=it.filter((_,i)=>f[p.id+'_'+i]).length;
+    const pct=it.length?Math.round(done/it.length*100):0;
+    return t+'<div class="c"><b>Seu progresso</b><p>'+done+' de '+it.length+' concluídos — '+pct+'%</p>'+
+      '<div class="pg"><i style="width:'+pct+'%"></i></div></div>'+
+      it.map((l,i)=>{const k=p.id+'_'+i,ok=!!f[k];
+        return'<button class="lin" onclick="toggleAula(\''+k+'\',\''+encodeURIComponent(l[2]||'')+'\')">'+
+        '<span class="ig">'+(ok?svg('check'):svg(p.icone||'play'))+'</span>'+
+        '<span class="tx"><b>'+esc(l[0])+'</b><span>'+esc(l[1]||'')+'</span></span>'+
+        '<span class="ar">'+(ok?'<span class="chip">feito</span>':'<span class="chip g">abrir</span>')+'</span></button>'}).join('');
+  }
+  if(p.tipo==='videos'){
+    return t+linhas(p.conteudo).map(l=>'<div class="vid"><div class="fr">'+
+      '<iframe src="'+esc(embed(l[1]||''))+'" allow="accelerometer;autoplay;encrypted-media;picture-in-picture;fullscreen" allowfullscreen loading="lazy"></iframe>'+
+      '</div><div class="in"><b>'+esc(l[0])+'</b><span>'+esc(l[2]||'')+'</span></div></div>').join('');
+  }
+  if(p.tipo==='arquivos'||p.tipo==='links'){
+    return t+linhas(p.conteudo).map(l=>'<a class="lin" href="'+esc(l[1]||'#')+'" target="_blank" rel="noopener"'+
+      (p.tipo==='arquivos'?' download':'')+'>'+
+      '<span class="ig">'+svg(p.tipo==='arquivos'?'download':'link')+'</span>'+
+      '<span class="tx"><b>'+esc(l[0])+'</b><span>'+esc(l[2]||'')+'</span></span>'+
+      '<span class="ar">'+svg('seta')+'</span></a>').join('');
+  }
+  return t;
+}
+function toggleAula(k,enc){
+  const ok=marcar(k); let url='';
+  try{url=decodeURIComponent(enc||'')}catch(e){}
+  if(url&&url.startsWith('http')) window.open(url,'_blank','noopener');
+  desenhar(); aviso(ok?'Marcado como concluído':'Desmarcado');
+}
+
+/* ---------- perfil ---------- */
+function telaPerfil(){
+  const av=U.avatar;
+  return'<div class="perfil-top">'+
+    (av?'<img class="foto" src="'+av+'" onclick="trocarFoto()" alt="">':'<div class="foto" onclick="trocarFoto()">'+ini(U.nome)+'</div>')+
+    '<h2>'+esc(U.nome)+'</h2><span>'+esc(U.email)+'</span><br><span class="chip">'+esc(U.plano||'free')+'</span></div>'+
+  '<div class="c"><h3>Seus dados</h3>'+
+    '<div class="campo" style="margin-top:12px"><label>Nome</label><input id="pf-nome" type="text" value="'+esc(U.nome)+'"></div>'+
+    '<button class="acao" onclick="salvarPerfil()">Salvar alterações</button></div>'+
+  '<div class="c"><h3>Trocar senha</h3>'+
+    '<div class="campo" style="margin-top:12px"><label>Senha atual</label><input id="pf-s0" type="password"></div>'+
+    '<div class="campo"><label>Nova senha</label><input id="pf-s1" type="password"></div>'+
+    '<button class="acao" onclick="trocarSenha()">Trocar senha</button></div>'+
+  '<div class="c"><h3>Foto de perfil</h3><p>Use uma foto quadrada. Ela fica guardada só neste aparelho.</p>'+
+    '<button class="acao sec" onclick="trocarFoto()">Escolher foto</button></div>'+
+  '<button class="acao sec" id="b-instalar" onclick="instalar()" style="display:none">Instalar na tela inicial</button>'+
+  '<button class="acao sec" onclick="sair()">Sair da conta</button>'+
+  '<p style="text-align:center;color:var(--txt2);font-size:11.5px;margin-top:20px">'+esc(CFG.app.nome)+' · versão '+CFG.app.versao+'</p>';
+}
+function salvarPerfil(){
+  const n=document.getElementById('pf-nome').value.trim();
+  if(n.length<2) return aviso('Escreva um nome com pelo menos 2 letras');
+  U.nome=n; salvarEdit(U.email,{nome:n}); desenhar(); aviso('Dados salvos');
+}
+function trocarSenha(){
+  const a=document.getElementById('pf-s0').value,b=document.getElementById('pf-s1').value;
+  if(senhaHash(a)!==U.senha) return aviso('A senha atual não confere');
+  if(b.length<4) return aviso('A nova senha precisa de 4 caracteres ou mais');
+  U.senha=senhaHash(b); salvarEdit(U.email,{senha:U.senha}); desenhar(); aviso('Senha trocada');
+}
+function trocarFoto(){
+  const i=document.createElement('input'); i.type='file'; i.accept='image/*';
+  i.onchange=()=>{const f=i.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{const im=new Image();
+      im.onload=()=>{const c=document.createElement('canvas'),s=Math.min(im.width,im.height);
+        c.width=c.height=256; const x=c.getContext('2d');
+        x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,256,256);
+        const d=c.toDataURL('image/jpeg',.82);
+        U.avatar=d; salvarEdit(U.email,{avatar:d}); desenhar(); aviso('Foto atualizada')};
+      im.src=r.result};
+    r.readAsDataURL(f)};
+  i.click();
+}
+
+/* ---------- navegação ---------- */
+let atual=null;
+function irPara(alvo){
+  const b=CFG.nav.find(n=>n.alvo===alvo);
+  if(b&&b.tipo==='externo'){window.open(b.url,'_blank','noopener');return}
+  atual=alvo; S.set('aba',alvo); desenhar(); window.scrollTo(0,0);
+}
+function desenhar(){
+  const c=CFG.app;
+  const pag=CFG.paginas.find(p=>p.id===atual);
+  const conteudo = atual==='perfil' ? telaPerfil() : (pag?corpo(pag):'<div class="trava"><b>Nada por aqui</b><p>Adicione páginas no editor.</p></div>');
+  document.getElementById('app').innerHTML=
+  '<div id="tela-app"><header>'+
+    (c.logo?'<img class="lg" src="'+c.logo+'" alt="">':'<div class="lg">'+ini(c.nome)+'</div>')+
+    '<div class="tt"><b>'+esc(c.nome)+'</b><span>'+esc(U?('Olá, '+U.nome.split(' ')[0]):(c.slogan||''))+'</span></div>'+
+    (U?(U.avatar?'<img class="me" src="'+U.avatar+'" onclick="irPara(\'perfil\')" alt="Perfil">'
+              :'<button class="me" onclick="irPara(\'perfil\')" aria-label="Perfil">'+ini(U.nome)+'</button>'):'')+
+  '</header><main>'+conteudo+'</main>'+
+  '<nav>'+CFG.nav.map(n=>'<button class="'+(n.alvo===atual?'on':'')+'" onclick="irPara(\''+n.alvo+'\')">'+
+    svg(n.icone)+'<span>'+esc(n.label)+'</span></button>').join('')+'</nav></div>';
+  const bi=document.getElementById('b-instalar'); if(bi&&promptPWA) bi.style.display='block';
+}
+function abrirApp(){
+  const prim=CFG.nav[0]; const salvo=S.get('aba');
+  const valido=salvo&&(salvo==='perfil'||CFG.paginas.some(p=>p.id===salvo));
+  atual=valido?salvo:(prim?prim.alvo:'perfil');
+  desenhar();
+}
+
+/* ---------- PWA ---------- */
+let promptPWA=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();promptPWA=e;
+  const b=document.getElementById('b-instalar'); if(b)b.style.display='block'});
+function instalar(){if(!promptPWA)return aviso('Use o menu do navegador e toque em "Adicionar à tela inicial"');
+  promptPWA.prompt();promptPWA=null}
+(function pwa(){
+  try{
+    const mf={name:CFG.app.nome,short_name:CFG.app.nome.slice(0,12),start_url:'.',display:'standalone',
+      background_color:CFG.app.fundo,theme_color:CFG.app.cor,
+      icons:CFG.app.logo?[{src:CFG.app.logo,sizes:'512x512',type:'image/png',purpose:'any maskable'}]:[]};
+    const l=document.createElement('link');l.rel='manifest';
+    l.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/manifest+json'}));
+    document.head.appendChild(l);
+  }catch(e){}
+  if('serviceWorker'in navigator&&location.protocol.startsWith('http'))
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+
+/* ---------- boot ---------- */
+aplicarTema();
+if(CFG.preview==='app'||!CFG.auth.ativo){U=usuarios()[0]||{nome:'Visitante',email:'visitante@app',plano:'todos',criadoEm:'2020-01-01'};abrirApp()}
+else{
+  const s=S.obj('sessao',null);
+  const u=s&&usuarios().find(x=>x.email.toLowerCase()===s.email.toLowerCase());
+  if(u&&u.ativo!==false){U=u;abrirApp()}else telaLogin('login');
+}
+[[/script]]
+</body>
+</html>
+</script>
+
+<script>
+/* ================= ÍCONES (compartilhados com o app gerado) ================= */
+const ICONS={
+ home:'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+ grid:'M4 4h7v7H4z|M13 4h7v7h-7z|M4 13h7v7H4z|M13 13h7v7h-7z',
+ play:'M8 5l11 7-11 7z',
+ video:'M3 6h12v12H3z|M15 10l6-4v12l-6-4z',
+ book:'M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z|M9 3v18',
+ file:'M6 3h8l4 4v14H6z|M14 3v5h4',
+ download:'M12 4v11|M7 11l5 5 5-5|M4 20h16',
+ link:'M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1|M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1',
+ user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z|M4 21c0-4 4-6 8-6s8 2 8 6',
+ star:'M12 3l2.7 5.6 6.2.9-4.5 4.4 1.1 6.1L12 17.1 6.5 20l1.1-6.2L3 9.5l6.2-.9z',
+ heart:'M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 4.5-7 9-7 9z',
+ chat:'M4 5h16v11H9l-5 4z',
+ mail:'M3 5h18v14H3z|M3 6l9 7 9-7',
+ bell:'M6 16v-5a6 6 0 1 1 12 0v5l2 3H4z|M10 21h4',
+ calendar:'M4 6h16v14H4z|M4 10h16|M9 3v4|M15 3v4',
+ chart:'M4 20V10|M10 20V4|M16 20v-7|M22 20H2',
+ dollar:'M12 3v18|M16 7.5C16 6 14.2 5 12 5S8 6 8 7.5 10 10 12 11s4 1.5 4 3.5S14.2 19 12 19s-4-1-4-2.5',
+ cart:'M3 4h3l2.5 12h9L20 8H7|M9.5 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2z|M17.5 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2z',
+ gift:'M3 11h18v9H3z|M3 7h18v4H3z|M12 7v13',
+ lock:'M6 11h12v9H6z|M9 11V8a3 3 0 0 1 6 0v3',
+ check:'M4 12l5 5L20 6',
+ fire:'M12 3s5 4 5 9a5 5 0 0 1-10 0c0-2 1-3.2 2-4.2 0 2 1 3.2 2 3.2 1.2 0 1.2-4-1-8z',
+ target:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z|M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+ clock:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z|M12 7v5l3 2',
+ pen:'M4 20h4L20 8l-4-4L4 16z',
+ settings:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M4 12h2|M18 12h2|M12 4v2|M12 18v2|M6.3 6.3l1.4 1.4|M16.3 16.3l1.4 1.4|M17.7 6.3l-1.4 1.4|M7.7 16.3l-1.4 1.4',
+ whats:'M4 20l1.3-4A8 8 0 1 1 8 18.7z',
+ seta:'M9 6l6 6-6 6'
+};
+const ico=n=>'<svg viewBox="0 0 24 24">'+(ICONS[n]||ICONS.grid).split('|').map(d=>'<path d="'+d+'"/>').join('')+'</svg>';
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function h(s){let x=5381;for(let i=0;i<s.length;i++)x=((x<<5)+x+s.charCodeAt(i))>>>0;return('0000000'+x.toString(16)).slice(-8)}
+const senhaHash=s=>h('hly:'+s)+h(s+':hly2#'+s.length);
+const hoje=()=>new Date().toISOString().slice(0,10);
+const uid=p=>p+Math.random().toString(36).slice(2,7);
+
+/* ================= PROJETO PADRÃO ================= */
+function seed(){return{
+ app:{id:uid('app'),nome:'Área de Membros',slogan:'Seu conteúdo, sempre à mão',logo:null,
+      cor:'#00d4aa',fundo:'#0e0f1a',card:'#1b1e34',tema:'escuro',raio:'16',versao:'1.0'},
+ auth:{ativo:true,titulo:'Bem-vindo de volta',subtitulo:'Entre para continuar de onde parou',
+       cadastro:true,lembrar:true,planoPadrao:'free',suporte:''},
+ usuarios:[],
+ paginas:[
+  {id:uid('p'),titulo:'Início',subtitulo:'Comece por aqui',icone:'home',tipo:'texto',plano:'todos',drip:0,
+   conteudo:'<h3>Que bom ter você aqui</h3><p>Seu acesso está liberado. Use o menu do rodapé para navegar entre as áreas.</p><blockquote>Assista as aulas na ordem — cada módulo aproveita o anterior.</blockquote>'},
+  {id:uid('p'),titulo:'Aulas',subtitulo:'Marque cada aula ao concluir',icone:'play',tipo:'modulos',plano:'todos',drip:0,
+   conteudo:'Aula 1 — Fundamentos | 12 min | https://youtu.be/dQw4w9WgXcQ\nAula 2 — Montando a estrutura | 18 min | https://youtu.be/dQw4w9WgXcQ\nAula 3 — Colocando no ar | 9 min | https://youtu.be/dQw4w9WgXcQ'},
+  {id:uid('p'),titulo:'Materiais',subtitulo:'Baixe e use quando quiser',icone:'download',tipo:'arquivos',plano:'todos',drip:0,
+   conteudo:'Ebook completo (PDF) | https://exemplo.com/ebook.pdf | 48 páginas\nPlanilha de controle | https://exemplo.com/planilha.xlsx | Excel'},
+  {id:uid('p'),titulo:'Bônus VIP',subtitulo:'Exclusivo do plano vip',icone:'star',tipo:'links',plano:'vip',drip:0,
+   conteudo:'Grupo no WhatsApp | https://wa.me/5516999999999 | Suporte direto\nMentoria ao vivo | https://meet.google.com | Toda quinta, 20h'}
+ ],
+ nav:[]
+};}
+let cfg=seed();
+cfg.nav=[
+ {id:uid('n'),label:'Início',icone:'home',tipo:'pagina',alvo:cfg.paginas[0].id,url:''},
+ {id:uid('n'),label:'Aulas',icone:'play',tipo:'pagina',alvo:cfg.paginas[1].id,url:''},
+ {id:uid('n'),label:'Materiais',icone:'download',tipo:'pagina',alvo:cfg.paginas[2].id,url:''},
+ {id:uid('n'),label:'Perfil',icone:'user',tipo:'perfil',alvo:'perfil',url:''}
+];
+
+/* ================= NAVEGAÇÃO DO EDITOR ================= */
+const ABAS=[['identidade','Identidade'],['acesso','Acesso'],['usuarios','Usuários'],['paginas','Páginas'],['menu','Menu'],['publicar','Publicar']];
+let aba='identidade', previewModo='login';
+function irAba(a){aba=a;render()}
+function renderTabs(){
+ const n={usuarios:cfg.usuarios.length,paginas:cfg.paginas.length,menu:cfg.nav.length};
+ tabs.innerHTML=ABAS.map(([k,l])=>'<button class="tab '+(aba===k?'on':'')+'" onclick="irAba(\''+k+'\')">'+l+
+   (n[k]!==undefined?'<span class="n">'+n[k]+'</span>':'')+'</button>').join('');
+ ABAS.forEach(([k])=>document.getElementById('p-'+k).classList.toggle('on',aba===k));
+}
+
+/* ================= BIND DE CAMPOS SIMPLES ================= */
+const get=(o,p)=>p.split('.').reduce((a,k)=>a&&a[k],o);
+const set=(o,p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((a,x)=>a[x],o)[l]=v};
+function aplicarBinds(){
+ document.querySelectorAll('[data-bind]').forEach(el=>{
+   const v=get(cfg,el.dataset.bind);
+   if(el.type==='checkbox') el.checked=!!v; else el.value=v==null?'':v;
+ });
+}
+document.addEventListener('input',e=>{
+ const el=e.target.closest('[data-bind]'); if(!el) return;
+ set(cfg,el.dataset.bind,el.type==='checkbox'?el.checked:el.value);
+ if(el.dataset.bind==='app.logo') logoPrev.textContent='';
+ toque();
+});
+document.addEventListener('change',e=>{
+ const el=e.target.closest('[data-bind]'); if(!el||el.type==='text') return;
+ set(cfg,el.dataset.bind,el.type==='checkbox'?el.checked:el.value); toque();
+});
+function paleta(c,f,cd,tema){cfg.app.cor=c;cfg.app.fundo=f;cfg.app.card=cd;cfg.app.tema=tema||'escuro';render()}
+
+/* ================= USUÁRIOS ================= */
+function addUsuario(){
+ cfg.usuarios.push({id:uid('u'),nome:'Novo aluno',email:'',senha:'123456',avatar:null,plano:'free',ativo:true,criadoEm:hoje()});
+ render(); toast('Usuário adicionado');
+}
+function delUsuario(i){if(!confirm('Remover '+(cfg.usuarios[i].nome||'este usuário')+'?'))return;cfg.usuarios.splice(i,1);render()}
+function renderUsuarios(){
+ const el=listaUsuarios;
+ if(!cfg.usuarios.length){el.innerHTML='<div class="empty">Nenhum usuário ainda. Sem usuário, ninguém entra.</div>';return}
+ el.innerHTML=cfg.usuarios.map((u,i)=>`
+ <div class="item">
+   <div class="head">
+     ${u.avatar?`<img class="av" src="${u.avatar}" alt="">`:`<div class="av">${esc((u.nome||'?').charAt(0).toUpperCase())}</div>`}
+     <div class="t">${esc(u.nome||'Sem nome')}<small>${esc(u.email||'sem e-mail')} · plano ${esc(u.plano||'free')}</small></div>
+     <span class="tag ${u.ativo?'ok':'no'}">${u.ativo?'ativo':'suspenso'}</span>
+     <button class="btn sm d" onclick="delUsuario(${i})">Remover</button>
+   </div>
+   <div class="grid2">
+     <div class="f"><label>Nome</label><input type="text" value="${esc(u.nome)}" oninput="cfg.usuarios[${i}].nome=this.value;toque()"></div>
+     <div class="f"><label>E-mail (é o login)</label><input type="email" value="${esc(u.email)}" oninput="cfg.usuarios[${i}].email=this.value.trim();toque()"></div>
+   </div>
+   <div class="grid3">
+     <div class="f"><label>Senha</label><input type="text" value="${esc(u.senha)}" oninput="cfg.usuarios[${i}].senha=this.value;toque()"></div>
+     <div class="f"><label>Plano</label><input type="text" value="${esc(u.plano)}" oninput="cfg.usuarios[${i}].plano=this.value.trim();toque()"></div>
+     <div class="f"><label>Entrou em</label><input type="text" value="${esc(u.criadoEm)}" placeholder="2026-01-31" oninput="cfg.usuarios[${i}].criadoEm=this.value.trim();toque()"></div>
+   </div>
+   <div class="row">
+     <label class="sw"><input type="checkbox" ${u.ativo?'checked':''} onchange="cfg.usuarios[${i}].ativo=this.checked;render()"><span>Acesso liberado</span></label>
+     <button class="btn sm" onclick="escolherImagem(d=>{cfg.usuarios[${i}].avatar=d;render()},256)">Foto</button>
+     ${u.avatar?`<button class="btn sm d" onclick="cfg.usuarios[${i}].avatar=null;render()">Tirar foto</button>`:''}
+   </div>
+ </div>`).join('');
+}
+function importarCSV(){
+ const i=document.createElement('input');i.type='file';i.accept='.csv,.txt';
+ i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{let n=0;
+    r.result.split(/\r?\n/).forEach(l=>{if(!l.trim())return;
+      const p=l.split(/[;,\t]/).map(x=>x.trim());
+      if(!p[1]||!p[1].includes('@'))return;
+      cfg.usuarios.push({id:uid('u'),nome:p[0]||p[1],email:p[1],senha:p[2]||'123456',avatar:null,
+        plano:p[3]||'free',ativo:true,criadoEm:hoje()});n++});
+    render();toast(n+' usuário(s) importado(s)')};
+  r.readAsText(f,'utf-8')};
+ i.click();
+}
+
+/* ================= PÁGINAS ================= */
+const TIPOS={texto:'Texto rico (HTML)',modulos:'Módulos / aulas',videos:'Vídeos',arquivos:'Downloads',links:'Links',html:'HTML livre'};
+const DICAS={
+ texto:'Escreva em HTML simples: <h3>, <p>, <ul><li>, <img src="">, <blockquote>.',
+ modulos:'Uma aula por linha:  Título | duração ou descrição | link do vídeo\nO aluno marca cada linha como concluída e a barra de progresso sobe sozinha.',
+ videos:'Um vídeo por linha:  Título | link do YouTube ou Vimeo | descrição',
+ arquivos:'Um arquivo por linha:  Nome | link do arquivo | detalhe (tamanho, formato)',
+ links:'Um link por linha:  Título | endereço | descrição',
+ html:'Cole HTML puro. Fica dentro da área de conteúdo, acima do menu.'
+};
+function addPagina(tipo){
+ cfg.paginas.push({id:uid('p'),titulo:'Nova página',subtitulo:'',icone:'grid',tipo:tipo,plano:'todos',drip:0,conteudo:''});
+ render();toast('Página criada');
+}
+function delPagina(i){
+ const p=cfg.paginas[i];
+ if(!confirm('Remover a página "'+p.titulo+'"?'))return;
+ cfg.nav=cfg.nav.filter(n=>n.alvo!==p.id);
+ cfg.paginas.splice(i,1);render();
+}
+function moverPagina(i,d){const a=cfg.paginas;if(i+d<0||i+d>=a.length)return;[a[i],a[i+d]]=[a[i+d],a[i]];render()}
+function pickIcone(lista,i,atual){
+ return'<details><summary style="cursor:pointer;color:var(--txt2);font-size:12px;margin-bottom:8px">Ícone: '+atual+' — trocar</summary>'+
+ '<div class="icons">'+Object.keys(ICONS).map(k=>
+  '<div class="ic '+(k===atual?'on':'')+'" title="'+k+'" onclick="cfg.'+lista+'['+i+'].icone=\''+k+'\';render()">'+ico(k)+'</div>').join('')+'</div></details>';
+}
+function renderPaginas(){
+ const el=listaPaginas;
+ if(!cfg.paginas.length){el.innerHTML='<div class="empty">Nenhuma página. Crie a primeira abaixo.</div>';return}
+ el.innerHTML=cfg.paginas.map((p,i)=>`
+ <div class="item">
+   <div class="head">
+     <div class="av">${ico(p.icone)}</div>
+     <div class="t">${esc(p.titulo)}<small>${TIPOS[p.tipo]||p.tipo} · plano ${esc(p.plano)}${p.drip>0?' · libera em '+p.drip+'d':''}</small></div>
+     <button class="btn sm" onclick="moverPagina(${i},-1)">↑</button>
+     <button class="btn sm" onclick="moverPagina(${i},1)">↓</button>
+     <button class="btn sm d" onclick="delPagina(${i})">Remover</button>
+   </div>
+   <div class="grid2">
+     <div class="f"><label>Título</label><input type="text" value="${esc(p.titulo)}" oninput="cfg.paginas[${i}].titulo=this.value;toque()"></div>
+     <div class="f"><label>Linha de apoio</label><input type="text" value="${esc(p.subtitulo)}" oninput="cfg.paginas[${i}].subtitulo=this.value;toque()"></div>
+   </div>
+   <div class="grid3">
+     <div class="f"><label>Formato</label><select onchange="cfg.paginas[${i}].tipo=this.value;render()">
+       ${Object.keys(TIPOS).map(t=>`<option value="${t}" ${p.tipo===t?'selected':''}>${TIPOS[t]}</option>`).join('')}</select></div>
+     <div class="f"><label>Quem vê</label><input type="text" value="${esc(p.plano)}" placeholder="todos" oninput="cfg.paginas[${i}].plano=this.value.trim()||'todos';toque()"></div>
+     <div class="f"><label>Liberar após (dias)</label><input type="number" min="0" value="${p.drip||0}" oninput="cfg.paginas[${i}].drip=parseInt(this.value)||0;toque()"></div>
+   </div>
+   ${pickIcone('paginas',i,p.icone)}
+   <div class="f"><label>Conteúdo</label>
+     <textarea oninput="cfg.paginas[${i}].conteudo=this.value;toque()" spellcheck="false">${esc(p.conteudo)}</textarea>
+     <p class="hint" style="margin:6px 0 0;white-space:pre-line">${esc(DICAS[p.tipo]||'')}</p>
+   </div>
+ </div>`).join('');
+}
+
+/* ================= MENU DO RODAPÉ ================= */
+function addNav(){
+ if(cfg.nav.length>=5&&!confirm('Mais de 5 botões espremem o rodapé no celular. Adicionar mesmo assim?'))return;
+ cfg.nav.push({id:uid('n'),label:'Novo',icone:'grid',tipo:'pagina',alvo:(cfg.paginas[0]||{}).id||'perfil',url:''});
+ render();
+}
+function delNav(i){cfg.nav.splice(i,1);render()}
+function moverNav(i,d){const a=cfg.nav;if(i+d<0||i+d>=a.length)return;[a[i],a[i+d]]=[a[i+d],a[i]];render()}
+function renderMenu(){
+ const el=listaMenu;
+ if(!cfg.nav.length){el.innerHTML='<div class="empty">Sem botões, o aluno não navega. Adicione pelo menos dois.</div>';return}
+ el.innerHTML=cfg.nav.map((n,i)=>`
+ <div class="item">
+   <div class="head">
+     <div class="av">${ico(n.icone)}</div>
+     <div class="t">${esc(n.label)}<small>${n.tipo==='perfil'?'abre o perfil':n.tipo==='externo'?'abre link externo':'abre '+esc((cfg.paginas.find(p=>p.id===n.alvo)||{}).titulo||'—')}</small></div>
+     <button class="btn sm" onclick="moverNav(${i},-1)">←</button>
+     <button class="btn sm" onclick="moverNav(${i},1)">→</button>
+     <button class="btn sm d" onclick="delNav(${i})">Remover</button>
+   </div>
+   <div class="grid3">
+     <div class="f"><label>Texto do botão</label><input type="text" value="${esc(n.label)}" oninput="cfg.nav[${i}].label=this.value;toque()"></div>
+     <div class="f"><label>Ação</label><select onchange="cfg.nav[${i}].tipo=this.value;cfg.nav[${i}].alvo=this.value==='perfil'?'perfil':(this.value==='externo'?'ext${i}':(cfg.paginas[0]||{}).id);render()">
+       <option value="pagina" ${n.tipo==='pagina'?'selected':''}>Abrir uma página</option>
+       <option value="perfil" ${n.tipo==='perfil'?'selected':''}>Abrir o perfil</option>
+       <option value="externo" ${n.tipo==='externo'?'selected':''}>Abrir link externo</option>
+     </select></div>
+     <div class="f"><label>${n.tipo==='externo'?'Endereço':'Página'}</label>
+       ${n.tipo==='externo'
+         ?`<input type="text" value="${esc(n.url)}" placeholder="https://wa.me/55..." oninput="cfg.nav[${i}].url=this.value;toque()">`
+         :n.tipo==='perfil'
+           ?`<input type="text" value="Perfil do aluno" disabled>`
+           :`<select onchange="cfg.nav[${i}].alvo=this.value;render()">${cfg.paginas.map(p=>`<option value="${p.id}" ${n.alvo===p.id?'selected':''}>${esc(p.titulo)}</option>`).join('')}</select>`}
+     </div>
+   </div>
+   ${pickIcone('nav',i,n.icone)}
+ </div>`).join('');
+}
+
+/* ================= IMAGENS ================= */
+function escolherImagem(cb,tam){
+ tam=tam||512;
+ const i=document.createElement('input');i.type='file';i.accept='image/*';
+ i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{const im=new Image();
+   im.onload=()=>{const c=document.createElement('canvas'),s=Math.min(im.width,im.height);
+     c.width=c.height=tam;const x=c.getContext('2d');
+     x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,tam,tam);
+     cb(c.toDataURL('image/png'))};
+   im.src=r.result};
+  r.readAsDataURL(f)};
+ i.click();
+}
+
+/* ================= GERAÇÃO DO APP ================= */
+function gerar(modo){
+ const c=JSON.parse(JSON.stringify(cfg));
+ c.icones=ICONS;
+ c.preview=modo||null;
+ c.usuarios=c.usuarios.filter(u=>u.email).map(u=>({id:u.id,nome:u.nome,email:u.email,
+   senha:senhaHash(u.senha||'123456'),avatar:u.avatar,plano:u.plano||'free',
+   ativo:u.ativo!==false,criadoEm:u.criadoEm||hoje()}));
+ c.nav=c.nav.map(n=>({label:n.label,icone:n.icone,tipo:n.tipo,
+   alvo:n.tipo==='perfil'?'perfil':n.alvo,url:n.url||''}));
+ const json=JSON.stringify(c).replace(/</g,'\\u003c').replace(/\u2028|\u2029/g,'');
+ return document.getElementById('tpl').textContent
+   .replace('/*__CFG__*/{}',()=>json)
+   .replace(/\[\[\/script\]\]/g,()=>'<'+'/script>')
+   .trim();
+}
+
+/* ================= PRÉVIA ================= */
+let tPrev;
+function toque(){clearTimeout(tPrev);tPrev=setTimeout(()=>atualizarPreview(),450)}
+function setPreview(m){previewModo=m;atualizarPreview(true)}
+function atualizarPreview(){
+ const html=gerar(previewModo);
+ document.getElementById('frame').srcdoc=html;
+ const kb=(new Blob([html]).size/1024).toFixed(0);
+ tam.textContent=kb+' KB';
+ codePrev.textContent=html.slice(0,1400)+'\n\n… (+'+(html.length-1400)+' caracteres)';
+ document.getElementById('pv-login').classList.toggle('p',previewModo==='login');
+ document.getElementById('pv-app').classList.toggle('p',previewModo==='app');
+}
+
+/* ================= ARQUIVOS ================= */
+function baixar(nome,txt,mime){
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob([txt],{type:(mime||'text/plain')+';charset=utf-8'}));
+ a.download=nome;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+const slug=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'app';
+function baixarApp(){
+ if(!cfg.usuarios.filter(u=>u.email).length&&cfg.auth.ativo)
+   return toast('Cadastre pelo menos um usuário com e-mail antes de gerar');
+ baixar(slug(cfg.app.nome)+'.html',gerar(null),'text/html');
+ toast('app.html gerado');
+}
+function copiarCodigo(){
+ const t=gerar(null);
+ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject())
+  .then(()=>toast('Código copiado'))
+  .catch(()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);
+    a.select();document.execCommand('copy');a.remove();toast('Código copiado')});
+}
+function baixarPWA(){
+ const mf={name:cfg.app.nome,short_name:cfg.app.nome.slice(0,12),start_url:'./',scope:'./',
+   display:'standalone',orientation:'portrait',background_color:cfg.app.fundo,theme_color:cfg.app.cor,
+   description:cfg.app.slogan,icons:cfg.app.logo?[{src:'icone.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}]:[]};
+ baixar('manifest.json',JSON.stringify(mf,null,2),'application/json');
+ const sw=`const CACHE='${slug(cfg.app.nome)}-v1';
+const ARQ=['./','./index.html','./manifest.json'];
+self.addEventListener('install',e=>{self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ARQ).catch(()=>{})))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys()
+  .then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;
+  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)
+    .then(res=>{const cp=res.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return res})
+    .catch(()=>caches.match('./index.html'))))});`;
+ setTimeout(()=>baixar('sw.js',sw,'text/javascript'),350);
+ if(cfg.app.logo) setTimeout(()=>{
+   const a=document.createElement('a');a.href=cfg.app.logo;a.download='icone.png';a.click()},700);
+ toast('Arquivos do PWA baixados — deixe na mesma pasta do index.html');
+}
+function projetoExportar(){baixar(slug(cfg.app.nome)+'-projeto.json',JSON.stringify(cfg,null,2),'application/json');toast('Projeto salvo')}
+function projetoImportar(){
+ const i=document.createElement('input');i.type='file';i.accept='.json';
+ i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);
+    if(!d.app||!d.paginas)throw 0;
+    cfg=Object.assign(seed(),d);render();toast('Projeto carregado')}
+   catch(e){toast('Esse arquivo não é um projeto do Studio')}};
+  r.readAsText(f)};
+ i.click();
+}
+function projetoNovo(){if(!confirm('Começar um projeto em branco? O atual será descartado.'))return;
+ cfg=seed();cfg.nav=[{id:uid('n'),label:'Início',icone:'home',tipo:'pagina',alvo:cfg.paginas[0].id,url:''},
+                     {id:uid('n'),label:'Perfil',icone:'user',tipo:'perfil',alvo:'perfil',url:''}];
+ render();toast('Projeto novo')}
+
+/* ================= AVISOS ================= */
+let tToast;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');
+ clearTimeout(tToast);tToast=setTimeout(()=>t.classList.remove('on'),2400)}
+
+/* ================= RENDER GERAL ================= */
+function render(){
+ const y=window.scrollY;
+ renderTabs();aplicarBinds();renderUsuarios();renderPaginas();renderMenu();
+ logoPrev.innerHTML=cfg.app.logo?'<img src="'+cfg.app.logo+'" style="width:100%;height:100%;border-radius:14px;object-fit:cover">'
+   :esc((cfg.app.nome||'A').charAt(0).toUpperCase());
+ atualizarPreview();
+ window.scrollTo(0,y);
+}
+render();
+</script>
 </body>
 </html>
