@@ -1,1 +1,1 @@
-/app/* /public-app 200
+/app/* /public-app?slug=:splat 302
