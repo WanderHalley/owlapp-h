@@ -21,7 +21,7 @@
 const API_BASE_URL = (
     window.OWLAPP_API_URL ||
     localStorage.getItem('owlapp_api_url') ||
-    ''
+    'https://eglfoxibyiixikqitxqm.supabase.co/functions/v1/owlapp-api'
 ).replace(/\/$/, '');
 
 function isApiConfigured() {

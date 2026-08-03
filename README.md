@@ -4,8 +4,8 @@ Frontend estático do OwlApp.
 
 ## Configuração obrigatória da API
 
-Login, cadastro, dashboard e gerenciamento dependem de um backend externo. Antes
-de `js/app.js`, defina a URL HTTPS real da API:
+Login, cadastro, dashboard e gerenciamento usam a Edge Function `owlapp-api`
+do projeto Supabase. A URL de produção já está definida em `js/app.js`.
 
 ```html
 <script>window.OWLAPP_API_URL = 'https://sua-api.exemplo.com';</script>
@@ -18,9 +18,8 @@ Como alternativa temporária no navegador:
 localStorage.setItem('owlapp_api_url', 'https://sua-api.exemplo.com');
 ```
 
-Sem uma API implementando as rotas `/api/auth/*`, `/api/apps/*` e demais rotas
-usadas pelos arquivos JavaScript, apenas a landing page e os formulários podem
-ser exibidos; autenticação e dados reais não funcionarão.
+O esquema está versionado em `supabase/migrations` e a API em
+`supabase/functions/owlapp-api`.
 
 ## Cloudflare Pages
 
