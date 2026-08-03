@@ -44,6 +44,8 @@ const CreateAppPage = (() => {
         initColorPickers();
         initImageUploads();
         initDescCounter();
+        initLivePreview();
+        initTemplateCards();
     }
 
     // ── Slug Auto Generation ───────────────────────────────
@@ -188,6 +190,41 @@ const CreateAppPage = (() => {
         });
     }
 
+    function initTemplateCards() {
+        document.querySelectorAll('.template-card input').forEach(input => {
+            input.addEventListener('change', () => {
+                document.querySelectorAll('.template-card').forEach(card => card.classList.remove('selected'));
+                input.closest('.template-card')?.classList.add('selected');
+            });
+        });
+    }
+
+    function initLivePreview() {
+        const ids = ['appName', 'appSlug', 'appDescription', 'appPrimaryColor', 'appSecondaryColor'];
+        ids.forEach(id => document.getElementById(id)?.addEventListener('input', updateLivePreview));
+        updateLivePreview();
+    }
+
+    function updateLivePreview() {
+        const name = document.getElementById('appName')?.value.trim() || 'Seu novo app';
+        const slug = document.getElementById('appSlug')?.value.trim() || 'seu-app';
+        const description = document.getElementById('appDescription')?.value.trim() || 'Sua experiência digital começa aqui.';
+        const primary = document.getElementById('appPrimaryColor')?.value || '#7c3aed';
+        const secondary = document.getElementById('appSecondaryColor')?.value || '#06b6d4';
+        const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+        setText('livePreviewTitle', name);
+        setText('livePreviewName', name);
+        setText('livePreviewDescription', description);
+        setText('livePreviewUrl', `owlapp-h.pages.dev/app/${slug}`);
+        setText('livePreviewIcon', name.charAt(0).toUpperCase());
+        const icon = document.getElementById('livePreviewIcon');
+        const hero = document.getElementById('livePreviewHero');
+        if (icon) icon.style.background = primary;
+        if (hero) hero.style.background = `linear-gradient(145deg, ${primary}18, ${secondary}20)`;
+        const button = hero?.querySelector('button');
+        if (button) button.style.background = primary;
+    }
+
     // ── Image Uploads ──────────────────────────────────────
 
     function initImageUploads() {
@@ -251,6 +288,8 @@ const CreateAppPage = (() => {
             if (type === 'icon') {
                 iconBase64 = base64;
                 showImagePreview('iconPlaceholder', 'iconPreview', 'iconPreviewImg', base64);
+                const liveIcon = document.getElementById('livePreviewIcon');
+                if (liveIcon) liveIcon.innerHTML = `<img src="${base64}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
             } else {
                 logoBase64 = base64;
                 showImagePreview('logoPlaceholder', 'logoPreview', 'logoPreviewImg', base64);
