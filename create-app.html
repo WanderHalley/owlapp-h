@@ -19,6 +19,8 @@ body{
   font:14px/1.5 "Inter","Segoe UI",system-ui,-apple-system,sans-serif;
 }
 button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{color-scheme:dark}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-text-fill-color:var(--txt)!important;box-shadow:0 0 0 1000px var(--bg2) inset!important;caret-color:var(--txt)}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -75,7 +77,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .f:last-child{margin-bottom:0}
 label{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--txt3);margin-bottom:6px;font-weight:700}
 input[type=text],input[type=email],input[type=password],input[type=number],input[type=url],select,textarea{
-  width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;transition:.15s
+  width:100%;background:var(--bg2)!important;color:var(--txt)!important;-webkit-text-fill-color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px 12px;transition:.15s
 }
 input:focus,select:focus,textarea:focus{border-color:var(--acc);outline:none}
 textarea{min-height:110px;resize:vertical;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.6}
@@ -96,6 +98,7 @@ input[type=color]{width:100%;height:40px;padding:3px;background:var(--bg2);borde
 .tag.ok{background:rgba(0,212,170,.13);color:var(--acc)}
 .tag.no{background:rgba(255,71,87,.13);color:var(--red)}
 .module-card{border-left:3px solid var(--acc)}
+.cover-row{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;margin:12px 0}.cover-thumb{width:110px;height:70px;border-radius:10px;object-fit:cover;background:var(--card2);border:1px solid var(--line);display:grid;place-items:center;color:var(--txt3);overflow:hidden}.cover-thumb img{width:100%;height:100%;object-fit:cover}.question-editor{padding:14px;margin:10px 0;background:var(--bg2);border:1px solid var(--line);border-radius:12px}.question-editor .qtop{display:flex;gap:8px;align-items:center;margin-bottom:12px}.question-editor .qtop strong{flex:1}.quiz-builder-hero{padding:20px;border-radius:14px;background:linear-gradient(135deg,rgba(55,66,250,.18),rgba(0,212,170,.1));border:1px solid rgba(55,66,250,.35)}
 .content-kind{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:7px;background:rgba(55,66,250,.16);color:#8f98ff;font-size:10px;font-weight:800;text-transform:uppercase}
 .content-tools{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
 .reward{background:linear-gradient(135deg,rgba(0,212,170,.14),rgba(55,66,250,.14));border:1px solid rgba(0,212,170,.25)}
@@ -258,6 +261,26 @@ input[type=color]{width:100%;height:40px;padding:3px;background:var(--bg2);borde
           <button class="btn" onclick="addConteudo('quiz')">Quiz</button>
           <button class="btn" onclick="addConteudo('formulario')">Formulário</button>
         </div>
+      </div>
+    </div>
+
+    <!-- QUIZ FUNIL -->
+    <div class="panel" id="p-quizfunil">
+      <div class="card quiz-builder-hero">
+        <h3>Quiz Funil de Vendas</h3>
+        <p class="hint">Crie uma experiência separada do curso para qualificar o visitante e levá-lo à página de vendas, WhatsApp ou checkout.</p>
+        <label class="sw"><input type="checkbox" data-bind="marketingQuiz.ativo"><span>Ativar Quiz Funil no app</span></label>
+      </div>
+      <div class="card">
+        <div class="grid2"><div class="f"><label>Título do quiz</label><input data-bind="marketingQuiz.titulo"></div><div class="f"><label>Texto de introdução</label><input data-bind="marketingQuiz.subtitulo"></div></div>
+        <div id="listaQuizFunil"></div>
+        <button class="btn p" onclick="addPerguntaFunil()">+ Adicionar pergunta</button>
+      </div>
+      <div class="card reward">
+        <h3>Página final e conversão</h3>
+        <div class="grid2"><div class="f"><label>Título do resultado</label><input data-bind="marketingQuiz.resultadoTitulo"></div><div class="f"><label>Texto do botão</label><input data-bind="marketingQuiz.botaoTexto"></div></div>
+        <div class="f"><label>Mensagem final</label><textarea data-bind="marketingQuiz.resultadoTexto"></textarea></div>
+        <div class="f"><label>Link da página de vendas ou checkout</label><input type="url" data-bind="marketingQuiz.link" placeholder="https://..."></div>
       </div>
     </div>
 
@@ -427,10 +450,10 @@ p.ps{margin:0 0 18px;color:var(--txt2);font-size:13.5px}
 .chip.g{background:color-mix(in srgb,var(--txt2) 18%,transparent);color:var(--txt2)}
 .xpbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 15%,var(--card)),var(--card));border:1px solid var(--line);border-radius:var(--r)}
 .xpbar strong{font-size:18px;color:var(--acc)}.xpbar div{flex:1}.xpbar small{display:block;color:var(--txt2)}
-.mod{margin-bottom:18px}.mod-h{display:flex;align-items:center;gap:11px;margin-bottom:10px}.mod-n{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--acc);color:#031014;font-weight:900}.mod-h h3{margin:0;font-size:16px}.mod-h small{color:var(--txt2)}
+.mod{margin-bottom:18px}.mod-cover{width:100%;max-height:180px;object-fit:cover;border-radius:var(--r);margin-bottom:10px}.mod-h{display:flex;align-items:center;gap:11px;margin-bottom:10px}.mod-n{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--acc);color:#031014;font-weight:900}.mod-h h3{margin:0;font-size:16px}.mod-h small{color:var(--txt2)}
 .lesson{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:8px;padding:13px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);color:inherit;text-align:left;cursor:pointer}.lesson.done{border-color:color-mix(in srgb,var(--acc) 55%,var(--line))}.lesson .li{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:color-mix(in srgb,var(--acc) 13%,transparent);color:var(--acc)}.lesson .lt{flex:1}.lesson .lt b{display:block}.lesson .lt small{color:var(--txt2)}
-.activity img{width:100%;border-radius:var(--r)}.activity audio{width:100%;margin:12px 0}.quiz-opt{display:block;width:100%;margin:8px 0;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:inherit;text-align:left}.quiz-opt.ok{border-color:#22c55e;background:rgba(34,197,94,.12)}.quiz-opt.no{border-color:#ef4444;background:rgba(239,68,68,.12)}
-.paint-wrap{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:var(--r);background:#fff;touch-action:none}.paint-wrap img{display:block;width:100%;pointer-events:none}.paint-wrap canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}.paint-tools{display:flex;gap:8px;align-items:center;margin:10px 0}.paint-tools input{width:46px;height:36px}.form-live input,.form-live textarea,.form-live select{width:100%;margin:5px 0 12px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:9px}.form-live label{display:block;color:var(--txt2);font-size:12px;font-weight:700}.celebrate{animation:pop .45s ease}@keyframes pop{50%{transform:scale(1.04)}}
+.activity img{width:100%;border-radius:var(--r)}.activity audio{width:100%;margin:12px 0}.quiz-shell{padding:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--acc) 10%,var(--card)),var(--card));border:1px solid var(--line);border-radius:var(--r)}.quiz-progress{display:flex;gap:6px;margin-bottom:18px}.quiz-progress i{height:5px;flex:1;border-radius:9px;background:var(--line)}.quiz-progress i.on{background:var(--acc)}.quiz-media{overflow:hidden;margin:12px 0;border-radius:var(--r)}.quiz-media img{width:100%;max-height:260px;object-fit:cover}.quiz-media iframe{width:100%;aspect-ratio:16/9;border:0}.quiz-opt{display:flex;align-items:center;gap:10px;width:100%;margin:9px 0;padding:13px;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:inherit;text-align:left}.quiz-opt b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--card);color:var(--acc)}.quiz-opt.ok{border-color:#22c55e;background:rgba(34,197,94,.12)}.quiz-opt.no{border-color:#ef4444;background:rgba(239,68,68,.12)}.quiz-result{text-align:center;padding:32px 18px}.quiz-score{display:grid;place-items:center;width:92px;height:92px;margin:0 auto 18px;border-radius:50%;background:var(--acc);color:#031014;font-size:24px;font-weight:900}
+.paint-wrap{position:relative;overflow:hidden;border:3px solid var(--line);border-radius:var(--r);background:#fff;touch-action:none}.paint-wrap img{display:block;width:100%;pointer-events:none}.paint-wrap canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}.paint-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:10px 0;padding:10px;background:var(--card);border:1px solid var(--line);border-radius:12px}.paint-tools input[type=color]{width:46px;height:40px;border:0}.paint-tools input[type=range]{width:110px;accent-color:var(--acc)}.paint-tool{min-width:42px;height:40px;padding:0 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--txt);font-weight:800}.paint-tool.on{background:var(--acc);color:#031014}.brush-dot{display:inline-block;border-radius:50%;background:currentColor;width:10px;height:10px}.form-live input,.form-live textarea,.form-live select{width:100%;margin:5px 0 12px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:9px;color:var(--txt)}.form-live label{display:block;color:var(--txt2);font-size:12px;font-weight:700}.celebrate{animation:pop .45s ease}@keyframes pop{50%{transform:scale(1.04)}}
 
 /* ---- perfil ---- */
 .perfil-top{text-align:center;margin-bottom:22px}
@@ -499,7 +522,8 @@ function aplicarTema(){
   const r=document.documentElement.style, c=CFG.app;
   r.setProperty('--acc',c.cor); r.setProperty('--bg',c.fundo); r.setProperty('--card',c.card);
   r.setProperty('--r',c.raio+'px');
-  const claro=c.tema==='claro';
+  const hx=String(c.fundo||'#000').replace('#',''),rgb=hx.length===3?hx.split('').map(x=>parseInt(x+x,16)):([0,2,4].map(i=>parseInt(hx.slice(i,i+2),16))),lum=(rgb[0]*.299+rgb[1]*.587+rgb[2]*.114)/255;
+  const claro=c.tema==='claro'||lum>.68;
   r.setProperty('--txt',claro?'#16181f':'#e9ecf5');
   r.setProperty('--txt2',claro?'#6b7280':'#8b93ad');
   r.setProperty('--line',claro?'#e3e6ee':'#2c3150');
@@ -596,28 +620,42 @@ function cursoHome(p){
   const mods=CFG.modulos||[],cs=CFG.conteudos||[],f=feitos(),total=cs.length,done=cs.filter(c=>f[c.id]).length,pct=total?Math.round(done/total*100):0;
   return '<h2 class="pt">'+esc(p.titulo)+'</h2><p class="ps">'+esc(p.subtitulo||'Sua jornada de aprendizado')+'</p>'+
     '<div class="xpbar"><strong>'+pct+'%</strong><div><b>'+done+' de '+total+' concluídos</b><small>Continue avançando para ganhar mais progresso</small><div class="pg"><i style="width:'+pct+'%"></i></div></div></div>'+
-    mods.map((m,mi)=>{const items=cs.filter(c=>c.moduloId===m.id),lv=liberada(m);return '<section class="mod"><div class="mod-h"><span class="mod-n">'+(mi+1)+'</span><div><h3>'+esc(m.titulo)+'</h3><small>'+esc(m.descricao||items.length+' conteúdos')+(m.drip?' · libera após '+m.drip+' dias':'')+'</small></div></div>'+
-      (!lv.ok?'<div class="trava" style="padding:20px">'+svg('lock')+'<b>'+esc(lv.txt)+'</b></div>':items.map(c=>{const cl=conteudoDisponivel(c,m),ok=!!f[c.id],labels=CFG.rotulosTipos||{};return '<button class="lesson '+(ok?'done':'')+'" '+(cl.ok?'onclick="abrirConteudo(\''+c.id+'\')"':'disabled')+'><span class="li">'+svg(ok?'check':(c.icone||'play'))+'</span><span class="lt"><b>'+esc(c.titulo)+'</b><small>'+esc(labels[c.tipo]||c.tipo)+(c.drip?' · dia '+c.drip:'')+(cl.ok?'':' · '+cl.txt)+'</small></span><span class="chip '+(ok?'':'g')+'">'+(ok?'feito':(cl.ok?'abrir':'bloqueado'))+'</span></button>'}).join(''))+'</section>'}).join('');
+    mods.map((m,mi)=>{const items=cs.filter(c=>c.moduloId===m.id),lv=liberada(m);return '<section class="mod">'+(m.imagem?'<img class="mod-cover" src="'+esc(m.imagem)+'" alt="">':'')+'<div class="mod-h"><span class="mod-n">'+(mi+1)+'</span><div><h3>'+esc(m.titulo)+'</h3><small>'+esc(m.descricao||items.length+' conteúdos')+(m.drip?' · libera após '+m.drip+' dias':'')+'</small></div></div>'+
+      (!lv.ok?'<div class="trava" style="padding:20px">'+svg('lock')+'<b>'+esc(lv.txt)+'</b></div>':items.map(c=>{const cl=conteudoDisponivel(c,m),ok=!!f[c.id],labels=CFG.rotulosTipos||{};return '<button class="lesson '+(ok?'done':'')+'" '+(cl.ok?'onclick="abrirConteudo(\''+c.id+'\')"':'disabled')+'><span class="li">'+(c.imagem?'<img src="'+esc(c.imagem)+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':svg(ok?'check':(c.icone||'play')))+'</span><span class="lt"><b>'+esc(c.titulo)+'</b><small>'+esc(labels[c.tipo]||c.tipo)+(c.drip?' · dia '+c.drip:'')+(cl.ok?'':' · '+cl.txt)+'</small></span><span class="chip '+(ok?'':'g')+'">'+(ok?'feito':(cl.ok?'abrir':'bloqueado'))+'</span></button>'}).join(''))+'</section>'}).join('');
 }
 function conteudoHtml(c){
-  const t='<button class="acao sec" onclick="desenhar()" style="width:auto;margin:0 0 16px">← Voltar ao curso</button><h2 class="pt">'+esc(c.titulo)+'</h2><p class="ps">'+esc(c.descricao||'')+'</p><div class="activity">';
+  const t='<button class="acao sec" onclick="desenhar()" style="width:auto;margin:0 0 16px">← Voltar ao curso</button>'+(c.imagem?'<img src="'+esc(c.imagem)+'" style="width:100%;max-height:240px;object-fit:cover;border-radius:var(--r);margin-bottom:14px" alt="">':'')+'<h2 class="pt">'+esc(c.titulo)+'</h2><p class="ps">'+esc(c.descricao||'')+'</p><div class="activity">';
   if(c.tipo==='video') return t+'<div class="vid"><div class="fr"><iframe src="'+esc(embed(c.valor||''))+'" allow="autoplay;encrypted-media;picture-in-picture;fullscreen" allowfullscreen></iframe></div></div></div>';
   if(c.tipo==='html') return t+'<div class="rico">'+(c.valor||'')+'</div></div>';
   if(c.tipo==='imagem') return t+'<img src="'+esc(c.valor||'')+'" alt="'+esc(c.titulo)+'"></div>';
   if(c.tipo==='audio') return t+'<audio controls src="'+esc(c.valor||'')+'"></audio></div>';
-  if(c.tipo==='pintura') return t+'<div class="paint-tools"><input type="color" id="paintColor" value="#ff4757"><button class="acao sec" style="width:auto;margin:0" onclick="limparPintura()">Limpar</button><button class="acao" style="width:auto;margin:0" onclick="salvarPintura()">Salvar desenho</button></div><div class="paint-wrap" id="paintWrap"><img src="'+esc(c.valor||'')+'" alt="Desenho"><canvas id="paintCanvas"></canvas></div></div>';
-  if(c.tipo==='quiz'){const q=c.pergunta||c.titulo,ops=String(c.valor||'').split('\n').filter(Boolean);return t+'<div class="c"><h3>'+esc(q)+'</h3>'+ops.map((o,i)=>'<button class="quiz-opt" onclick="responderQuiz(this,'+i+','+(c.correta||0)+')">'+esc(o)+'</button>').join('')+'</div></div>'}
+  if(c.tipo==='pintura') return t+'<div class="paint-tools"><input type="color" id="paintColor" value="#ff4757" title="Cor"><button class="paint-tool on" id="toolBrush" onclick="setPaintTool(\'brush\')">🖌️ Pincel</button><button class="paint-tool" id="toolEraser" onclick="setPaintTool(\'eraser\')">◯ Borracha</button><button class="paint-tool" onclick="paintUndo()" title="Desfazer">↶</button><button class="paint-tool" onclick="paintRedo()" title="Refazer">↷</button><span class="brush-dot"></span><input type="range" id="paintSize" min="3" max="42" value="10" title="Tamanho da ponta"><button class="paint-tool" onclick="limparPintura()">Limpar</button><button class="paint-tool on" onclick="salvarPintura()">💾 Salvar</button></div><div class="paint-wrap" id="paintWrap"><img src="'+esc(c.valor||'')+'" alt="Desenho para colorir"><canvas id="paintCanvas"></canvas></div></div>';
+  if(c.tipo==='quiz') return t+'<div id="quizHolder"></div></div>';
   if(c.tipo==='formulario'){const campos=String(c.valor||'Nome|texto\nMensagem|texto longo').split('\n').filter(Boolean);return t+'<form class="form-live" onsubmit="enviarFormulario(event,\''+c.id+'\')">'+campos.map((x,i)=>{const a=x.split('|'),tp=(a[1]||'texto').toLowerCase(),nm=esc(a[0]||('Campo '+(i+1)));return '<label>'+esc(a[0])+'</label>'+(tp.includes('longo')?'<textarea name="'+nm+'" required></textarea>':'<input name="'+nm+'" type="'+(tp.includes('email')?'email':'text')+'" required>')}).join('')+'<button class="acao">Enviar resposta</button></form></div>'}
   return t+'</div>';
 }
-function abrirConteudo(id){const c=(CFG.conteudos||[]).find(x=>x.id===id);if(!c)return;const main=document.querySelector('#tela-app main');main.innerHTML=conteudoHtml(c);if(!['quiz','formulario'].includes(c.tipo))main.insertAdjacentHTML('beforeend','<button class="acao" onclick="concluirEVoltar(\''+c.id+'\')">✓ Marcar como concluído · +10 XP</button>');if(c.tipo==='pintura')setTimeout(initPintura);window.scrollTo(0,0)}
+function abrirConteudo(id){const c=(CFG.conteudos||[]).find(x=>x.id===id);if(!c)return;const main=document.querySelector('#tela-app main');main.innerHTML=conteudoHtml(c);if(!['quiz','formulario'].includes(c.tipo))main.insertAdjacentHTML('beforeend','<button class="acao" onclick="concluirEVoltar(\''+c.id+'\')">✓ Marcar como concluído · +10 XP</button>');if(c.tipo==='pintura')setTimeout(initPintura);if(c.tipo==='quiz')iniciarQuiz(c);window.scrollTo(0,0)}
 function concluirConteudo(id){const f=feitos();f[id]=true;S.set('feitos',JSON.stringify(f))}
 function concluirEVoltar(id){concluirConteudo(id);aviso('Conteúdo concluído! +10 XP');setTimeout(desenhar,500)}
-function responderQuiz(btn,i,ok){btn.parentElement.querySelectorAll('.quiz-opt').forEach((b,j)=>b.classList.add(j===ok?'ok':(j===i?'no':'')));if(i===ok){const c=(CFG.conteudos||[]).find(x=>x.pergunta===btn.parentElement.querySelector('h3').textContent||x.titulo===btn.parentElement.querySelector('h3').textContent);if(c)concluirConteudo(c.id);aviso('Resposta correta! +10 XP')}else aviso('Quase! Tente novamente.')}
+let quizAtivo=null;
+function perguntasQuiz(c){return c.quizQuestions?.length?c.quizQuestions:[{texto:c.pergunta||c.titulo,midiaTipo:'nenhuma',midia:'',opcoes:String(c.valor||'').split('\n').filter(Boolean),correta:c.correta||0,explicacao:''}]}
+function iniciarQuiz(c){quizAtivo={c,qs:perguntasQuiz(c),atual:0,pontos:0,respondido:false};renderQuizQuestao()}
+function renderQuizQuestao(){const s=quizAtivo,q=s.qs[s.atual],h=document.getElementById('quizHolder');if(!h)return;const media=q.midiaTipo==='imagem'&&q.midia?'<div class="quiz-media"><img src="'+esc(q.midia)+'" alt=""></div>':q.midiaTipo==='video'&&q.midia?'<div class="quiz-media"><iframe src="'+esc(embed(q.midia))+'" allowfullscreen></iframe></div>':'';h.innerHTML='<div class="quiz-shell"><div class="quiz-progress">'+s.qs.map((_,i)=>'<i class="'+(i<=s.atual?'on':'')+'"></i>').join('')+'</div><span class="chip">Pergunta '+(s.atual+1)+' de '+s.qs.length+'</span><h3 style="font-size:19px">'+esc(q.texto)+'</h3>'+media+'<div>'+q.opcoes.map((o,i)=>'<button class="quiz-opt" onclick="responderQuestao('+i+')"><b>'+String.fromCharCode(65+i)+'</b>'+esc(o)+'</button>').join('')+'</div><div id="quizExp"></div></div>'}
+function responderQuestao(i){const s=quizAtivo;if(s.respondido)return;s.respondido=true;const q=s.qs[s.atual],ok=i===Number(q.correta||0);if(ok)s.pontos++;document.querySelectorAll('#quizHolder .quiz-opt').forEach((b,j)=>{b.disabled=true;if(j===Number(q.correta||0))b.classList.add('ok');else if(j===i)b.classList.add('no')});document.getElementById('quizExp').innerHTML='<div class="c" style="margin-top:12px"><b>'+(ok?'✓ Muito bem!':'Continue tentando!')+'</b>'+(q.explicacao?'<p>'+esc(q.explicacao)+'</p>':'')+'<button class="acao" onclick="proximaQuestao()">'+(s.atual+1<s.qs.length?'Próxima pergunta':'Ver resultado')+'</button></div>'}
+function proximaQuestao(){const s=quizAtivo;if(s.atual+1<s.qs.length){s.atual++;s.respondido=false;renderQuizQuestao()}else finalizarQuiz()}
+function finalizarQuiz(){const s=quizAtivo,pct=Math.round(s.pontos/s.qs.length*100),c=s.c;concluirConteudo(c.id);document.getElementById('quizHolder').innerHTML='<div class="quiz-shell quiz-result celebrate"><div class="quiz-score">'+pct+'%</div><h2>'+esc(c.resultadoTitulo||'Parabéns!')+'</h2><p>'+esc(c.resultadoTexto||('Você acertou '+s.pontos+' de '+s.qs.length+'.'))+'</p>'+(c.resultadoLink?'<a class="acao" style="display:block;text-decoration:none" href="'+esc(c.resultadoLink)+'" target="_blank" rel="noopener">Continuar</a>':'<button class="acao" onclick="desenhar()">Voltar ao curso</button>')+'</div>';aviso('Quiz concluído! +'+(s.pontos*10)+' XP')}
+let funilPasso=0;
+function telaQuizFunil(){const qz=CFG.marketingQuiz;if(!qz?.ativo)return'<div class="trava"><b>Quiz indisponível</b></div>';funilPasso=0;setTimeout(renderFunilQuestao);return'<div id="funilHolder"></div>'}
+function renderFunilQuestao(){const qz=CFG.marketingQuiz,h=document.getElementById('funilHolder');if(!h)return;if(funilPasso>=qz.perguntas.length){h.innerHTML='<div class="quiz-shell quiz-result celebrate"><div class="quiz-score">✓</div><h2>'+esc(qz.resultadoTitulo)+'</h2><p>'+esc(qz.resultadoTexto)+'</p>'+(qz.link?'<a class="acao" style="display:block;text-decoration:none" href="'+esc(qz.link)+'" target="_blank" rel="noopener">'+esc(qz.botaoTexto||'Continuar')+'</a>':'<button class="acao" onclick="funilPasso=0;renderFunilQuestao()">Refazer quiz</button>')+'</div>';return}const q=qz.perguntas[funilPasso],media=q.midiaTipo==='imagem'&&q.midia?'<div class="quiz-media"><img src="'+esc(q.midia)+'" alt=""></div>':q.midiaTipo==='video'&&q.midia?'<div class="quiz-media"><iframe src="'+esc(embed(q.midia))+'" allowfullscreen></iframe></div>':'';h.innerHTML='<div class="quiz-shell"><div class="quiz-progress">'+qz.perguntas.map((_,i)=>'<i class="'+(i<=funilPasso?'on':'')+'"></i>').join('')+'</div><span class="chip">'+esc(qz.titulo)+' · '+(funilPasso+1)+'/'+qz.perguntas.length+'</span><h2>'+esc(q.texto)+'</h2>'+media+(q.opcoes||[]).map((o,i)=>'<button class="quiz-opt" onclick="responderFunil(this)"><b>'+String.fromCharCode(65+i)+'</b>'+esc(o)+'</button>').join('')+'</div>'}
+function responderFunil(btn){btn.classList.add('ok');document.querySelectorAll('#funilHolder .quiz-opt').forEach(b=>b.disabled=true);setTimeout(()=>{funilPasso++;renderFunilQuestao()},450)}
 async function enviarFormulario(e,id){e.preventDefault();const dados=Object.fromEntries(new FormData(e.target));const c=(CFG.conteudos||[]).find(x=>x.id===id);try{const r=await fetch(API_FORM,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({app_id:CFG.app.id,manage_hash:CFG.app.responseKeyHash,form_id:id,form_title:c?c.titulo:'Formulário',user_email:U?U.email:null,user_name:U?U.nome:null,payload:dados})});if(!r.ok)throw 0;concluirConteudo(id);e.target.innerHTML='<div class="c celebrate"><h3>✓ Resposta enviada!</h3><p>Seus dados foram salvos com segurança.</p></div>';aviso('Formulário enviado! +10 XP')}catch(_){aviso('Não foi possível enviar. Verifique sua internet.')}}
-function initPintura(){const c=document.getElementById('paintCanvas'),w=document.getElementById('paintWrap');if(!c||!w)return;c.width=w.clientWidth;c.height=w.clientHeight;const x=c.getContext('2d');x.lineWidth=8;x.lineCap='round';let on=false;const pos=e=>{const r=c.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return[(p.clientX-r.left)*c.width/r.width,(p.clientY-r.top)*c.height/r.height]};c.onpointerdown=e=>{on=true;const p=pos(e);x.beginPath();x.moveTo(...p)};c.onpointermove=e=>{if(!on)return;x.strokeStyle=document.getElementById('paintColor').value;x.lineTo(...pos(e));x.stroke()};c.onpointerup=c.onpointerleave=()=>on=false}
-function limparPintura(){const c=document.getElementById('paintCanvas');c.getContext('2d').clearRect(0,0,c.width,c.height)}
-function salvarPintura(){const c=document.getElementById('paintCanvas'),a=document.createElement('a');a.href=c.toDataURL();a.download='minha-pintura.png';a.click();aviso('Pintura salva! +10 XP')}
+let paintState={tool:'brush',undo:[],redo:[],ctx:null,canvas:null};
+function initPintura(){const c=document.getElementById('paintCanvas'),w=document.getElementById('paintWrap');if(!c||!w)return;c.width=w.clientWidth;c.height=w.clientHeight;const x=c.getContext('2d');x.lineCap=x.lineJoin='round';paintState={tool:'brush',undo:[],redo:[],ctx:x,canvas:c};let on=false;const snap=()=>{paintState.undo.push(x.getImageData(0,0,c.width,c.height));if(paintState.undo.length>30)paintState.undo.shift();paintState.redo=[]};const pos=e=>{const r=c.getBoundingClientRect();return[(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]};c.onpointerdown=e=>{e.preventDefault();snap();on=true;c.setPointerCapture(e.pointerId);const p=pos(e);x.beginPath();x.moveTo(...p)};c.onpointermove=e=>{if(!on)return;e.preventDefault();x.lineWidth=Number(document.getElementById('paintSize').value);x.globalCompositeOperation=paintState.tool==='eraser'?'destination-out':'source-over';x.strokeStyle=document.getElementById('paintColor').value;x.lineTo(...pos(e));x.stroke()};c.onpointerup=c.onpointercancel=()=>{on=false;x.closePath()}}
+function setPaintTool(t){paintState.tool=t;document.getElementById('toolBrush').classList.toggle('on',t==='brush');document.getElementById('toolEraser').classList.toggle('on',t==='eraser')}
+function paintUndo(){const s=paintState;if(!s.undo.length)return; s.redo.push(s.ctx.getImageData(0,0,s.canvas.width,s.canvas.height));s.ctx.putImageData(s.undo.pop(),0,0)}
+function paintRedo(){const s=paintState;if(!s.redo.length)return;s.undo.push(s.ctx.getImageData(0,0,s.canvas.width,s.canvas.height));s.ctx.putImageData(s.redo.pop(),0,0)}
+function limparPintura(){const s=paintState;if(!s.canvas)return;s.undo.push(s.ctx.getImageData(0,0,s.canvas.width,s.canvas.height));s.ctx.clearRect(0,0,s.canvas.width,s.canvas.height);s.redo=[]}
+function salvarPintura(){const c=document.getElementById('paintCanvas'),img=document.querySelector('#paintWrap img'),out=document.createElement('canvas');out.width=c.width;out.height=c.height;const x=out.getContext('2d');try{x.drawImage(img,0,0,out.width,out.height)}catch(_){}x.drawImage(c,0,0);const a=document.createElement('a');try{a.href=out.toDataURL()}catch(_){a.href=c.toDataURL()}a.download='minha-pintura.png';a.click();aviso('Pintura salva! +10 XP')}
 function corpo(p){
   const lv=liberada(p);
   if(!lv.ok) return'<div class="trava">'+svg('lock')+'<b>Conteúdo bloqueado</b><p>'+esc(lv.txt)+'</p></div>';
@@ -716,7 +754,7 @@ function irPara(alvo){
 function desenhar(){
   const c=CFG.app;
   const pag=CFG.paginas.find(p=>p.id===atual);
-  const conteudo = atual==='perfil' ? telaPerfil() : (pag?corpo(pag):'<div class="trava"><b>Nada por aqui</b><p>Adicione páginas no editor.</p></div>');
+  const conteudo = atual==='perfil' ? telaPerfil() : atual==='quiz-funil' ? telaQuizFunil() : (pag?corpo(pag):'<div class="trava"><b>Nada por aqui</b><p>Adicione páginas no editor.</p></div>');
   document.getElementById('app').innerHTML=
   '<div id="tela-app"><header>'+
     (c.logo?'<img class="lg" src="'+c.logo+'" alt="">':'<div class="lg">'+ini(c.nome)+'</div>')+
@@ -730,7 +768,7 @@ function desenhar(){
 }
 function abrirApp(){
   const prim=CFG.nav[0]; const salvo=S.get('aba');
-  const valido=salvo&&(salvo==='perfil'||CFG.paginas.some(p=>p.id===salvo));
+  const valido=salvo&&(salvo==='perfil'||salvo==='quiz-funil'||CFG.paginas.some(p=>p.id===salvo));
   atual=valido?salvo:(prim?prim.alvo:'perfil');
   desenhar();
 }
@@ -822,12 +860,13 @@ function seed(){return{
   {id:uid('p'),titulo:'Bônus VIP',subtitulo:'Exclusivo do plano vip',icone:'star',tipo:'links',plano:'vip',drip:0,
    conteudo:'Grupo no WhatsApp | https://wa.me/5516999999999 | Suporte direto\nMentoria ao vivo | https://meet.google.com | Toda quinta, 20h'}
  ],
- modulos:[{id:'m-inicio',titulo:'Comece por aqui',descricao:'Fundamentos essenciais',plano:'todos',drip:0}],
+ modulos:[{id:'m-inicio',titulo:'Comece por aqui',descricao:'Fundamentos essenciais',imagem:null,plano:'todos',drip:0}],
  conteudos:[
-  {id:'c-boasvindas',moduloId:'m-inicio',titulo:'Boas-vindas',descricao:'Assista antes de começar',tipo:'video',icone:'play',plano:'todos',drip:0,valor:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
-  {id:'c-material',moduloId:'m-inicio',titulo:'Material introdutório',descricao:'Leia com atenção',tipo:'html',icone:'pen',plano:'todos',drip:0,valor:'<h3>Bem-vindo!</h3><p>Edite este conteúdo no Studio.</p>'}
+  {id:'c-boasvindas',moduloId:'m-inicio',titulo:'Boas-vindas',descricao:'Assista antes de começar',imagem:null,tipo:'video',icone:'play',plano:'todos',drip:0,valor:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+  {id:'c-material',moduloId:'m-inicio',titulo:'Material introdutório',descricao:'Leia com atenção',imagem:null,tipo:'html',icone:'pen',plano:'todos',drip:0,valor:'<h3>Bem-vindo!</h3><p>Edite este conteúdo no Studio.</p>'}
  ],
  rotulosTipos:{video:'Vídeo',html:'Texto / HTML',imagem:'Imagem',audio:'Áudio',pintura:'Pintura interativa',quiz:'Quiz',formulario:'Formulário'},
+ marketingQuiz:{ativo:false,titulo:'Descubra a solução ideal para você',subtitulo:'Responda e veja seu resultado',perguntas:[{id:'fq1',texto:'Qual é o seu principal objetivo?',midiaTipo:'nenhuma',midia:'',opcoes:['Aprender mais','Ganhar tempo','Ter melhores resultados'],correta:0,explicacao:''}],resultadoTitulo:'Temos a solução certa!',resultadoTexto:'Clique abaixo para conhecer a oferta preparada para você.',botaoTexto:'Ver minha oferta',link:''},
  nav:[]
 };}
 let cfg=seed();
@@ -839,7 +878,7 @@ cfg.nav=[
 ];
 
 /* ================= NAVEGAÇÃO DO EDITOR ================= */
-const ABAS=[['identidade','Identidade'],['acesso','Acesso'],['usuarios','Usuários'],['modulos','Módulos'],['conteudos','Conteúdos'],['menu','Menu'],['respostas','Respostas'],['publicar','Publicar']];
+const ABAS=[['identidade','Identidade'],['acesso','Acesso'],['usuarios','Usuários'],['modulos','Módulos'],['conteudos','Conteúdos'],['quizfunil','Quiz Funil'],['menu','Menu'],['respostas','Respostas'],['publicar','Publicar']];
 let aba='identidade', previewModo='login';
 function irAba(a){aba=a;render()}
 function renderTabs(){
@@ -924,8 +963,8 @@ function pickIcone(lista,i,atual){
  '<div class="icons">'+Object.keys(ICONS).map(k=>
   '<div class="ic '+(k===atual?'on':'')+'" title="'+k+'" onclick="cfg.'+lista+'['+i+'].icone=\''+k+'\';render()">'+ico(k)+'</div>').join('')+'</div></details>';
 }
-function addModulo(){cfg.modulos=cfg.modulos||[];cfg.modulos.push({id:uid('m'),titulo:'Novo módulo',descricao:'',plano:'todos',drip:0});render();toast('Módulo adicionado')}
-function duplicarModulo(i){const m=cfg.modulos[i],novo={...m,id:uid('m'),titulo:m.titulo+' — cópia'};cfg.modulos.splice(i+1,0,novo);const copias=(cfg.conteudos||[]).filter(c=>c.moduloId===m.id).map(c=>({...c,id:uid('c'),moduloId:novo.id,titulo:c.titulo+' — cópia'}));cfg.conteudos.push(...copias);render();toast('Módulo e conteúdos duplicados')}
+function addModulo(){cfg.modulos=cfg.modulos||[];cfg.modulos.push({id:uid('m'),titulo:'Novo módulo',descricao:'',imagem:null,plano:'todos',drip:0});render();toast('Módulo adicionado')}
+function duplicarModulo(i){const m=cfg.modulos[i],novo={...m,id:uid('m')};cfg.modulos.splice(i+1,0,novo);const copias=(cfg.conteudos||[]).filter(c=>c.moduloId===m.id).map(c=>({...c,id:uid('c'),moduloId:novo.id,quizQuestions:c.quizQuestions?JSON.parse(JSON.stringify(c.quizQuestions)):undefined}));cfg.conteudos.push(...copias);render();toast('Módulo e conteúdos duplicados')}
 function delModulo(i){const m=cfg.modulos[i];if(!confirm('Remover o módulo e todos os conteúdos de "'+m.titulo+'"?'))return;cfg.conteudos=cfg.conteudos.filter(c=>c.moduloId!==m.id);cfg.modulos.splice(i,1);render()}
 function moverModulo(i,d){const a=cfg.modulos;if(i+d<0||i+d>=a.length)return;[a[i],a[i+d]]=[a[i+d],a[i]];render()}
 function renderModulos(){const el=listaModulos;if(!cfg.modulos?.length){el.innerHTML='<div class="empty">Crie o primeiro módulo da jornada.</div>';return}el.innerHTML=cfg.modulos.map((m,i)=>`
@@ -938,19 +977,31 @@ function renderModulos(){const el=listaModulos;if(!cfg.modulos?.length){el.inner
      <div class="f"><label>Nome do módulo</label><input type="text" value="${esc(m.titulo)}" oninput="cfg.modulos[${i}].titulo=this.value;toque()"></div>
      <div class="f"><label>Descrição</label><input type="text" value="${esc(m.descricao||'')}" oninput="cfg.modulos[${i}].descricao=this.value;toque()"></div>
    </div>
+   <div class="cover-row"><div class="cover-thumb">${m.imagem?`<img src="${m.imagem}" alt="">`:'Sem imagem'}</div><div><button class="btn sm" onclick="escolherImagem(d=>{cfg.modulos[${i}].imagem=d;render()},1200,'wide')">Enviar capa do módulo</button>${m.imagem?` <button class="btn sm d" onclick="cfg.modulos[${i}].imagem=null;render()">Remover</button>`:''}<p class="hint" style="margin:7px 0 0">Recomendado: imagem horizontal 1200 × 600.</p></div></div>
    <div class="grid2"><div class="f"><label>Quem vê</label><input value="${esc(m.plano||'todos')}" oninput="cfg.modulos[${i}].plano=this.value||'todos';toque()"></div><div class="f"><label>Liberar após (dias)</label><input type="number" min="0" value="${m.drip||0}" oninput="cfg.modulos[${i}].drip=parseInt(this.value)||0;toque()"></div></div>
  </div>`).join('')}
-function addConteudo(tipo){if(!cfg.modulos?.length)return toast('Crie um módulo primeiro');cfg.conteudos=cfg.conteudos||[];cfg.conteudos.push({id:uid('c'),moduloId:cfg.modulos[0].id,titulo:'Novo '+TIPOS_CONTEUDO[tipo],descricao:'',tipo,icone:tipo==='quiz'?'target':tipo==='html'?'pen':'play',plano:'todos',drip:0,valor:tipo==='quiz'?'Opção A\nOpção B\nOpção C':tipo==='formulario'?'Nome|texto\nE-mail|email\nMensagem|texto longo':'',pergunta:tipo==='quiz'?'Qual é a resposta correta?':'',correta:0});render();toast('Conteúdo adicionado')}
-function duplicarConteudo(i){cfg.conteudos.splice(i+1,0,{...cfg.conteudos[i],id:uid('c'),titulo:cfg.conteudos[i].titulo+' — cópia'});render()}
+function addConteudo(tipo){if(!cfg.modulos?.length)return toast('Crie um módulo primeiro');cfg.conteudos=cfg.conteudos||[];cfg.conteudos.push({id:uid('c'),moduloId:cfg.modulos[0].id,titulo:'Novo '+TIPOS_CONTEUDO[tipo],descricao:'',imagem:null,tipo,icone:tipo==='quiz'?'target':tipo==='html'?'pen':'play',plano:'todos',drip:0,valor:tipo==='formulario'?'Nome|texto\nE-mail|email\nMensagem|texto longo':'',quizQuestions:tipo==='quiz'?[novaPergunta()]:[],resultadoTitulo:'Parabéns!',resultadoTexto:'Você concluiu o quiz.',resultadoLink:''});render();toast('Conteúdo adicionado')}
+function duplicarConteudo(i){const c=cfg.conteudos[i];cfg.conteudos.splice(i+1,0,{...c,id:uid('c'),quizQuestions:c.quizQuestions?JSON.parse(JSON.stringify(c.quizQuestions)):[]});render()}
+function moverConteudo(i,d){const a=cfg.conteudos,ni=i+d;if(ni<0||ni>=a.length)return;[a[i],a[ni]]=[a[ni],a[i]];render()}
 function delConteudo(i){if(confirm('Remover este conteúdo?')){cfg.conteudos.splice(i,1);render()}}
+function novaPergunta(){return{id:uid('q'),texto:'Nova pergunta',midiaTipo:'nenhuma',midia:'',opcoes:['Opção A','Opção B','Opção C'],correta:0,explicacao:''}}
+function normalizaQuiz(c){if(!c.quizQuestions?.length)c.quizQuestions=[{id:uid('q'),texto:c.pergunta||'Qual é a resposta correta?',midiaTipo:'nenhuma',midia:'',opcoes:String(c.valor||'Opção A\nOpção B\nOpção C').split('\n').filter(Boolean),correta:c.correta||0,explicacao:''}];return c.quizQuestions}
+function addPerguntaConteudo(i){normalizaQuiz(cfg.conteudos[i]).push(novaPergunta());render()}
+function delPerguntaConteudo(i,q){if(cfg.conteudos[i].quizQuestions.length===1)return toast('O quiz precisa de uma pergunta');cfg.conteudos[i].quizQuestions.splice(q,1);render()}
+function moverPerguntaConteudo(i,q,d){const a=cfg.conteudos[i].quizQuestions,n=q+d;if(n<0||n>=a.length)return;[a[q],a[n]]=[a[n],a[q]];render()}
+function renderPerguntasConteudo(c,i){const qs=normalizaQuiz(c);return '<div class="quiz-builder-hero"><h3 style="margin:0 0 4px">Quiz da aula</h3><p class="hint">Crie quantas perguntas quiser, adicione imagem ou vídeo e defina a ação final.</p></div>'+qs.map((q,qi)=>`<div class="question-editor"><div class="qtop"><strong>Pergunta ${qi+1}</strong><button class="btn sm" onclick="moverPerguntaConteudo(${i},${qi},-1)">↑</button><button class="btn sm" onclick="moverPerguntaConteudo(${i},${qi},1)">↓</button><button class="btn sm d" onclick="delPerguntaConteudo(${i},${qi})">Remover</button></div><div class="f"><label>Pergunta</label><input value="${esc(q.texto)}" oninput="cfg.conteudos[${i}].quizQuestions[${qi}].texto=this.value;toque()"></div><div class="grid2"><div class="f"><label>Mídia</label><select onchange="cfg.conteudos[${i}].quizQuestions[${qi}].midiaTipo=this.value;render()"><option value="nenhuma" ${q.midiaTipo==='nenhuma'?'selected':''}>Sem mídia</option><option value="imagem" ${q.midiaTipo==='imagem'?'selected':''}>Imagem</option><option value="video" ${q.midiaTipo==='video'?'selected':''}>Vídeo</option></select></div><div class="f"><label>URL da mídia</label><input value="${esc(q.midia||'')}" oninput="cfg.conteudos[${i}].quizQuestions[${qi}].midia=this.value;toque()"></div></div>${q.midiaTipo==='imagem'?`<button class="btn sm" onclick="escolherImagem(d=>{cfg.conteudos[${i}].quizQuestions[${qi}].midia=d;render()},1000)">Enviar imagem</button>`:''}<div class="grid2"><div class="f"><label>Alternativas — uma por linha</label><textarea oninput="cfg.conteudos[${i}].quizQuestions[${qi}].opcoes=this.value.split('\\n');toque()">${esc((q.opcoes||[]).join('\n'))}</textarea></div><div><div class="f"><label>Resposta correta</label><input type="number" min="1" value="${(q.correta||0)+1}" oninput="cfg.conteudos[${i}].quizQuestions[${qi}].correta=Math.max(0,(parseInt(this.value)||1)-1);toque()"></div><div class="f"><label>Explicação após responder</label><textarea oninput="cfg.conteudos[${i}].quizQuestions[${qi}].explicacao=this.value;toque()">${esc(q.explicacao||'')}</textarea></div></div></div></div>`).join('')+`<button class="btn p" onclick="addPerguntaConteudo(${i})">+ Adicionar pergunta</button><div class="card reward" style="margin-top:14px"><h3>Final do quiz</h3><div class="grid2"><div class="f"><label>Título final</label><input value="${esc(c.resultadoTitulo||'Parabéns!')}" oninput="cfg.conteudos[${i}].resultadoTitulo=this.value;toque()"></div><div class="f"><label>Link final — opcional</label><input value="${esc(c.resultadoLink||'')}" placeholder="https://checkout..." oninput="cfg.conteudos[${i}].resultadoLink=this.value;toque()"></div></div><div class="f"><label>Mensagem final</label><textarea oninput="cfg.conteudos[${i}].resultadoTexto=this.value;toque()">${esc(c.resultadoTexto||'Você concluiu o quiz.')}</textarea></div></div>`}
+function addPerguntaFunil(){cfg.marketingQuiz.perguntas.push(novaPergunta());render()}
+function delPerguntaFunil(i){if(cfg.marketingQuiz.perguntas.length===1)return toast('O quiz precisa de uma pergunta');cfg.marketingQuiz.perguntas.splice(i,1);render()}
+function moverPerguntaFunil(i,d){const a=cfg.marketingQuiz.perguntas,n=i+d;if(n<0||n>=a.length)return;[a[i],a[n]]=[a[n],a[i]];render()}
+function renderQuizFunil(){const el=document.getElementById('listaQuizFunil');if(!el)return;cfg.marketingQuiz=cfg.marketingQuiz||seed().marketingQuiz;el.innerHTML=cfg.marketingQuiz.perguntas.map((q,i)=>`<div class="question-editor"><div class="qtop"><strong>Pergunta ${i+1}</strong><button class="btn sm" onclick="moverPerguntaFunil(${i},-1)">↑</button><button class="btn sm" onclick="moverPerguntaFunil(${i},1)">↓</button><button class="btn sm d" onclick="delPerguntaFunil(${i})">Remover</button></div><div class="f"><label>Pergunta</label><input value="${esc(q.texto)}" oninput="cfg.marketingQuiz.perguntas[${i}].texto=this.value;toque()"></div><div class="grid2"><div class="f"><label>Mídia</label><select onchange="cfg.marketingQuiz.perguntas[${i}].midiaTipo=this.value;render()"><option value="nenhuma" ${q.midiaTipo==='nenhuma'?'selected':''}>Sem mídia</option><option value="imagem" ${q.midiaTipo==='imagem'?'selected':''}>Imagem</option><option value="video" ${q.midiaTipo==='video'?'selected':''}>Vídeo</option></select></div><div class="f"><label>URL da imagem ou vídeo</label><input value="${esc(q.midia||'')}" oninput="cfg.marketingQuiz.perguntas[${i}].midia=this.value;toque()"></div></div>${q.midiaTipo==='imagem'?`<button class="btn sm" onclick="escolherImagem(d=>{cfg.marketingQuiz.perguntas[${i}].midia=d;render()},1000)">Enviar imagem</button>`:''}<div class="f"><label>Alternativas — uma por linha</label><textarea oninput="cfg.marketingQuiz.perguntas[${i}].opcoes=this.value.split('\\n');toque()">${esc((q.opcoes||[]).join('\n'))}</textarea></div></div>`).join('')}
 function dicaConteudo(c){if(c.tipo==='video')return 'Cole o link do YouTube, Vimeo ou vídeo incorporável.';if(c.tipo==='html')return 'Use texto e HTML: <h3>, <p>, <img>, listas e links.';if(c.tipo==='imagem'||c.tipo==='pintura')return 'Cole uma URL de imagem ou use o botão Enviar imagem.';if(c.tipo==='audio')return 'Cole a URL direta de um arquivo MP3.';if(c.tipo==='quiz')return 'Uma alternativa por linha. Indique o número da resposta correta.';return 'Um campo por linha: Nome do campo | texto, email ou texto longo.'}
 function renderConteudos(){const el=listaConteudos;if(!cfg.conteudos?.length){el.innerHTML='<div class="empty">Nenhum conteúdo. Escolha um tipo abaixo.</div>';return}el.innerHTML=cfg.conteudos.map((c,i)=>`
- <div class="item"><div class="head"><div class="av">${ico(c.icone||'play')}</div><div class="t">${esc(c.titulo)}<small><span class="content-kind">${TIPOS_CONTEUDO[c.tipo]}</span> · ${esc((cfg.modulos.find(m=>m.id===c.moduloId)||{}).titulo||'Sem módulo')} ${c.drip?'· dia '+c.drip:''}</small></div><div class="content-tools"><button class="btn sm" onclick="duplicarConteudo(${i})">Duplicar</button><button class="btn sm d" onclick="delConteudo(${i})">Remover</button></div></div>
+ <div class="item"><div class="head"><div class="av">${c.imagem?`<img src="${c.imagem}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:ico(c.icone||'play')}</div><div class="t">${esc(c.titulo)}<small><span class="content-kind">${TIPOS_CONTEUDO[c.tipo]}</span> · ${esc((cfg.modulos.find(m=>m.id===c.moduloId)||{}).titulo||'Sem módulo')} ${c.drip?'· dia '+c.drip:''}</small></div><div class="content-tools"><button class="btn sm" onclick="moverConteudo(${i},-1)">↑</button><button class="btn sm" onclick="moverConteudo(${i},1)">↓</button><button class="btn sm" onclick="duplicarConteudo(${i})">Duplicar</button><button class="btn sm d" onclick="delConteudo(${i})">Remover</button></div></div>
  <div class="grid2"><div class="f"><label>Título</label><input value="${esc(c.titulo)}" oninput="cfg.conteudos[${i}].titulo=this.value;toque()"></div><div class="f"><label>Módulo</label><select onchange="cfg.conteudos[${i}].moduloId=this.value;render()">${cfg.modulos.map(m=>`<option value="${m.id}" ${m.id===c.moduloId?'selected':''}>${esc(m.titulo)}</option>`).join('')}</select></div></div>
  <div class="grid3"><div class="f"><label>Tipo</label><select onchange="cfg.conteudos[${i}].tipo=this.value;render()">${Object.entries(TIPOS_CONTEUDO).map(([k,v])=>`<option value="${k}" ${k===c.tipo?'selected':''}>${v}</option>`).join('')}</select></div><div class="f"><label>Quem vê</label><input value="${esc(c.plano||'todos')}" oninput="cfg.conteudos[${i}].plano=this.value||'todos';toque()"></div><div class="f"><label>Liberar após (dias)</label><input type="number" min="0" value="${c.drip||0}" oninput="cfg.conteudos[${i}].drip=parseInt(this.value)||0;toque()"></div></div>
  <div class="f"><label>Descrição</label><input value="${esc(c.descricao||'')}" oninput="cfg.conteudos[${i}].descricao=this.value;toque()"></div>
- ${c.tipo==='quiz'?`<div class="grid2"><div class="f"><label>Pergunta</label><input value="${esc(c.pergunta||'')}" oninput="cfg.conteudos[${i}].pergunta=this.value;toque()"></div><div class="f"><label>Resposta correta (1, 2, 3...)</label><input type="number" min="1" value="${(c.correta||0)+1}" oninput="cfg.conteudos[${i}].correta=Math.max(0,(parseInt(this.value)||1)-1);toque()"></div></div>`:''}
- <div class="f"><label>${c.tipo==='quiz'?'Alternativas':c.tipo==='formulario'?'Campos do formulário':'Conteúdo / URL'}</label><textarea oninput="cfg.conteudos[${i}].valor=this.value;toque()">${esc(c.valor||'')}</textarea><p class="hint" style="margin-top:6px">${dicaConteudo(c)}</p></div>
+ <div class="cover-row"><div class="cover-thumb">${c.imagem?`<img src="${c.imagem}" alt="">`:'Sem imagem'}</div><div><button class="btn sm" onclick="escolherImagem(d=>{cfg.conteudos[${i}].imagem=d;render()},1000,'wide')">Enviar imagem do conteúdo</button>${c.imagem?` <button class="btn sm d" onclick="cfg.conteudos[${i}].imagem=null;render()">Remover</button>`:''}<p class="hint" style="margin:7px 0 0">Miniatura exibida na lista e no topo da aula.</p></div></div>
+ ${c.tipo==='quiz'?renderPerguntasConteudo(c,i):`<div class="f"><label>${c.tipo==='formulario'?'Campos do formulário':'Conteúdo / URL'}</label><textarea oninput="cfg.conteudos[${i}].valor=this.value;toque()">${esc(c.valor||'')}</textarea><p class="hint" style="margin-top:6px">${dicaConteudo(c)}</p></div>`}
  ${(c.tipo==='imagem'||c.tipo==='pintura')?`<button class="btn sm" onclick="escolherImagem(d=>{cfg.conteudos[${i}].valor=d;render()},900)">Enviar imagem</button>`:''}
  </div>`).join('')}
 
@@ -998,14 +1049,13 @@ function renderMenu(){
 }
 
 /* ================= IMAGENS ================= */
-function escolherImagem(cb,tam){
+function escolherImagem(cb,tam,formato){
  tam=tam||512;
  const i=document.createElement('input');i.type='file';i.accept='image/*';
  i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{const im=new Image();
-   im.onload=()=>{const c=document.createElement('canvas'),s=Math.min(im.width,im.height);
-     c.width=c.height=tam;const x=c.getContext('2d');
-     x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,tam,tam);
+   im.onload=()=>{const c=document.createElement('canvas'),ratio=formato==='wide'?2:1,cw=tam,ch=Math.round(tam/ratio),srcRatio=im.width/im.height;let sx=0,sy=0,sw=im.width,sh=im.height;if(srcRatio>ratio){sw=im.height*ratio;sx=(im.width-sw)/2}else{sh=im.width/ratio;sy=(im.height-sh)/2}c.width=cw;c.height=ch;const x=c.getContext('2d');
+     x.drawImage(im,sx,sy,sw,sh,0,0,cw,ch);
      cb(c.toDataURL('image/png'))};
    im.src=r.result};
   r.readAsDataURL(f)};
@@ -1024,6 +1074,7 @@ function gerar(modo){
    ativo:u.ativo!==false,criadoEm:u.criadoEm||hoje()}));
  c.nav=c.nav.map(n=>({label:n.label,icone:n.icone,tipo:n.tipo,
    alvo:n.tipo==='perfil'?'perfil':n.alvo,url:n.url||''}));
+ if(c.marketingQuiz?.ativo&&!c.nav.some(n=>n.alvo==='quiz-funil'))c.nav.push({label:'Quiz',icone:'target',tipo:'quiz',alvo:'quiz-funil',url:''});
  const json=JSON.stringify(c).replace(/</g,'\\u003c').replace(/\u2028|\u2029/g,'');
  return document.getElementById('tpl').textContent
    .replace('/*__CFG__*/{}',()=>json)
@@ -1109,7 +1160,7 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 /* ================= RENDER GERAL ================= */
 function render(){
  const y=window.scrollY;
- renderTabs();aplicarBinds();renderUsuarios();renderModulos();renderConteudos();renderMenu();
+ renderTabs();aplicarBinds();renderUsuarios();renderModulos();renderConteudos();renderQuizFunil();renderMenu();
  logoPrev.innerHTML=cfg.app.logo?'<img src="'+cfg.app.logo+'" style="width:100%;height:100%;border-radius:14px;object-fit:cover">'
    :esc((cfg.app.nome||'A').charAt(0).toUpperCase());
  atualizarPreview();
