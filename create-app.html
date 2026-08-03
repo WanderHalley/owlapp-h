@@ -95,6 +95,10 @@ input[type=color]{width:100%;height:40px;padding:3px;background:var(--bg2);borde
 .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:var(--card2);color:var(--txt2)}
 .tag.ok{background:rgba(0,212,170,.13);color:var(--acc)}
 .tag.no{background:rgba(255,71,87,.13);color:var(--red)}
+.module-card{border-left:3px solid var(--acc)}
+.content-kind{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:7px;background:rgba(55,66,250,.16);color:#8f98ff;font-size:10px;font-weight:800;text-transform:uppercase}
+.content-tools{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.reward{background:linear-gradient(135deg,rgba(0,212,170,.14),rgba(55,66,250,.14));border:1px solid rgba(0,212,170,.25)}
 
 /* icon picker */
 .icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;max-height:150px;overflow:auto;
@@ -229,20 +233,41 @@ input[type=color]{width:100%;height:40px;padding:3px;background:var(--bg2);borde
       </div>
     </div>
 
-    <!-- PAGINAS -->
-    <div class="panel" id="p-paginas">
+    <!-- MODULOS -->
+    <div class="panel" id="p-modulos">
       <div class="card">
-        <h3>Páginas</h3>
-        <p class="hint">Cada página é uma tela do app. Ligue-as ao menu do rodapé na aba seguinte.</p>
-        <div id="listaPaginas"></div>
-        <div class="row" style="margin-top:4px">
-          <button class="btn p" onclick="addPagina('texto')">Texto</button>
-          <button class="btn" onclick="addPagina('modulos')">Módulos / aulas</button>
-          <button class="btn" onclick="addPagina('videos')">Vídeos</button>
-          <button class="btn" onclick="addPagina('arquivos')">Downloads</button>
-          <button class="btn" onclick="addPagina('links')">Links</button>
-          <button class="btn" onclick="addPagina('html')">HTML livre</button>
+        <h3>Módulos do curso</h3>
+        <p class="hint">Organize a jornada do aluno. Cada módulo pode ter sua própria liberação e ser duplicado com todo o conteúdo.</p>
+        <div id="listaModulos"></div>
+        <button class="btn p" onclick="addModulo()">+ Adicionar módulo</button>
+      </div>
+    </div>
+
+    <!-- CONTEUDOS -->
+    <div class="panel" id="p-conteudos">
+      <div class="card">
+        <h3>Conteúdos e atividades</h3>
+        <p class="hint">Adicione aulas e experiências interativas dentro dos módulos.</p>
+        <div id="listaConteudos"></div>
+        <div class="row">
+          <button class="btn p" onclick="addConteudo('video')">+ Vídeo</button>
+          <button class="btn" onclick="addConteudo('html')">Texto / HTML</button>
+          <button class="btn" onclick="addConteudo('imagem')">Imagem</button>
+          <button class="btn" onclick="addConteudo('audio')">Áudio</button>
+          <button class="btn" onclick="addConteudo('pintura')">Pintura</button>
+          <button class="btn" onclick="addConteudo('quiz')">Quiz</button>
+          <button class="btn" onclick="addConteudo('formulario')">Formulário</button>
         </div>
+      </div>
+    </div>
+
+    <!-- RESPOSTAS -->
+    <div class="panel" id="p-respostas">
+      <div class="card">
+        <h3>Respostas dos alunos</h3>
+        <p class="hint">Formulários enviados pelos apps ficam protegidos no Supabase. Atualize para buscar as respostas mais recentes.</p>
+        <div class="row" style="margin-bottom:14px"><button class="btn p" onclick="carregarRespostas()">Atualizar respostas</button><button class="btn" onclick="exportarRespostas()">Exportar CSV</button></div>
+        <div id="listaRespostas" class="empty">Clique em “Atualizar respostas”.</div>
       </div>
     </div>
 
@@ -400,6 +425,12 @@ p.ps{margin:0 0 18px;color:var(--txt2);font-size:13.5px}
 .chip{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;
   background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
 .chip.g{background:color-mix(in srgb,var(--txt2) 18%,transparent);color:var(--txt2)}
+.xpbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 15%,var(--card)),var(--card));border:1px solid var(--line);border-radius:var(--r)}
+.xpbar strong{font-size:18px;color:var(--acc)}.xpbar div{flex:1}.xpbar small{display:block;color:var(--txt2)}
+.mod{margin-bottom:18px}.mod-h{display:flex;align-items:center;gap:11px;margin-bottom:10px}.mod-n{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--acc);color:#031014;font-weight:900}.mod-h h3{margin:0;font-size:16px}.mod-h small{color:var(--txt2)}
+.lesson{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:8px;padding:13px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);color:inherit;text-align:left;cursor:pointer}.lesson.done{border-color:color-mix(in srgb,var(--acc) 55%,var(--line))}.lesson .li{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:color-mix(in srgb,var(--acc) 13%,transparent);color:var(--acc)}.lesson .lt{flex:1}.lesson .lt b{display:block}.lesson .lt small{color:var(--txt2)}
+.activity img{width:100%;border-radius:var(--r)}.activity audio{width:100%;margin:12px 0}.quiz-opt{display:block;width:100%;margin:8px 0;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:inherit;text-align:left}.quiz-opt.ok{border-color:#22c55e;background:rgba(34,197,94,.12)}.quiz-opt.no{border-color:#ef4444;background:rgba(239,68,68,.12)}
+.paint-wrap{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:var(--r);background:#fff;touch-action:none}.paint-wrap img{display:block;width:100%;pointer-events:none}.paint-wrap canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}.paint-tools{display:flex;gap:8px;align-items:center;margin:10px 0}.paint-tools input{width:46px;height:36px}.form-live input,.form-live textarea,.form-live select{width:100%;margin:5px 0 12px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:9px}.form-live label{display:block;color:var(--txt2);font-size:12px;font-weight:700}.celebrate{animation:pop .45s ease}@keyframes pop{50%{transform:scale(1.04)}}
 
 /* ---- perfil ---- */
 .perfil-top{text-align:center;margin-bottom:22px}
@@ -557,10 +588,42 @@ function embed(url){
   if(v) return'https://player.vimeo.com/video/'+v[1];
   return url;
 }
+const API_FORM='https://eglfoxibyiixikqitxqm.supabase.co/functions/v1/owlapp-api/api/studio/responses';
+function conteudoDisponivel(c,m){
+  const lm=liberada(m),lc=liberada(c); return !lm.ok?lm:lc;
+}
+function cursoHome(p){
+  const mods=CFG.modulos||[],cs=CFG.conteudos||[],f=feitos(),total=cs.length,done=cs.filter(c=>f[c.id]).length,pct=total?Math.round(done/total*100):0;
+  return '<h2 class="pt">'+esc(p.titulo)+'</h2><p class="ps">'+esc(p.subtitulo||'Sua jornada de aprendizado')+'</p>'+
+    '<div class="xpbar"><strong>'+pct+'%</strong><div><b>'+done+' de '+total+' concluídos</b><small>Continue avançando para ganhar mais progresso</small><div class="pg"><i style="width:'+pct+'%"></i></div></div></div>'+
+    mods.map((m,mi)=>{const items=cs.filter(c=>c.moduloId===m.id),lv=liberada(m);return '<section class="mod"><div class="mod-h"><span class="mod-n">'+(mi+1)+'</span><div><h3>'+esc(m.titulo)+'</h3><small>'+esc(m.descricao||items.length+' conteúdos')+(m.drip?' · libera após '+m.drip+' dias':'')+'</small></div></div>'+
+      (!lv.ok?'<div class="trava" style="padding:20px">'+svg('lock')+'<b>'+esc(lv.txt)+'</b></div>':items.map(c=>{const cl=conteudoDisponivel(c,m),ok=!!f[c.id],labels=CFG.rotulosTipos||{};return '<button class="lesson '+(ok?'done':'')+'" '+(cl.ok?'onclick="abrirConteudo(\''+c.id+'\')"':'disabled')+'><span class="li">'+svg(ok?'check':(c.icone||'play'))+'</span><span class="lt"><b>'+esc(c.titulo)+'</b><small>'+esc(labels[c.tipo]||c.tipo)+(c.drip?' · dia '+c.drip:'')+(cl.ok?'':' · '+cl.txt)+'</small></span><span class="chip '+(ok?'':'g')+'">'+(ok?'feito':(cl.ok?'abrir':'bloqueado'))+'</span></button>'}).join(''))+'</section>'}).join('');
+}
+function conteudoHtml(c){
+  const t='<button class="acao sec" onclick="desenhar()" style="width:auto;margin:0 0 16px">← Voltar ao curso</button><h2 class="pt">'+esc(c.titulo)+'</h2><p class="ps">'+esc(c.descricao||'')+'</p><div class="activity">';
+  if(c.tipo==='video') return t+'<div class="vid"><div class="fr"><iframe src="'+esc(embed(c.valor||''))+'" allow="autoplay;encrypted-media;picture-in-picture;fullscreen" allowfullscreen></iframe></div></div></div>';
+  if(c.tipo==='html') return t+'<div class="rico">'+(c.valor||'')+'</div></div>';
+  if(c.tipo==='imagem') return t+'<img src="'+esc(c.valor||'')+'" alt="'+esc(c.titulo)+'"></div>';
+  if(c.tipo==='audio') return t+'<audio controls src="'+esc(c.valor||'')+'"></audio></div>';
+  if(c.tipo==='pintura') return t+'<div class="paint-tools"><input type="color" id="paintColor" value="#ff4757"><button class="acao sec" style="width:auto;margin:0" onclick="limparPintura()">Limpar</button><button class="acao" style="width:auto;margin:0" onclick="salvarPintura()">Salvar desenho</button></div><div class="paint-wrap" id="paintWrap"><img src="'+esc(c.valor||'')+'" alt="Desenho"><canvas id="paintCanvas"></canvas></div></div>';
+  if(c.tipo==='quiz'){const q=c.pergunta||c.titulo,ops=String(c.valor||'').split('\n').filter(Boolean);return t+'<div class="c"><h3>'+esc(q)+'</h3>'+ops.map((o,i)=>'<button class="quiz-opt" onclick="responderQuiz(this,'+i+','+(c.correta||0)+')">'+esc(o)+'</button>').join('')+'</div></div>'}
+  if(c.tipo==='formulario'){const campos=String(c.valor||'Nome|texto\nMensagem|texto longo').split('\n').filter(Boolean);return t+'<form class="form-live" onsubmit="enviarFormulario(event,\''+c.id+'\')">'+campos.map((x,i)=>{const a=x.split('|'),tp=(a[1]||'texto').toLowerCase(),nm=esc(a[0]||('Campo '+(i+1)));return '<label>'+esc(a[0])+'</label>'+(tp.includes('longo')?'<textarea name="'+nm+'" required></textarea>':'<input name="'+nm+'" type="'+(tp.includes('email')?'email':'text')+'" required>')}).join('')+'<button class="acao">Enviar resposta</button></form></div>'}
+  return t+'</div>';
+}
+function abrirConteudo(id){const c=(CFG.conteudos||[]).find(x=>x.id===id);if(!c)return;const main=document.querySelector('#tela-app main');main.innerHTML=conteudoHtml(c);if(!['quiz','formulario'].includes(c.tipo))main.insertAdjacentHTML('beforeend','<button class="acao" onclick="concluirEVoltar(\''+c.id+'\')">✓ Marcar como concluído · +10 XP</button>');if(c.tipo==='pintura')setTimeout(initPintura);window.scrollTo(0,0)}
+function concluirConteudo(id){const f=feitos();f[id]=true;S.set('feitos',JSON.stringify(f))}
+function concluirEVoltar(id){concluirConteudo(id);aviso('Conteúdo concluído! +10 XP');setTimeout(desenhar,500)}
+function responderQuiz(btn,i,ok){btn.parentElement.querySelectorAll('.quiz-opt').forEach((b,j)=>b.classList.add(j===ok?'ok':(j===i?'no':'')));if(i===ok){const c=(CFG.conteudos||[]).find(x=>x.pergunta===btn.parentElement.querySelector('h3').textContent||x.titulo===btn.parentElement.querySelector('h3').textContent);if(c)concluirConteudo(c.id);aviso('Resposta correta! +10 XP')}else aviso('Quase! Tente novamente.')}
+async function enviarFormulario(e,id){e.preventDefault();const dados=Object.fromEntries(new FormData(e.target));const c=(CFG.conteudos||[]).find(x=>x.id===id);try{const r=await fetch(API_FORM,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({app_id:CFG.app.id,manage_hash:CFG.app.responseKeyHash,form_id:id,form_title:c?c.titulo:'Formulário',user_email:U?U.email:null,user_name:U?U.nome:null,payload:dados})});if(!r.ok)throw 0;concluirConteudo(id);e.target.innerHTML='<div class="c celebrate"><h3>✓ Resposta enviada!</h3><p>Seus dados foram salvos com segurança.</p></div>';aviso('Formulário enviado! +10 XP')}catch(_){aviso('Não foi possível enviar. Verifique sua internet.')}}
+function initPintura(){const c=document.getElementById('paintCanvas'),w=document.getElementById('paintWrap');if(!c||!w)return;c.width=w.clientWidth;c.height=w.clientHeight;const x=c.getContext('2d');x.lineWidth=8;x.lineCap='round';let on=false;const pos=e=>{const r=c.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return[(p.clientX-r.left)*c.width/r.width,(p.clientY-r.top)*c.height/r.height]};c.onpointerdown=e=>{on=true;const p=pos(e);x.beginPath();x.moveTo(...p)};c.onpointermove=e=>{if(!on)return;x.strokeStyle=document.getElementById('paintColor').value;x.lineTo(...pos(e));x.stroke()};c.onpointerup=c.onpointerleave=()=>on=false}
+function limparPintura(){const c=document.getElementById('paintCanvas');c.getContext('2d').clearRect(0,0,c.width,c.height)}
+function salvarPintura(){const c=document.getElementById('paintCanvas'),a=document.createElement('a');a.href=c.toDataURL();a.download='minha-pintura.png';a.click();aviso('Pintura salva! +10 XP')}
 function corpo(p){
   const lv=liberada(p);
   if(!lv.ok) return'<div class="trava">'+svg('lock')+'<b>Conteúdo bloqueado</b><p>'+esc(lv.txt)+'</p></div>';
   const t='<h2 class="pt">'+esc(p.titulo)+'</h2>'+(p.subtitulo?'<p class="ps">'+esc(p.subtitulo)+'</p>':'');
+
+  if(p.tipo==='curso') return cursoHome(p);
 
   if(p.tipo==='texto') return t+'<div class="rico">'+p.conteudo+'</div>';
   if(p.tipo==='html')  return p.conteudo;
@@ -745,7 +808,7 @@ const uid=p=>p+Math.random().toString(36).slice(2,7);
 
 /* ================= PROJETO PADRÃO ================= */
 function seed(){return{
- app:{id:uid('app'),nome:'Área de Membros',slogan:'Seu conteúdo, sempre à mão',logo:null,
+ app:{id:uid('app'),manageKey:crypto.randomUUID?crypto.randomUUID():uid('key')+uid('key'),nome:'Área de Membros',slogan:'Seu conteúdo, sempre à mão',logo:null,
       cor:'#00d4aa',fundo:'#0e0f1a',card:'#1b1e34',tema:'escuro',raio:'16',versao:'1.0'},
  auth:{ativo:true,titulo:'Bem-vindo de volta',subtitulo:'Entre para continuar de onde parou',
        cadastro:true,lembrar:true,planoPadrao:'free',suporte:''},
@@ -753,13 +816,18 @@ function seed(){return{
  paginas:[
   {id:uid('p'),titulo:'Início',subtitulo:'Comece por aqui',icone:'home',tipo:'texto',plano:'todos',drip:0,
    conteudo:'<h3>Que bom ter você aqui</h3><p>Seu acesso está liberado. Use o menu do rodapé para navegar entre as áreas.</p><blockquote>Assista as aulas na ordem — cada módulo aproveita o anterior.</blockquote>'},
-  {id:uid('p'),titulo:'Aulas',subtitulo:'Marque cada aula ao concluir',icone:'play',tipo:'modulos',plano:'todos',drip:0,
-   conteudo:'Aula 1 — Fundamentos | 12 min | https://youtu.be/dQw4w9WgXcQ\nAula 2 — Montando a estrutura | 18 min | https://youtu.be/dQw4w9WgXcQ\nAula 3 — Colocando no ar | 9 min | https://youtu.be/dQw4w9WgXcQ'},
+  {id:uid('p'),titulo:'Minha jornada',subtitulo:'Avance, ganhe progresso e conclua cada etapa',icone:'play',tipo:'curso',plano:'todos',drip:0,conteudo:''},
   {id:uid('p'),titulo:'Materiais',subtitulo:'Baixe e use quando quiser',icone:'download',tipo:'arquivos',plano:'todos',drip:0,
    conteudo:'Ebook completo (PDF) | https://exemplo.com/ebook.pdf | 48 páginas\nPlanilha de controle | https://exemplo.com/planilha.xlsx | Excel'},
   {id:uid('p'),titulo:'Bônus VIP',subtitulo:'Exclusivo do plano vip',icone:'star',tipo:'links',plano:'vip',drip:0,
    conteudo:'Grupo no WhatsApp | https://wa.me/5516999999999 | Suporte direto\nMentoria ao vivo | https://meet.google.com | Toda quinta, 20h'}
  ],
+ modulos:[{id:'m-inicio',titulo:'Comece por aqui',descricao:'Fundamentos essenciais',plano:'todos',drip:0}],
+ conteudos:[
+  {id:'c-boasvindas',moduloId:'m-inicio',titulo:'Boas-vindas',descricao:'Assista antes de começar',tipo:'video',icone:'play',plano:'todos',drip:0,valor:'https://www.youtube.com/embed/dQw4w9WgXcQ'},
+  {id:'c-material',moduloId:'m-inicio',titulo:'Material introdutório',descricao:'Leia com atenção',tipo:'html',icone:'pen',plano:'todos',drip:0,valor:'<h3>Bem-vindo!</h3><p>Edite este conteúdo no Studio.</p>'}
+ ],
+ rotulosTipos:{video:'Vídeo',html:'Texto / HTML',imagem:'Imagem',audio:'Áudio',pintura:'Pintura interativa',quiz:'Quiz',formulario:'Formulário'},
  nav:[]
 };}
 let cfg=seed();
@@ -771,11 +839,11 @@ cfg.nav=[
 ];
 
 /* ================= NAVEGAÇÃO DO EDITOR ================= */
-const ABAS=[['identidade','Identidade'],['acesso','Acesso'],['usuarios','Usuários'],['paginas','Páginas'],['menu','Menu'],['publicar','Publicar']];
+const ABAS=[['identidade','Identidade'],['acesso','Acesso'],['usuarios','Usuários'],['modulos','Módulos'],['conteudos','Conteúdos'],['menu','Menu'],['respostas','Respostas'],['publicar','Publicar']];
 let aba='identidade', previewModo='login';
 function irAba(a){aba=a;render()}
 function renderTabs(){
- const n={usuarios:cfg.usuarios.length,paginas:cfg.paginas.length,menu:cfg.nav.length};
+ const n={usuarios:cfg.usuarios.length,modulos:(cfg.modulos||[]).length,conteudos:(cfg.conteudos||[]).length,menu:cfg.nav.length};
  tabs.innerHTML=ABAS.map(([k,l])=>'<button class="tab '+(aba===k?'on':'')+'" onclick="irAba(\''+k+'\')">'+l+
    (n[k]!==undefined?'<span class="n">'+n[k]+'</span>':'')+'</button>').join('');
  ABAS.forEach(([k])=>document.getElementById('p-'+k).classList.toggle('on',aba===k));
@@ -849,61 +917,46 @@ function importarCSV(){
  i.click();
 }
 
-/* ================= PÁGINAS ================= */
-const TIPOS={texto:'Texto rico (HTML)',modulos:'Módulos / aulas',videos:'Vídeos',arquivos:'Downloads',links:'Links',html:'HTML livre'};
-const DICAS={
- texto:'Escreva em HTML simples: <h3>, <p>, <ul><li>, <img src="">, <blockquote>.',
- modulos:'Uma aula por linha:  Título | duração ou descrição | link do vídeo\nO aluno marca cada linha como concluída e a barra de progresso sobe sozinha.',
- videos:'Um vídeo por linha:  Título | link do YouTube ou Vimeo | descrição',
- arquivos:'Um arquivo por linha:  Nome | link do arquivo | detalhe (tamanho, formato)',
- links:'Um link por linha:  Título | endereço | descrição',
- html:'Cole HTML puro. Fica dentro da área de conteúdo, acima do menu.'
-};
-function addPagina(tipo){
- cfg.paginas.push({id:uid('p'),titulo:'Nova página',subtitulo:'',icone:'grid',tipo:tipo,plano:'todos',drip:0,conteudo:''});
- render();toast('Página criada');
-}
-function delPagina(i){
- const p=cfg.paginas[i];
- if(!confirm('Remover a página "'+p.titulo+'"?'))return;
- cfg.nav=cfg.nav.filter(n=>n.alvo!==p.id);
- cfg.paginas.splice(i,1);render();
-}
-function moverPagina(i,d){const a=cfg.paginas;if(i+d<0||i+d>=a.length)return;[a[i],a[i+d]]=[a[i+d],a[i]];render()}
+/* ================= MÓDULOS E CONTEÚDOS ================= */
+const TIPOS_CONTEUDO={video:'Vídeo',html:'Texto / HTML',imagem:'Imagem',audio:'Áudio',pintura:'Pintura interativa',quiz:'Quiz',formulario:'Formulário'};
 function pickIcone(lista,i,atual){
  return'<details><summary style="cursor:pointer;color:var(--txt2);font-size:12px;margin-bottom:8px">Ícone: '+atual+' — trocar</summary>'+
  '<div class="icons">'+Object.keys(ICONS).map(k=>
   '<div class="ic '+(k===atual?'on':'')+'" title="'+k+'" onclick="cfg.'+lista+'['+i+'].icone=\''+k+'\';render()">'+ico(k)+'</div>').join('')+'</div></details>';
 }
-function renderPaginas(){
- const el=listaPaginas;
- if(!cfg.paginas.length){el.innerHTML='<div class="empty">Nenhuma página. Crie a primeira abaixo.</div>';return}
- el.innerHTML=cfg.paginas.map((p,i)=>`
- <div class="item">
+function addModulo(){cfg.modulos=cfg.modulos||[];cfg.modulos.push({id:uid('m'),titulo:'Novo módulo',descricao:'',plano:'todos',drip:0});render();toast('Módulo adicionado')}
+function duplicarModulo(i){const m=cfg.modulos[i],novo={...m,id:uid('m'),titulo:m.titulo+' — cópia'};cfg.modulos.splice(i+1,0,novo);const copias=(cfg.conteudos||[]).filter(c=>c.moduloId===m.id).map(c=>({...c,id:uid('c'),moduloId:novo.id,titulo:c.titulo+' — cópia'}));cfg.conteudos.push(...copias);render();toast('Módulo e conteúdos duplicados')}
+function delModulo(i){const m=cfg.modulos[i];if(!confirm('Remover o módulo e todos os conteúdos de "'+m.titulo+'"?'))return;cfg.conteudos=cfg.conteudos.filter(c=>c.moduloId!==m.id);cfg.modulos.splice(i,1);render()}
+function moverModulo(i,d){const a=cfg.modulos;if(i+d<0||i+d>=a.length)return;[a[i],a[i+d]]=[a[i+d],a[i]];render()}
+function renderModulos(){const el=listaModulos;if(!cfg.modulos?.length){el.innerHTML='<div class="empty">Crie o primeiro módulo da jornada.</div>';return}el.innerHTML=cfg.modulos.map((m,i)=>`
+ <div class="item module-card">
    <div class="head">
-     <div class="av">${ico(p.icone)}</div>
-     <div class="t">${esc(p.titulo)}<small>${TIPOS[p.tipo]||p.tipo} · plano ${esc(p.plano)}${p.drip>0?' · libera em '+p.drip+'d':''}</small></div>
-     <button class="btn sm" onclick="moverPagina(${i},-1)">↑</button>
-     <button class="btn sm" onclick="moverPagina(${i},1)">↓</button>
-     <button class="btn sm d" onclick="delPagina(${i})">Remover</button>
+     <div class="av">${i+1}</div><div class="t">${esc(m.titulo)}<small>${(cfg.conteudos||[]).filter(c=>c.moduloId===m.id).length} conteúdos · ${m.drip?'libera no dia '+m.drip:'liberação imediata'}</small></div>
+     <button class="btn sm" onclick="moverModulo(${i},-1)">↑</button><button class="btn sm" onclick="moverModulo(${i},1)">↓</button><button class="btn sm" onclick="duplicarModulo(${i})">Duplicar</button><button class="btn sm d" onclick="delModulo(${i})">Remover</button>
    </div>
    <div class="grid2">
-     <div class="f"><label>Título</label><input type="text" value="${esc(p.titulo)}" oninput="cfg.paginas[${i}].titulo=this.value;toque()"></div>
-     <div class="f"><label>Linha de apoio</label><input type="text" value="${esc(p.subtitulo)}" oninput="cfg.paginas[${i}].subtitulo=this.value;toque()"></div>
+     <div class="f"><label>Nome do módulo</label><input type="text" value="${esc(m.titulo)}" oninput="cfg.modulos[${i}].titulo=this.value;toque()"></div>
+     <div class="f"><label>Descrição</label><input type="text" value="${esc(m.descricao||'')}" oninput="cfg.modulos[${i}].descricao=this.value;toque()"></div>
    </div>
-   <div class="grid3">
-     <div class="f"><label>Formato</label><select onchange="cfg.paginas[${i}].tipo=this.value;render()">
-       ${Object.keys(TIPOS).map(t=>`<option value="${t}" ${p.tipo===t?'selected':''}>${TIPOS[t]}</option>`).join('')}</select></div>
-     <div class="f"><label>Quem vê</label><input type="text" value="${esc(p.plano)}" placeholder="todos" oninput="cfg.paginas[${i}].plano=this.value.trim()||'todos';toque()"></div>
-     <div class="f"><label>Liberar após (dias)</label><input type="number" min="0" value="${p.drip||0}" oninput="cfg.paginas[${i}].drip=parseInt(this.value)||0;toque()"></div>
-   </div>
-   ${pickIcone('paginas',i,p.icone)}
-   <div class="f"><label>Conteúdo</label>
-     <textarea oninput="cfg.paginas[${i}].conteudo=this.value;toque()" spellcheck="false">${esc(p.conteudo)}</textarea>
-     <p class="hint" style="margin:6px 0 0;white-space:pre-line">${esc(DICAS[p.tipo]||'')}</p>
-   </div>
- </div>`).join('');
-}
+   <div class="grid2"><div class="f"><label>Quem vê</label><input value="${esc(m.plano||'todos')}" oninput="cfg.modulos[${i}].plano=this.value||'todos';toque()"></div><div class="f"><label>Liberar após (dias)</label><input type="number" min="0" value="${m.drip||0}" oninput="cfg.modulos[${i}].drip=parseInt(this.value)||0;toque()"></div></div>
+ </div>`).join('')}
+function addConteudo(tipo){if(!cfg.modulos?.length)return toast('Crie um módulo primeiro');cfg.conteudos=cfg.conteudos||[];cfg.conteudos.push({id:uid('c'),moduloId:cfg.modulos[0].id,titulo:'Novo '+TIPOS_CONTEUDO[tipo],descricao:'',tipo,icone:tipo==='quiz'?'target':tipo==='html'?'pen':'play',plano:'todos',drip:0,valor:tipo==='quiz'?'Opção A\nOpção B\nOpção C':tipo==='formulario'?'Nome|texto\nE-mail|email\nMensagem|texto longo':'',pergunta:tipo==='quiz'?'Qual é a resposta correta?':'',correta:0});render();toast('Conteúdo adicionado')}
+function duplicarConteudo(i){cfg.conteudos.splice(i+1,0,{...cfg.conteudos[i],id:uid('c'),titulo:cfg.conteudos[i].titulo+' — cópia'});render()}
+function delConteudo(i){if(confirm('Remover este conteúdo?')){cfg.conteudos.splice(i,1);render()}}
+function dicaConteudo(c){if(c.tipo==='video')return 'Cole o link do YouTube, Vimeo ou vídeo incorporável.';if(c.tipo==='html')return 'Use texto e HTML: <h3>, <p>, <img>, listas e links.';if(c.tipo==='imagem'||c.tipo==='pintura')return 'Cole uma URL de imagem ou use o botão Enviar imagem.';if(c.tipo==='audio')return 'Cole a URL direta de um arquivo MP3.';if(c.tipo==='quiz')return 'Uma alternativa por linha. Indique o número da resposta correta.';return 'Um campo por linha: Nome do campo | texto, email ou texto longo.'}
+function renderConteudos(){const el=listaConteudos;if(!cfg.conteudos?.length){el.innerHTML='<div class="empty">Nenhum conteúdo. Escolha um tipo abaixo.</div>';return}el.innerHTML=cfg.conteudos.map((c,i)=>`
+ <div class="item"><div class="head"><div class="av">${ico(c.icone||'play')}</div><div class="t">${esc(c.titulo)}<small><span class="content-kind">${TIPOS_CONTEUDO[c.tipo]}</span> · ${esc((cfg.modulos.find(m=>m.id===c.moduloId)||{}).titulo||'Sem módulo')} ${c.drip?'· dia '+c.drip:''}</small></div><div class="content-tools"><button class="btn sm" onclick="duplicarConteudo(${i})">Duplicar</button><button class="btn sm d" onclick="delConteudo(${i})">Remover</button></div></div>
+ <div class="grid2"><div class="f"><label>Título</label><input value="${esc(c.titulo)}" oninput="cfg.conteudos[${i}].titulo=this.value;toque()"></div><div class="f"><label>Módulo</label><select onchange="cfg.conteudos[${i}].moduloId=this.value;render()">${cfg.modulos.map(m=>`<option value="${m.id}" ${m.id===c.moduloId?'selected':''}>${esc(m.titulo)}</option>`).join('')}</select></div></div>
+ <div class="grid3"><div class="f"><label>Tipo</label><select onchange="cfg.conteudos[${i}].tipo=this.value;render()">${Object.entries(TIPOS_CONTEUDO).map(([k,v])=>`<option value="${k}" ${k===c.tipo?'selected':''}>${v}</option>`).join('')}</select></div><div class="f"><label>Quem vê</label><input value="${esc(c.plano||'todos')}" oninput="cfg.conteudos[${i}].plano=this.value||'todos';toque()"></div><div class="f"><label>Liberar após (dias)</label><input type="number" min="0" value="${c.drip||0}" oninput="cfg.conteudos[${i}].drip=parseInt(this.value)||0;toque()"></div></div>
+ <div class="f"><label>Descrição</label><input value="${esc(c.descricao||'')}" oninput="cfg.conteudos[${i}].descricao=this.value;toque()"></div>
+ ${c.tipo==='quiz'?`<div class="grid2"><div class="f"><label>Pergunta</label><input value="${esc(c.pergunta||'')}" oninput="cfg.conteudos[${i}].pergunta=this.value;toque()"></div><div class="f"><label>Resposta correta (1, 2, 3...)</label><input type="number" min="1" value="${(c.correta||0)+1}" oninput="cfg.conteudos[${i}].correta=Math.max(0,(parseInt(this.value)||1)-1);toque()"></div></div>`:''}
+ <div class="f"><label>${c.tipo==='quiz'?'Alternativas':c.tipo==='formulario'?'Campos do formulário':'Conteúdo / URL'}</label><textarea oninput="cfg.conteudos[${i}].valor=this.value;toque()">${esc(c.valor||'')}</textarea><p class="hint" style="margin-top:6px">${dicaConteudo(c)}</p></div>
+ ${(c.tipo==='imagem'||c.tipo==='pintura')?`<button class="btn sm" onclick="escolherImagem(d=>{cfg.conteudos[${i}].valor=d;render()},900)">Enviar imagem</button>`:''}
+ </div>`).join('')}
+
+let respostasCache=[];
+async function carregarRespostas(){const el=listaRespostas;el.textContent='Carregando...';try{const r=await fetch('https://eglfoxibyiixikqitxqm.supabase.co/functions/v1/owlapp-api/api/studio/responses?app_id='+encodeURIComponent(cfg.app.id),{headers:{'x-studio-key':cfg.app.manageKey}});const j=await r.json();if(!r.ok)throw new Error(j.error);respostasCache=j.data||[];el.className='';el.innerHTML=respostasCache.length?respostasCache.map(x=>`<div class="item"><div class="head"><div class="av">✓</div><div class="t">${esc(x.form_title)}<small>${esc(x.user_name||x.user_email||'Anônimo')} · ${new Date(x.created_at).toLocaleString('pt-BR')}</small></div></div><div class="code">${esc(JSON.stringify(x.payload,null,2))}</div></div>`).join(''):'<div class="empty">Nenhuma resposta recebida.</div>'}catch(e){el.className='empty';el.textContent='Não foi possível buscar as respostas.'}}
+function exportarRespostas(){if(!respostasCache.length)return toast('Atualize as respostas primeiro');const q=s=>'"'+String(s??'').replace(/"/g,'""')+'"',csv='Data,Formulário,Aluno,E-mail,Respostas\n'+respostasCache.map(x=>[x.created_at,x.form_title,x.user_name,x.user_email,JSON.stringify(x.payload)].map(q).join(',')).join('\n');baixar('respostas-'+slug(cfg.app.nome)+'.csv',csv,'text/csv')}
 
 /* ================= MENU DO RODAPÉ ================= */
 function addNav(){
@@ -962,6 +1015,8 @@ function escolherImagem(cb,tam){
 /* ================= GERAÇÃO DO APP ================= */
 function gerar(modo){
  const c=JSON.parse(JSON.stringify(cfg));
+ c.app.responseKeyHash=senhaHash(c.app.manageKey);
+ delete c.app.manageKey;
  c.icones=ICONS;
  c.preview=modo||null;
  c.usuarios=c.usuarios.filter(u=>u.email).map(u=>({id:u.id,nome:u.nome,email:u.email,
@@ -1036,7 +1091,7 @@ function projetoImportar(){
  i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{try{const d=JSON.parse(r.result);
     if(!d.app||!d.paginas)throw 0;
-    cfg=Object.assign(seed(),d);render();toast('Projeto carregado')}
+    cfg=Object.assign(seed(),d);cfg.modulos=cfg.modulos||[];cfg.conteudos=cfg.conteudos||[];cfg.app.manageKey=cfg.app.manageKey||(crypto.randomUUID?crypto.randomUUID():uid('key')+uid('key'));render();toast('Projeto carregado')}
    catch(e){toast('Esse arquivo não é um projeto do Studio')}};
   r.readAsText(f)};
  i.click();
@@ -1054,7 +1109,7 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 /* ================= RENDER GERAL ================= */
 function render(){
  const y=window.scrollY;
- renderTabs();aplicarBinds();renderUsuarios();renderPaginas();renderMenu();
+ renderTabs();aplicarBinds();renderUsuarios();renderModulos();renderConteudos();renderMenu();
  logoPrev.innerHTML=cfg.app.logo?'<img src="'+cfg.app.logo+'" style="width:100%;height:100%;border-radius:14px;object-fit:cover">'
    :esc((cfg.app.nome||'A').charAt(0).toUpperCase());
  atualizarPreview();

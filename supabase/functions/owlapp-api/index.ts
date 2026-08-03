@@ -8,7 +8,7 @@ const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info",
+  "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info, x-studio-key",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
 };
 
@@ -40,6 +40,11 @@ function clean<T extends Record<string, unknown>>(value: T, allowed: string[]) {
   return Object.fromEntries(allowed.filter((k) => k in value).map((k) => [k, value[k]]));
 }
 
+function studioHash(value: string) {
+  const h = (s: string) => { let x = 5381; for (let i = 0; i < s.length; i++) x = (((x << 5) + x + s.charCodeAt(i)) >>> 0); return x.toString(16).padStart(8, "0").slice(-8); };
+  return h("hly:" + value) + h(value + ":hly2#" + value.length);
+}
+
 async function appWithCounts(app: Record<string, unknown>) {
   const appId = String(app.id);
   const [{ count: usersCount }, { count: modulesCount }, { data: slugs }] = await Promise.all([
@@ -60,6 +65,32 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (path === "/api/health") return ok({ status: "ok" });
+
+    if (path === "/api/studio/responses" && method === "POST") {
+      const input = await body(req);
+      const appId = String(input.app_id || "").slice(0, 80);
+      const formId = String(input.form_id || "").slice(0, 80);
+      const manageHash = String(input.manage_hash || "").slice(0, 32);
+      if (!appId || !formId || !/^[a-f0-9]{16}$/i.test(manageHash)) return fail(400, "Formulário inválido.");
+      const payload = input.payload && typeof input.payload === "object" ? input.payload : {};
+      if (JSON.stringify(payload).length > 50000) return fail(413, "Resposta muito grande.");
+      const { error } = await admin.from("studio_form_responses").insert({
+        app_id: appId, manage_hash: manageHash, form_id: formId,
+        form_title: String(input.form_title || "Formulário").slice(0, 160),
+        user_email: input.user_email ? String(input.user_email).slice(0, 254) : null,
+        user_name: input.user_name ? String(input.user_name).slice(0, 160) : null,
+        payload,
+      });
+      return error ? fail(400, error.message) : ok({ saved: true });
+    }
+
+    if (path === "/api/studio/responses" && method === "GET") {
+      const appId = String(url.searchParams.get("app_id") || "").slice(0, 80);
+      const key = req.headers.get("x-studio-key") || "";
+      if (!appId || key.length < 12) return fail(401, "Chave administrativa inválida.");
+      const { data, error } = await admin.from("studio_form_responses").select("id,form_id,form_title,user_email,user_name,payload,created_at").eq("app_id", appId).eq("manage_hash", studioHash(key)).order("created_at", { ascending: false }).limit(1000);
+      return error ? fail(400, error.message) : ok(data || []);
+    }
 
     if (path === "/api/auth/register" && method === "POST") {
       const input = await body(req);
