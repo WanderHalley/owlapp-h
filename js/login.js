@@ -6,20 +6,28 @@ const LoginPage = (() => {
 
     // ── Init ───────────────────────────────────────────────
 
-    function init() {
+    async function init() {
         initTheme();
-        checkAlreadyLoggedIn();
+        await checkAlreadyLoggedIn();
         initFormSubmit();
         focusFirstField();
+        if (getUrlParam('session') === 'expired') {
+            showToast('Sua sessão expirou. Entre novamente.', 'warning');
+        }
     }
 
     // ── Redirect if already logged in ──────────────────────
 
-    function checkAlreadyLoggedIn() {
+    async function checkAlreadyLoggedIn() {
         const session = getSession();
-        if (session && session.access_token) {
-            window.location.href = 'dashboard.html';
+        if (!session || !session.access_token) return false;
+        const valid = await validateSession();
+        if (valid) {
+            window.location.replace('dashboard.html');
+            return true;
         }
+        clearSession();
+        return false;
     }
 
     // ── Form Submit via Enter ──────────────────────────────
@@ -72,6 +80,11 @@ const LoginPage = (() => {
         }
         if (!passVal || passVal.length < 6) {
             showFieldError(password, 'Senha deve ter pelo menos 6 caracteres');
+            return;
+        }
+
+        if (!isApiConfigured()) {
+            showToast('O servidor da aplicação ainda não foi configurado.', 'error');
             return;
         }
 

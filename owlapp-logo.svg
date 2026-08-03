@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">OwlApp</title>
+  <defs>
+    <linearGradient id="g" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7657ff"/>
+      <stop offset="1" stop-color="#b15bc7"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#g)"/>
+  <path d="M15 19l10 4a19 19 0 0114 0l10-4-3 13c0 12-6 20-14 20s-14-8-14-20z" fill="#fff"/>
+  <circle cx="25" cy="33" r="6" fill="#211b40"/>
+  <circle cx="39" cy="33" r="6" fill="#211b40"/>
+  <circle cx="27" cy="31" r="2" fill="#fff"/>
+  <circle cx="41" cy="31" r="2" fill="#fff"/>
+  <path d="M28 41l4 4 4-4-4-2z" fill="#7657ff"/>
+</svg>

@@ -31,7 +31,7 @@ const CreateAppPage = (() => {
     // ── Init ───────────────────────────────────────────────
 
     function init() {
-        requireAuth();
+        if (!requireAuth()) return;
         initTheme();
         generateSidebar('apps');
         generateHeader('Criar App');

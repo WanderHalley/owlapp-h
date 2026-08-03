@@ -26,7 +26,7 @@ const DashboardPage = (() => {
     // ── Init ───────────────────────────────────────────────
 
     function init() {
-        requireAuth();
+        if (!requireAuth()) return;
         initTheme();
         generateSidebar('dashboard');
         generateHeader('Dashboard');

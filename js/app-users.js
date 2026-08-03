@@ -42,7 +42,7 @@ const UsersPage = (() => {
     // ── Init ───────────────────────────────────────────────
 
     function init() {
-        requireAuth();
+        if (!requireAuth()) return;
         initTheme();
         generateSidebar('apps');
         generateHeader('Usuários');

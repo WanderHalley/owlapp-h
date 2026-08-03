@@ -18,7 +18,15 @@
 /* ============================================================================
    1. CONFIG
    ============================================================================ */
-const API_BASE_URL = localStorage.getItem('owlapp_api_url') || 'https://SEU-SPACE.hf.space';
+const API_BASE_URL = (
+    window.OWLAPP_API_URL ||
+    localStorage.getItem('owlapp_api_url') ||
+    ''
+).replace(/\/$/, '');
+
+function isApiConfigured() {
+    return Boolean(API_BASE_URL);
+}
 
 function getConfig() {
     try {
@@ -163,7 +171,7 @@ function generateSidebar(activePage) {
 
     // Header
     html += '<div class="sidebar-header">';
-    html += '<img src="brand/owlapp-logo.png" alt="OwlApp" class="sidebar-logo" onerror="this.style.display=\'none\'">';
+    html += '<img src="owlapp-logo.svg" alt="OwlApp" class="sidebar-logo">';
     html += '<span class="sidebar-brand">OwlApp</span>';
     html += '</div>';
 
@@ -278,7 +286,7 @@ function getAuthToken() {
 function requireAuth() {
     const session = getSession();
     if (!session) {
-        window.location.href = 'login.html';
+        window.location.replace('login.html');
         return false;
     }
     return true;
@@ -287,7 +295,7 @@ function requireAuth() {
 function requireAdmin() {
     const session = getSession();
     if (!session) {
-        window.location.href = 'login.html';
+        window.location.replace('login.html');
         return false;
     }
     if (!session.roles || !session.roles.includes('admin')) {
@@ -388,6 +396,12 @@ function getPublicAppToken(slug) {
    6. API WRAPPER
    ============================================================================ */
 async function apiRequest(method, path, body, customHeaders) {
+    if (!isApiConfigured()) {
+        return {
+            success: false,
+            error: 'Backend não configurado. Defina window.OWLAPP_API_URL antes de js/app.js.'
+        };
+    }
     const url = API_BASE_URL + path;
     const headers = {
         'Content-Type': 'application/json',
@@ -427,7 +441,7 @@ async function apiRequest(method, path, body, customHeaders) {
         if (response.status === 401) {
             clearSession();
             if (!window.location.pathname.includes('login') && !window.location.pathname.includes('public-app')) {
-                window.location.href = 'login.html';
+                window.location.replace('login.html?session=expired');
             }
             return data;
         }
@@ -997,7 +1011,7 @@ const AppsPage = (() => {
     // ── Init ───────────────────────────────────────────────
 
     function init() {
-        requireAuth();
+        if (!requireAuth()) return;
         initTheme();
         generateSidebar('apps');
         generateHeader('Meus Apps');
@@ -1542,7 +1556,14 @@ const AppsPage = (() => {
 
 // ── Boot ───────────────────────────────────────────────────
 
-document.addEventListener('DOMContentLoaded', AppsPage.init);
+// Este bloco está concatenado ao core e, portanto, app.js é carregado também
+// no login e nas demais telas. Inicializar AppsPage fora de apps.html acionava
+// o auth guard e provocava recarregamento infinito da própria página de login.
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('appsCountText')) {
+        AppsPage.init();
+    }
+});
 
 /* ============================================================================
    FIM DO APP.JS

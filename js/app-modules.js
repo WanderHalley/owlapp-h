@@ -18,7 +18,7 @@ const ModulesPage = (() => {
     // ── Init ───────────────────────────────────────────────
 
     function init() {
-        requireAuth();
+        if (!requireAuth()) return;
         initTheme();
         generateSidebar('apps');
         generateHeader('Módulos');

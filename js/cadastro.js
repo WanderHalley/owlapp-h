@@ -19,9 +19,9 @@ const CadastroPage = (() => {
 
     // ── Init ───────────────────────────────────────────────
 
-    function init() {
+    async function init() {
         initTheme();
-        checkAlreadyLoggedIn();
+        await checkAlreadyLoggedIn();
         loadSelectedPlan();
         initFormSubmit();
         initPasswordStrength();
@@ -30,11 +30,16 @@ const CadastroPage = (() => {
 
     // ── Redirect if already logged in ──────────────────────
 
-    function checkAlreadyLoggedIn() {
+    async function checkAlreadyLoggedIn() {
         const session = getSession();
-        if (session && session.access_token) {
-            window.location.href = 'dashboard.html';
+        if (!session || !session.access_token) return false;
+        const valid = await validateSession();
+        if (valid) {
+            window.location.replace('dashboard.html');
+            return true;
         }
+        clearSession();
+        return false;
     }
 
     // ── Selected Plan from URL ─────────────────────────────

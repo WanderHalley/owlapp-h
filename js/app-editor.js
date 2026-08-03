@@ -20,7 +20,7 @@ const AppEditorPage = (() => {
     // ── Init ───────────────────────────────────────────────
 
     function init() {
-        requireAuth();
+        if (!requireAuth()) return;
         initTheme();
         generateSidebar('apps');
         generateHeader('Editor do App');
