@@ -682,6 +682,7 @@ p.ps{margin:0 0 18px;color:var(--txt2);font-size:13.5px}
 .vp-tela>img.thumb,.vp-tela>video.thumb,.vp-tela>video,.vp-tela>iframe,.vp-tela>div{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vp-tela>img.thumb,.vp-tela>video.thumb{object-fit:cover}
 .vp.tocando .ply{display:none}
+.vp.simples .vp-ctrl{display:none}
 .vp.tocando .vp-tela{cursor:default}
 .vp-erro{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;
  color:#fff;background:#111;font-size:13px;line-height:1.5}
@@ -1194,26 +1195,47 @@ function plAbrir(id){
   plRelogio(id);return;
  }
  tela.innerHTML='<div id="'+id+'_yt"></div>';
+ /* se a API demorar ou for bloqueada, cai no player simples — sempre dentro do app */
+ s.pronto=false;
+ clearTimeout(s.espera);
+ s.espera=setTimeout(function(){if(!s.pronto)plSimples(id)},6000);
  carregarYT(function(falhou){
-  if(falhou||!window.YT||!window.YT.Player)return plErro(id);
+  if(falhou||!window.YT||!window.YT.Player)return plSimples(id);
   const vars={controls:0,rel:0,modestbranding:1,playsinline:1,fs:0,iv_load_policy:3,disablekb:1};
   if(location.protocol==='http:'||location.protocol==='https:')vars.origin=location.origin;
   if(s.lista)vars.list=s.lista;
   try{
    s.api=new YT.Player(id+'_yt',{videoId:s.vid,playerVars:vars,events:{
-    onReady:function(ev){s.api=ev.target;try{ev.target.playVideo()}catch(e){}plRelogio(id)},
+    onReady:function(ev){s.pronto=true;clearTimeout(s.espera);s.api=ev.target;
+     try{ev.target.playVideo()}catch(e){}plRelogio(id)},
     onStateChange:function(ev){s.tocando=(ev.data===1);plBotao(id)},
-    onError:function(){plErro(id)}}});
-  }catch(e){plErro(id)}
+    onError:function(ev){clearTimeout(s.espera);
+     const c=ev&&ev.data;
+     /* 101 e 150 = o dono do vídeo não deixa incorporar */
+     if(c===101||c===150)plErro(id,'O dono deste vídeo não permite tocá-lo fora do YouTube. Suba o arquivo no Google Drive ou marque a incorporação como permitida.');
+     else plSimples(id)}}});
+  }catch(e){plSimples(id)}
  });
 }
-function plErro(id){
+/* player simples: o próprio quadro do YouTube, com os controles dele */
+function plSimples(id){
+ const s=PL[id],tela=document.getElementById(id+'_tela');
+ if(!s||!tela||s.simples)return;
+ s.simples=true;s.pronto=true;clearTimeout(s.espera);
+ tela.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+s.vid+
+  '?autoplay=1&playsinline=1&rel=0&modestbranding=1'+(s.lista?'&list='+s.lista:'')+
+  '" allow="autoplay;accelerometer;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" '+
+  'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+ const box=document.getElementById(id);
+ if(box)box.classList.add('simples');
+}
+function plErro(id,msg){
  const tela=document.getElementById(id+'_tela');if(!tela)return;
- tela.innerHTML='<div class="vp-erro">Não consegui carregar este vídeo aqui.<br>'+
+ tela.innerHTML='<div class="vp-erro">'+(msg||('Não consegui carregar este vídeo aqui.<br>'+
   (location.protocol==='file:'
-   ?'O arquivo está aberto direto do computador. Publique o app num endereço https e o vídeo toca normalmente.'
-   :'Confira o link no editor ou se o vídeo permite ser incorporado.')+'</div>';
- const s=PL[id];if(s)s.aberto=false;
+   ?'O arquivo está aberto direto do computador. Publique o app num endereço https e ele toca normalmente.'
+   :'Confira o link no editor.')))+'</div>';
+ const s=PL[id];if(s){s.aberto=false;clearTimeout(s.espera)}
 }
 function plPlay(id){
  const s=PL[id];if(!s)return;
@@ -1765,6 +1787,7 @@ main.tr-zoom{animation:trZoom .26s ease}
 .vp-tela>img.thumb,.vp-tela>video.thumb,.vp-tela>video,.vp-tela>iframe,.vp-tela>div{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vp-tela>img.thumb,.vp-tela>video.thumb{object-fit:cover}
 .vp.tocando .ply{display:none}
+.vp.simples .vp-ctrl{display:none}
 .vp.tocando .vp-tela{cursor:default}
 .vp-erro{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;
  color:#fff;background:#111;font-size:13px;line-height:1.5}
@@ -1966,26 +1989,47 @@ function plAbrir(id){
   plRelogio(id);return;
  }
  tela.innerHTML='<div id="'+id+'_yt"></div>';
+ /* se a API demorar ou for bloqueada, cai no player simples — sempre dentro do app */
+ s.pronto=false;
+ clearTimeout(s.espera);
+ s.espera=setTimeout(function(){if(!s.pronto)plSimples(id)},6000);
  carregarYT(function(falhou){
-  if(falhou||!window.YT||!window.YT.Player)return plErro(id);
+  if(falhou||!window.YT||!window.YT.Player)return plSimples(id);
   const vars={controls:0,rel:0,modestbranding:1,playsinline:1,fs:0,iv_load_policy:3,disablekb:1};
   if(location.protocol==='http:'||location.protocol==='https:')vars.origin=location.origin;
   if(s.lista)vars.list=s.lista;
   try{
    s.api=new YT.Player(id+'_yt',{videoId:s.vid,playerVars:vars,events:{
-    onReady:function(ev){s.api=ev.target;try{ev.target.playVideo()}catch(e){}plRelogio(id)},
+    onReady:function(ev){s.pronto=true;clearTimeout(s.espera);s.api=ev.target;
+     try{ev.target.playVideo()}catch(e){}plRelogio(id)},
     onStateChange:function(ev){s.tocando=(ev.data===1);plBotao(id)},
-    onError:function(){plErro(id)}}});
-  }catch(e){plErro(id)}
+    onError:function(ev){clearTimeout(s.espera);
+     const c=ev&&ev.data;
+     /* 101 e 150 = o dono do vídeo não deixa incorporar */
+     if(c===101||c===150)plErro(id,'O dono deste vídeo não permite tocá-lo fora do YouTube. Suba o arquivo no Google Drive ou marque a incorporação como permitida.');
+     else plSimples(id)}}});
+  }catch(e){plSimples(id)}
  });
 }
-function plErro(id){
+/* player simples: o próprio quadro do YouTube, com os controles dele */
+function plSimples(id){
+ const s=PL[id],tela=document.getElementById(id+'_tela');
+ if(!s||!tela||s.simples)return;
+ s.simples=true;s.pronto=true;clearTimeout(s.espera);
+ tela.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+s.vid+
+  '?autoplay=1&playsinline=1&rel=0&modestbranding=1'+(s.lista?'&list='+s.lista:'')+
+  '" allow="autoplay;accelerometer;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" '+
+  'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+ const box=document.getElementById(id);
+ if(box)box.classList.add('simples');
+}
+function plErro(id,msg){
  const tela=document.getElementById(id+'_tela');if(!tela)return;
- tela.innerHTML='<div class="vp-erro">Não consegui carregar este vídeo aqui.<br>'+
+ tela.innerHTML='<div class="vp-erro">'+(msg||('Não consegui carregar este vídeo aqui.<br>'+
   (location.protocol==='file:'
-   ?'O arquivo está aberto direto do computador. Publique o app num endereço https e o vídeo toca normalmente.'
-   :'Confira o link no editor ou se o vídeo permite ser incorporado.')+'</div>';
- const s=PL[id];if(s)s.aberto=false;
+   ?'O arquivo está aberto direto do computador. Publique o app num endereço https e ele toca normalmente.'
+   :'Confira o link no editor.')))+'</div>';
+ const s=PL[id];if(s){s.aberto=false;clearTimeout(s.espera)}
 }
 function plPlay(id){
  const s=PL[id];if(!s)return;
@@ -2779,18 +2823,21 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  let u; try { u = new URL(req.url) } catch (e) { return }
+  /* só cuida dos arquivos do próprio site: vídeo, áudio e fontes de fora passam direto */
+  if (u.origin !== self.location.origin) return;
+  if (req.headers.has('range')) return;
+  if (req.mode === 'navigate') { event.respondWith(fetch(req).catch(() => caches.match('./'))); return }
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(response => {
-        if (response && response.status === 200) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      }).catch(() => caches.match('./'));
-    })
+    caches.match(req).then(cached => cached || fetch(req).then(response => {
+      if (response && response.status === 200 && response.type === 'basic') {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+      }
+      return response;
+    }))
   );
 });
 `;
@@ -4851,7 +4898,18 @@ function baixarPWA(){
  const sw="const CACHE='"+slug(cfg.app.nome)+"-v1';\nconst ARQ=['./','./index.html','./manifest.json'];\n"+
  "self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ARQ).catch(()=>{})))});\n"+
  "self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});\n"+
- "self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{const cp=res.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return res}).catch(()=>caches.match('./index.html'))))});";
+ "self.addEventListener('fetch',e=>{\n"+
+ "  const r=e.request;\n"+
+ "  if(r.method!=='GET')return;\n"+
+ "  let u;try{u=new URL(r.url)}catch(err){return}\n"+
+ "  /* vídeo, áudio e qualquer coisa de fora passam direto pelo navegador */\n"+
+ "  if(u.origin!==self.location.origin)return;\n"+
+ "  if(r.headers.has('range'))return;\n"+
+ "  if(r.mode==='navigate'){e.respondWith(fetch(r).catch(()=>caches.match('./index.html')));return}\n"+
+ "  e.respondWith(caches.match(r).then(c=>c||fetch(r).then(res=>{\n"+
+ "    if(res&&res.status===200&&res.type==='basic'){const cp=res.clone();caches.open(CACHE).then(x=>x.put(r,cp))}\n"+
+ "    return res})));\n"+
+ "});";
  setTimeout(()=>baixar('sw.js',sw,'text/javascript'),350);
  if(cfg.app.logo)setTimeout(()=>{const a=document.createElement('a');a.href=cfg.app.logo;a.download='icone.png';a.click()},700);
  toast('Arquivos do PWA baixados')}
