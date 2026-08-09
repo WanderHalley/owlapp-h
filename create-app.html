@@ -78,6 +78,9 @@ input[type=color]{width:100%;height:40px;padding:3px;background:var(--bg2);borde
  font-weight:800;color:var(--acc);flex:none;font-size:14px}
 .av svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .mini{width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--card2);flex:none;border:1px solid var(--line)}
+.alt-lin{display:flex;gap:10px;align-items:flex-start;background:var(--bg2);border:1px solid var(--line);
+ border-radius:10px;padding:10px;margin-bottom:8px}
+.alt-lin .mini{width:58px;height:58px;border-radius:9px;object-fit:cover}
 .empty{padding:26px 16px;text-align:center;color:var(--txt3);border:1px dashed var(--line);border-radius:var(--r);margin-bottom:12px}
 .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:var(--card2);color:var(--txt2)}
 .tag.ok{background:rgba(0,212,170,.13);color:var(--acc)}
@@ -177,6 +180,13 @@ details[open]>summary:before{content:"\25BE  "}
 .trilha select{width:auto;min-width:170px;padding:7px 10px}
 .trilha span{color:var(--txt2)}
 .preview{position:sticky;top:78px}
+@media(min-width:1101px){
+ html,body{height:100%;overflow:hidden}
+ .wrap{height:calc(100vh - 64px);align-items:stretch;padding-bottom:0}
+ #colEditor{overflow-y:auto;overflow-x:hidden;padding:0 10px 40px 0;height:100%}
+ .preview{position:static!important;overflow-y:auto;height:100%;padding-bottom:30px}
+ #colEditor::-webkit-scrollbar,.preview::-webkit-scrollbar{width:9px}
+}
 .phone{width:100%;max-width:392px;margin:0 auto;background:#000;border-radius:38px;padding:11px;
  box-shadow:0 30px 70px rgba(0,0,0,.6),0 0 0 1px #2a2f4d}
 .phone iframe{width:100%;height:706px;border:0;border-radius:28px;background:#fff;display:block}
@@ -203,6 +213,7 @@ details[open]>summary:before{content:"\25BE  "}
   <div class="modos">
    <button id="modo-membros" onclick="setModo('membros')"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>App de Membros</button>
    <button id="modo-quiz" onclick="setModo('quiz')"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Quiz de Captação</button>
+   <button id="modo-ebook" onclick="setModo('ebook')"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M9 3v18"/></svg>Ebook Web</button>
   </div>
   <div class="sp"></div>
   <button class="btn" onclick="projetoNovo()">Novo</button>
@@ -212,7 +223,7 @@ details[open]>summary:before{content:"\25BE  "}
 </div>
 
 <div class="wrap">
- <div>
+ <div id="colEditor">
   <div class="tabs" id="tabs"></div>
   <div class="faixa-modo" id="faixaModo"></div>
 
@@ -332,6 +343,14 @@ details[open]>summary:before{content:"\25BE  "}
       <p class="hint">Escolha o módulo e monte a lista dele: Conteúdo 1, Conteúdo 2, Conteúdo 3…</p>
       <div id="painelConteudos"></div>
     </div>
+  </div>
+
+  <div class="panel" id="p-ebook">
+    <div id="painelEbook"></div>
+  </div>
+
+  <div class="panel" id="p-ebookaudio">
+    <div id="painelEbookAudio"></div>
   </div>
 
   <div class="panel" id="p-menu">
@@ -693,9 +712,13 @@ p.ps{margin:0 0 18px;color:var(--txt2);font-size:13.5px}
 .qz .midia{border-radius:14px;overflow:hidden;margin-bottom:16px;display:block;width:100%}
 .alt{display:block;width:100%;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:14px;
  padding:15px;margin-bottom:10px;cursor:pointer;font-size:15px;transition:transform .12s,border-color .15s,background .15s}
+.alt.alt-img{display:flex;align-items:center;gap:13px;text-align:left}
+.alt.alt-img>img{width:78px;height:78px;object-fit:cover;border-radius:12px;flex:none;background:var(--card)}
+.alt.alt-img .alt-t{flex:1;min-width:0}
 .alt.certa{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,var(--card))}
 .alt.errada{border-color:var(--red);background:rgba(255,71,87,.13)}
 .alt .mk{float:right;font-weight:900}
+
 .res{text-align:center;padding:8px 0 4px}
 .res img{border-radius:var(--r);margin-bottom:16px}
 .res .big{font-size:52px;font-weight:900;letter-spacing:-.03em;color:var(--acc);line-height:1}
@@ -1234,7 +1257,7 @@ let QZ=null;
 function telaQuiz(q,key,cont){
  const ps=(q.perguntas||[]);
  if(!ps.length)return'<div class="trava"><b>Quiz vazio</b><p>Escreva as perguntas no editor.</p></div>';
- if(!QZ||QZ.key!==key)QZ={key:key,ordem:null,i:0,acertos:0,resp:null,fim:false,iniciado:!q.introTitulo};
+ if(!QZ||QZ.key!==key)QZ={key:key,ordem:null,i:0,acertos:0,perfis:{},resp:null,fim:false,iniciado:!q.introTitulo};
  if(!QZ.ordem){let idx=ps.map((_,i)=>i);
   if(q.embaralhar)idx=idx.sort(()=>Math.random()-.5);
   QZ.ordem=idx}
@@ -1251,11 +1274,14 @@ function telaQuiz(q,key,cont){
   (p.video?player(p.video):'')+
   '<div class="perg">'+esc(p.texto)+'</div>'+
   p.alts.map((a,i)=>{let cl='';
-   if(QZ.resp!==null&&q.mostrarCerta!==false){if(a.ok)cl=' certa';else if(QZ.resp===i)cl=' errada'}
+   const marca=(p.tipo!=='perfil')&&q.mostrarCerta!==false;
+   if(QZ.resp!==null&&marca){if(a.ok)cl=' certa';else if(QZ.resp===i)cl=' errada'}
    else if(QZ.resp===i)cl=' certa';
-   return'<button class="alt'+cl+'" onclick="qzResponder('+i+')">'+esc(a.t)+
-    (QZ.resp!==null&&q.mostrarCerta!==false&&a.ok?'<span class="mk">✓</span>':'')+
-    (QZ.resp===i&&!a.ok&&q.mostrarCerta!==false?'<span class="mk">✕</span>':'')+'</button>'}).join('')+
+   return'<button class="alt'+(a.img?' alt-img':'')+cl+'" onclick="qzResponder('+i+')">'+
+    (a.img?'<img src="'+esc(a.img)+'" alt="" loading="lazy">':'')+
+    '<span class="alt-t">'+esc(a.t)+
+    (QZ.resp!==null&&marca&&a.ok?'<span class="mk">✓</span>':'')+
+    (QZ.resp===i&&!a.ok&&marca?'<span class="mk">✕</span>':'')+'</span></button>'}).join('')+
   (QZ.resp!==null?'<button class="acao" onclick="qzProximo()">'+(QZ.i+1<ps.length?'Próxima':'Ver resultado')+'</button>':'')+
   '</div>'}
 function qzIniciar(){QZ.iniciado=true;desenhar()}
@@ -1263,8 +1289,13 @@ function quizDe(key){const p=pag(key);if(p&&p.tipo==='quiz')return p.quiz;const 
 function qzResponder(i){
  if(QZ.resp!==null)return;
  const q=quizDe(QZ.key),ps=q.perguntas,p=ps[QZ.ordem[QZ.i]];
- QZ.resp=i;
- if(p.alts[i].ok){QZ.acertos++;bip(880);vibrar(40);if(gameOn()&&q.gamificado)darXP(G.xpQuiz||0,'Acertou!')}
+ QZ.resp=i;const alt=p.alts[i];
+ if(p.tipo==='perfil'){
+  QZ.perfis=QZ.perfis||{};const k=alt.perfil||alt.t;
+  QZ.perfis[k]=(QZ.perfis[k]||0)+1;bip(660);vibrar(30);
+  return qzProximo();
+ }
+ if(alt.ok){QZ.acertos++;bip(880);vibrar(40);if(gameOn()&&q.gamificado)darXP(G.xpQuiz||0,'Acertou!')}
  else{bip(220,180);vibrar([30,50,30])}
  if(q.mostrarCerta===false)return qzProximo();
  desenhar()}
@@ -1280,18 +1311,27 @@ function qzProximo(){
   if(o)concluir(QZ.key,G.xpConteudo||10,'Quiz concluído.');
   else if(gameOn())checarConquistas()}
  desenhar()}
-function qzRefazer(){QZ={key:QZ.key,ordem:null,i:0,acertos:0,resp:null,fim:false,iniciado:true};desenhar()}
+function qzRefazer(){QZ={key:QZ.key,ordem:null,i:0,acertos:0,perfis:{},resp:null,fim:false,iniciado:true};desenhar()}
 function resultadoQuiz(q,key,cont){
- const ps=q.perguntas,pct=Math.round(QZ.acertos/ps.length*100);
- const fx=(q.faixas||[]).slice().sort((a,b)=>(b.min||0)-(a.min||0));
- const f=fx.find(x=>pct>=(x.min||0))||{titulo:'Resultado',texto:'Você acertou {acertos} de {total}.'};
+ const ps=q.perguntas;
+ const nc=ps.filter(p=>p.tipo!=='perfil').length;
+ const pct=nc?Math.round(QZ.acertos/nc*100):0;
+ let f=null,porPerfil=false;
+ const votos=QZ.perfis||{},chaves=Object.keys(votos);
+ if(chaves.length&&(q.resultados||[]).length){
+  chaves.sort((a,b)=>votos[b]-votos[a]);
+  f=(q.resultados||[]).find(x=>String(x.chave)===String(chaves[0]));
+  if(f)porPerfil=true;
+ }
+ if(!f){const fx=(q.faixas||[]).slice().sort((a,b)=>(b.min||0)-(a.min||0));
+  f=fx.find(x=>pct>=(x.min||0))||{titulo:'Resultado',texto:'Obrigado por responder!'}}
  const sub=s=>String(s||'').replace(/\{acertos\}/g,QZ.acertos).replace(/\{total\}/g,ps.length)
    .replace(/\{pct\}/g,pct).replace(/\{nome\}/g,U?String(U.nome).split(' ')[0]:'');
  const tit=sub(f.titulo),txt=sub(f.texto);
  return'<div class="res">'+(f.imagem?'<img src="'+esc(f.imagem)+'" alt="">':'')+
   '<div class="big" style="'+(f.cor?'color:'+esc(f.cor):'')+'">'+pct+'%</div>'+
   '<h2>'+esc(tit)+'</h2><p>'+esc(txt)+'</p>'+
-  '<p class="chip'+(pct===100?' o':' g')+'">'+QZ.acertos+' de '+ps.length+' certas</p></div>'+
+  (nc?'<p class="chip'+(pct===100?' o':' g')+'">'+QZ.acertos+' de '+nc+' certas</p>':'')+'</div>'+
   (f.link?'<button class="acao cta" onclick="window.open(\''+esc(f.link)+'\',\'_blank\',\'noopener\')">'+esc(f.botao||'Quero saber mais')+'</button>':'')+
   '<button class="acao sec" onclick="qzRefazer()">Refazer o quiz</button>'+
   (cont?'<button class="acao sec" onclick="voltar()">Voltar ao módulo</button>':'')}
@@ -1528,6 +1568,9 @@ main.tr-zoom{animation:trZoom .26s ease}
 .alt:active{transform:scale(.98)}
 .alt.certa{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,var(--card))}
 .alt.errada{border-color:var(--red);background:rgba(255,71,87,.13)}
+.alt.alt-img{display:flex;align-items:center;gap:13px;text-align:left}
+.alt.alt-img>img{width:78px;height:78px;object-fit:cover;border-radius:12px;flex:none;background:var(--card)}
+.alt.alt-img .alt-t{flex:1;min-width:0}
 .alt .mk{float:right;font-weight:900}
 .res{text-align:center}
 .res img{border-radius:var(--r);margin-bottom:18px;max-height:280px;object-fit:cover;width:100%}
@@ -1660,21 +1703,26 @@ function telaPergunta(){
   (p.imagem?'<img class="midia" src="'+esc(p.imagem)+'" alt="">':'')+(p.video?player(p.video):'')+
   '<div class="perg">'+esc(p.texto)+'</div>'+
   p.alts.map((a,i)=>{let cl='';
-   if(ST.resp!==null&&Q.mostrarCerta!==false){if(a.ok)cl=' certa';else if(ST.resp===i)cl=' errada'}
-   return'<button class="alt'+cl+'" onclick="responder('+i+')">'+esc(a.t)+
-    (ST.resp!==null&&Q.mostrarCerta!==false&&a.ok?'<span class="mk">\u2713</span>':'')+
-    (ST.resp===i&&!a.ok&&Q.mostrarCerta!==false?'<span class="mk">\u2715</span>':'')+'</button>'}).join('')+
+   const marca=(p.tipo!=='perfil')&&Q.mostrarCerta!==false;
+   if(ST.resp!==null&&marca){if(a.ok)cl=' certa';else if(ST.resp===i)cl=' errada'}
+   else if(ST.resp===i)cl=' certa';
+   return'<button class="alt'+(a.img?' alt-img':'')+cl+'" onclick="responder('+i+')">'+
+    (a.img?'<img src="'+esc(a.img)+'" alt="" loading="lazy">':'')+
+    '<span class="alt-t">'+esc(a.t)+
+    (ST.resp!==null&&marca&&a.ok?'<span class="mk">\u2713</span>':'')+
+    (ST.resp===i&&!a.ok&&marca?'<span class="mk">\u2715</span>':'')+'</span></button>'}).join('')+
   (ST.resp!==null?'<button class="acao" onclick="proxima()">'+(ST.i+1<ps.length?'Próxima':'Ver resultado')+'</button>':'')+
   '</div>'}
 function telaResultado(){
- const ps=Q.perguntas||[],pct=ps.length?Math.round(ST.acertos/ps.length*100):0;
- const fx=(Q.faixas||[]).slice().sort((a,b)=>(b.min||0)-(a.min||0));
- const f=fx.find(x=>pct>=(x.min||0))||{titulo:'Resultado',texto:'Você acertou {acertos} de {total}.'};
- const sub=s=>String(s||'').replace(/\{acertos\}/g,ST.acertos).replace(/\{total\}/g,ps.length)
+ const esc2=resultadoEscolhido(),f=esc2.f;
+ const nc=totalCertas(),pct=nc?Math.round(ST.acertos/nc*100):0;
+ const sub=s=>String(s||'').replace(/\{acertos\}/g,ST.acertos).replace(/\{total\}/g,nc)
   .replace(/\{pct\}/g,pct).replace(/\{nome\}/g,LEAD_NOME());
  const tit=sub(f.titulo),txt=sub(f.texto);
- return'<div class="res">'+(f.imagem?'<img src="'+esc(f.imagem)+'" alt="">':'')+
-  '<div class="big" style="'+(f.cor?'color:'+esc(f.cor):'')+'">'+pct+'%</div>'+
+ const topo=esc2.perfil
+  ?'<div class="big" style="font-size:34px;'+(f.cor?'color:'+esc(f.cor):'')+'">'+esc(f.chave||'★')+'</div>'
+  :'<div class="big" style="'+(f.cor?'color:'+esc(f.cor):'')+'">'+pct+'%</div>';
+ return'<div class="res">'+(f.imagem?'<img src="'+esc(f.imagem)+'" alt="">':'')+topo+
   '<h2>'+esc(tit)+'</h2><p>'+esc(txt)+'</p></div>'+
   (f.link?'<button class="acao cta" onclick="clicouCheckout(\''+esc(f.link)+'\')">'+esc(f.botao||'Quero saber mais')+'</button>'
    :'<button class="acao" onclick="refazer()">Refazer o quiz</button>')}
@@ -1713,14 +1761,33 @@ function enviarCaptura(){
 function responder(i){
  if(ST.resp!==null)return;
  const p=Q.perguntas[ST.ordem[ST.i]];ST.resp=i;
- if(p.alts[i].ok){ST.acertos++;bip(880);vibrar(40)}else{bip(220,180);vibrar([30,50,30])}
+ const a=p.alts[i];
+ if(p.tipo==='perfil'){
+  ST.perfis=ST.perfis||{};
+  const k=a.perfil||a.t;
+  ST.perfis[k]=(ST.perfis[k]||0)+1;
+  bip(660);vibrar(30);
+  if(Q.mostrarCerta===false||true){setTimeout(proxima,260);desenharF();return}
+ }
+ if(a.ok){ST.acertos++;bip(880);vibrar(40)}else{bip(220,180);vibrar([30,50,30])}
  desenharF()}
+function totalCertas(){return (Q.perguntas||[]).filter(p=>p.tipo!=='perfil').length}
+function resultadoEscolhido(){
+ const votos=ST.perfis||{},chaves=Object.keys(votos),res=Q.resultados||[];
+ if(chaves.length&&res.length){
+  chaves.sort((a,b)=>votos[b]-votos[a]);
+  const r=res.find(x=>String(x.chave)===String(chaves[0]))||res.find(x=>x.titulo===chaves[0]);
+  if(r)return{f:r,perfil:true};
+ }
+ const nc=totalCertas(),pct=nc?Math.round(ST.acertos/nc*100):0;
+ const fx=(Q.faixas||[]).slice().sort((a,b)=>(b.min||0)-(a.min||0));
+ return{f:fx.find(x=>pct>=(x.min||0))||{titulo:'Resultado',texto:'Obrigado por responder!'},perfil:false};}
 function proxima(){
  const ps=Q.perguntas||[];
  if(ST.i+1<ps.length){ST.i++;ST.resp=null;desenharF();return}
  if(Q.capturarLead&&Q.capturaQuando==='depois'&&!ST.leadFeito){ST.leadFeito=true;ST.pendResultado=true;ST.fase='captura';desenharF();return}
  ST.fase='fim';festa();desenharF()}
-function refazer(){ST={fase:'perg',ordem:null,i:0,resp:null,acertos:0,pendResultado:false,leadFeito:ST.leadFeito};iniciarOrdem();desenharF()}
+function refazer(){ST={fase:'perg',ordem:null,i:0,resp:null,acertos:0,perfis:{},pendResultado:false,leadFeito:ST.leadFeito};iniciarOrdem();desenharF()}
 function desenharF(){
  const tr=(FX.transicao&&FX.transicao!=='nenhum')?' tr-'+FX.transicao:'';
  let corpo=ST.fase==='intro'?telaIntro():ST.fase==='captura'?telaCaptura():ST.fase==='fim'?telaResultado():telaPergunta();
@@ -1728,6 +1795,1563 @@ function desenharF(){
   '<div class="rodape">'+esc(CFG.app.nome)+'</div>'}
 if(ST.fase==='perg'&&!ST.ordem)iniciarOrdem();
 desenharF();
+[[/script]]
+</body>
+</html>
+</script>
+
+<script type="text/plain" id="tplEbook">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#c084fc">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Ebook</title>
+<link rel="manifest" id="manifest-link">
+<link rel="apple-touch-icon" id="apple-touch-icon">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#c084fc;--primary-dark:#a855f7;--primary-light:#e9d5ff;
+  --secondary:#f9a8d4;--secondary-light:#fce7f3;--accent:#fb7185;
+  --nude:#fdf4f0;--nude-dark:#f5e6df;
+  --text-primary:#3d2c35;--text-secondary:#6b5060;--text-light:#9d7a8a;
+  --bg-light:#fff9fc;--bg-card:#ffffff;--border-color:#f0d9e8;
+  --gold:#fbbf24;--font-base:16px;
+  --radius:16px;--radius-sm:8px;
+  --shadow:0 4px 24px rgba(192,132,252,.13);
+  --shadow-lg:0 8px 40px rgba(192,132,252,.22);
+  --transition:all .3s cubic-bezier(.4,0,.2,1);
+  --audio-bg:#fff0fb;--audio-border:#e9b8f5;
+}
+[data-theme="dark"]{
+  --primary:#c084fc;--primary-dark:#a855f7;--primary-light:#3b1f5e;
+  --secondary:#be185d;--secondary-light:#2d1a26;--accent:#fb7185;
+  --nude:#1e1520;--nude-dark:#2a1e28;
+  --text-primary:#f3e8ff;--text-secondary:#d8b4fe;--text-light:#a78bba;
+  --bg-light:#140e18;--bg-card:#1e1520;--border-color:#3d2850;
+  --shadow:0 4px 24px rgba(0,0,0,.4);--shadow-lg:0 8px 40px rgba(0,0,0,.5);
+  --audio-bg:#1f0d2a;--audio-border:#5b2d7a;
+}
+html{font-size:var(--font-base);scroll-behavior:smooth}
+body{font-family:'Lato',sans-serif;background:var(--bg-light);color:var(--text-primary);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#fce7f3 0%,#e9d5ff 50%,#fdf4f0 100%);display:flex;align-items:center;justify-content:center;animation:fadeIn .7s ease}
+[data-theme="dark"] #login-screen{background:linear-gradient(135deg,#1e0a1e 0%,#0f0a1a 50%,#1a0e18 100%)}
+#login-screen.hidden{display:none}
+.login-container{background:rgba(255,255,255,.88);backdrop-filter:blur(24px);border-radius:28px;padding:48px 40px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(192,132,252,.25);border:1px solid rgba(255,255,255,.9);text-align:center;animation:slideUp .6s ease}
+[data-theme="dark"] .login-container{background:rgba(30,21,32,.94);border-color:rgba(192,132,252,.2)}
+.login-logo-wrap{width:88px;height:88px;border-radius:22px;margin:0 auto 16px;background:linear-gradient(135deg,#c084fc,#fb7185);display:flex;align-items:center;justify-content:center;font-size:2.6rem;box-shadow:0 8px 28px rgba(192,132,252,.4)}
+.login-app-name{font-family:'Dancing Script',cursive;font-size:2rem;color:var(--primary-dark);margin-bottom:4px}
+.login-subtitle{font-size:.83rem;color:var(--text-light);margin-bottom:32px;font-style:italic}
+.login-form{display:flex;flex-direction:column;gap:14px}
+.login-input{width:100%;padding:14px 18px;border:2px solid var(--border-color);border-radius:50px;font-size:.95rem;background:var(--bg-light);color:var(--text-primary);outline:none;transition:var(--transition);font-family:'Lato',sans-serif}
+.login-input:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(192,132,252,.15)}
+.login-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border:none;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;transition:var(--transition);font-family:'Lato',sans-serif}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(192,132,252,.4)}
+.login-error{background:#fee2e2;color:#dc2626;border-radius:12px;padding:10px 16px;font-size:.85rem;display:none;animation:shake .4s ease}
+.login-error.show{display:block}
+.login-access-text{margin-top:22px;font-size:.78rem;color:var(--text-light);font-style:italic}
+
+/* ── PWA BANNER ── */
+#pwa-banner{position:fixed;bottom:0;left:0;right:0;z-index:10000;background:linear-gradient(135deg,#a855f7,#fb7185);padding:14px 16px;display:none;align-items:center;gap:12px;box-shadow:0 -4px 24px rgba(168,85,247,.35);animation:slideUp .4s ease}
+#pwa-banner.show{display:flex}
+.pwa-b-icon{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.pwa-b-text{flex:1}
+.pwa-b-title{color:#fff;font-weight:700;font-size:.92rem}
+.pwa-b-sub{color:rgba(255,255,255,.85);font-size:.74rem}
+.pwa-b-btn{background:#fff;color:#a855f7;border:none;border-radius:50px;padding:9px 16px;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap;transition:var(--transition);flex-shrink:0}
+.pwa-b-btn:hover{transform:scale(1.05)}
+.pwa-b-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:1.2rem;cursor:pointer;padding:4px;flex-shrink:0}
+
+/* ── APP ── */
+#app{display:none;height:100vh;overflow:hidden;flex-direction:column}
+#app.visible{display:flex}
+
+/* ── TOPBAR ── */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:52px;background:rgba(255,249,252,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-color);display:flex;align-items:center;padding:0 8px;gap:4px;transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:0 2px 12px rgba(192,132,252,.08)}
+[data-theme="dark"] #topbar{background:rgba(20,14,24,.92)}
+#topbar.collapsed{transform:translateY(-52px)}
+body.tb-off #reading-area{margin-top:20px;height:calc(100vh - 20px - 6px)}
+.tb-btn{width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--text-secondary);transition:var(--transition);flex-shrink:0}
+.tb-btn:hover{background:var(--primary-light);color:var(--primary-dark)}
+.tb-title{flex:1;text-align:center;font-family:'Dancing Script',cursive;font-size:1.05rem;color:var(--primary-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-div{width:1px;height:18px;background:var(--border-color);flex-shrink:0}
+
+/* Botão audiobook na topbar */
+#tb-audio{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:var(--transition);background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:0 2px 8px rgba(192,132,252,.4);flex-shrink:0;position:relative}
+#tb-audio.playing{animation:audioPulse 1.5s ease-in-out infinite}
+.audio-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#86efac;border:1.5px solid #fff;display:none}
+#tb-audio.playing .audio-dot{display:block}
+
+#topbar-tab{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:999;width:80px;height:22px;background:var(--primary);border-radius:0 0 16px 16px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(192,132,252,.3);transition:var(--transition)}
+#topbar-tab.show{display:flex}
+#topbar-tab span{color:#fff;font-size:.63rem;font-weight:700;letter-spacing:1px}
+
+/* ── SIDEBAR ── */
+#overlay{position:fixed;inset:0;z-index:1100;background:rgba(61,44,53,.5);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s}
+#overlay.show{opacity:1;pointer-events:all}
+#sidebar{position:fixed;top:0;left:0;bottom:0;width:300px;max-width:85vw;z-index:1200;background:var(--bg-card);transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:var(--shadow-lg);border-radius:0 24px 24px 0;overflow:hidden}
+#sidebar.open{transform:translateX(0)}
+.sb-header{background:linear-gradient(135deg,var(--primary),var(--accent));padding:40px 20px 22px;text-align:center;position:relative}
+.sb-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.sb-close:hover{background:rgba(255,255,255,.4)}
+.sb-avatar{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 10px;border:3px solid rgba(255,255,255,.55)}
+.sb-name{font-family:'Playfair Display',serif;color:#fff;font-size:.95rem;font-weight:600}
+.sb-email{color:rgba(255,255,255,.8);font-size:.72rem;margin-top:3px}
+.sb-level{margin-top:12px;background:rgba(255,255,255,.2);border-radius:20px;padding:5px 14px;display:inline-block}
+.sb-level span{color:#fff;font-size:.78rem;font-weight:700}
+.sb-prog{padding:14px 20px;border-bottom:1px solid var(--border-color)}
+.sb-prog-lbl{display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-secondary);margin-bottom:7px}
+.prog-bg{height:8px;background:var(--primary-light);border-radius:10px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:10px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.sb-chapters{flex:1;overflow-y:auto;padding:10px 0}
+.sb-chapters::-webkit-scrollbar{width:4px}
+.sb-chapters::-webkit-scrollbar-thumb{background:var(--primary-light);border-radius:4px}
+.ch-item{display:flex;align-items:center;gap:12px;padding:11px 20px;cursor:pointer;transition:var(--transition)}
+.ch-item:hover{background:var(--nude)}
+.ch-item.active{background:var(--primary-light)}
+.ch-num{width:28px;height:28px;border-radius:50%;background:var(--nude-dark);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0}
+.ch-item.completed .ch-num{background:var(--primary);color:#fff}
+.ch-item.active .ch-num{background:var(--accent);color:#fff}
+.ch-info{flex:1;min-width:0}
+.ch-name{font-size:.83rem;color:var(--text-primary);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-status{font-size:.7rem;color:var(--text-light);margin-top:2px}
+.ch-icon{font-size:.85rem;flex-shrink:0}
+.sb-footer{padding:14px 20px;border-top:1px solid var(--border-color);background:var(--nude)}
+.sb-stats{display:flex;gap:14px;justify-content:center}
+.stat-val{font-size:1.2rem;font-weight:700;color:var(--primary-dark);display:block}
+.stat-lbl{font-size:.68rem;color:var(--text-light)}
+
+/* ── READING AREA ── */
+#reading-area{margin-top:52px;height:calc(100vh - 52px - 6px);overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;opacity:0;pointer-events:none;transform:translateX(40px);transition:opacity .4s ease,transform .4s cubic-bezier(.4,0,.2,1);padding-bottom:110px}
+.page.active{opacity:1;pointer-events:all;transform:translateX(0)}
+.page.exit-left{opacity:0;transform:translateX(-40px)}
+.page::-webkit-scrollbar{width:4px}
+.page::-webkit-scrollbar-thumb{background:var(--primary-light);border-radius:4px}
+.page-inner{max-width:720px;margin:0 auto;padding:32px 24px}
+
+/* CAPA */
+.cover-page{min-height:calc(100vh - 52px - 6px);display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#fce7f3 0%,#e9d5ff 45%,#fdf4f0 100%);text-align:center;padding:40px 24px;position:relative;overflow:hidden}
+[data-theme="dark"] .cover-page{background:linear-gradient(160deg,#1e0a1e 0%,#0f0a1a 45%,#1a0e18 100%)}
+.cover-page::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80') center/cover no-repeat;opacity:.07}
+.cover-content{position:relative;z-index:1}
+.cover-emoji{font-size:4rem;margin-bottom:16px;display:block;animation:float 3s ease-in-out infinite}
+.cover-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,3.2rem);color:var(--primary-dark);font-weight:700;line-height:1.2;margin-bottom:12px}
+.cover-subtitle{font-size:clamp(1rem,3vw,1.2rem);color:var(--text-secondary);font-style:italic;margin-bottom:8px;font-family:'Playfair Display',serif}
+.cover-author{font-size:.88rem;color:var(--text-light);margin-bottom:38px;letter-spacing:2px;text-transform:uppercase}
+.cover-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border:none;border-radius:50px;padding:16px 36px;font-size:1rem;font-weight:700;cursor:pointer;transition:var(--transition);font-family:'Lato',sans-serif;box-shadow:var(--shadow-lg)}
+.cover-btn:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(192,132,252,.45)}
+.cover-deco{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(192,132,252,.13),transparent);pointer-events:none}
+.cover-deco:nth-child(1){top:-100px;right:-100px}
+.cover-deco:nth-child(2){bottom:-80px;left:-80px;width:200px;height:200px}
+
+/* TIPOGRAFIA */
+.ch-header-img{width:100%;height:200px;object-fit:cover;border-radius:var(--radius);margin-bottom:24px;box-shadow:var(--shadow)}
+[data-theme="dark"] .ch-header-img{opacity:.8}
+.ch-tag{display:inline-block;background:var(--primary-light);color:var(--primary-dark);border-radius:50px;padding:4px 14px;font-size:.73rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.ch-title{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,4vw,2rem);color:var(--text-primary);font-weight:700;line-height:1.3;margin-bottom:7px}
+.ch-subtitle{font-size:1rem;color:var(--text-secondary);font-style:italic;margin-bottom:26px;font-family:'Playfair Display',serif}
+.ch-divider{width:60px;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:3px;margin:0 auto 26px}
+p{color:var(--text-secondary);line-height:1.87;margin-bottom:17px;font-size:1rem;transition:background .3s,color .3s,border-left .3s}
+
+/* Destaque audiobook */
+p.speaking,.speaking{background:linear-gradient(135deg,rgba(192,132,252,.18),rgba(251,113,133,.10)) !important;border-radius:8px !important;padding:6px 10px !important;margin-left:-10px !important;margin-right:-10px !important;border-left:3px solid var(--primary) !important;color:var(--text-primary) !important}
+
+/* BOXES */
+.hl-box{background:linear-gradient(135deg,var(--primary-light),var(--secondary-light));border-left:4px solid var(--primary);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:18px 22px;margin:22px 0}
+.hl-box p{margin:0;color:var(--text-primary);font-weight:500}
+.hl-box .bt{font-weight:700;color:var(--primary-dark);margin-bottom:7px;font-size:.83rem;text-transform:uppercase;letter-spacing:1px}
+.tip-box{background:var(--nude-dark);border-radius:var(--radius);padding:18px 22px;margin:22px 0;border:1px solid var(--border-color)}
+.tip-box .bi{font-size:1.4rem;margin-bottom:7px;display:block}
+.tip-box p{margin:0}
+.quote-box{text-align:center;padding:26px 22px;margin:26px 0;position:relative}
+.quote-box::before{content:'"';font-family:'Playfair Display',serif;font-size:6rem;color:var(--primary-light);position:absolute;top:-20px;left:20px;line-height:1;pointer-events:none}
+.quote-box p{font-family:'Playfair Display',serif;font-size:1.15rem;font-style:italic;color:var(--primary-dark);margin:0;position:relative;z-index:1}
+.qa{font-size:.78rem;color:var(--text-light);margin-top:10px !important}
+.tech-box{background:#fff;border-radius:var(--radius);padding:22px;margin:22px 0;box-shadow:var(--shadow);border:1px solid var(--border-color)}
+[data-theme="dark"] .tech-box{background:var(--nude-dark)}
+.tech-box h4{font-family:'Playfair Display',serif;color:var(--primary-dark);font-size:1.05rem;margin-bottom:14px}
+.t-step{display:flex;gap:12px;align-items:flex-start;margin-bottom:11px}
+.t-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-top:2px}
+.t-txt{color:var(--text-secondary);font-size:.93rem;line-height:1.7}
+.inline-img{width:100%;border-radius:var(--radius);margin:22px 0;display:block;box-shadow:var(--shadow)}
+[data-theme="dark"] .inline-img{opacity:.82}
+.act-box{background:linear-gradient(135deg,var(--secondary-light),var(--primary-light));border-radius:var(--radius);padding:22px;margin:26px 0;text-align:center;border:2px dashed var(--primary)}
+.act-box .ai{font-size:1.9rem;margin-bottom:7px;display:block}
+.act-box h4{color:var(--primary-dark);font-family:'Playfair Display',serif;margin-bottom:7px}
+.act-box p{margin:0;font-size:.88rem}
+
+/* NAV BUTTONS */
+.nav-btns{display:flex;gap:12px;justify-content:center;margin-top:34px;padding:0 0 8px}
+.nb{display:flex;align-items:center;gap:8px;padding:13px 26px;border-radius:50px;font-size:.88rem;font-weight:700;cursor:pointer;transition:var(--transition);border:none;font-family:'Lato',sans-serif}
+.nb-p{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:var(--shadow)}
+.nb-p:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.nb-s{background:var(--nude-dark);color:var(--text-secondary);border:1px solid var(--border-color)}
+.nb-s:hover{background:var(--primary-light);color:var(--primary-dark)}
+
+/* SUMÁRIO */
+.sum-item{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--border-color);cursor:pointer;transition:var(--transition)}
+.sum-item:hover{padding-left:8px}
+.sum-item:last-child{border-bottom:none}
+.sum-num{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0}
+.sum-info{flex:1}
+.sum-title{font-weight:700;color:var(--text-primary);font-size:.93rem}
+.sum-desc{font-size:.76rem;color:var(--text-light);margin-top:2px}
+.sum-st{font-size:.95rem}
+
+/* BARRA PROGRESSO */
+#prog-bar-wrap{position:fixed;bottom:0;left:0;right:0;z-index:900;height:6px;background:var(--primary-light)}
+#prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .5s cubic-bezier(.4,0,.2,1)}
+#prog-label{position:fixed;bottom:9px;right:12px;z-index:901;background:rgba(255,255,255,.92);color:var(--primary-dark);font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:20px;box-shadow:var(--shadow);backdrop-filter:blur(8px)}
+[data-theme="dark"] #prog-label{background:rgba(30,21,32,.92)}
+
+/* ── AUDIOBOOK BAR ── */
+#audio-bar{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);z-index:2000;width:calc(100% - 28px);max-width:680px;background:var(--audio-bg);border:1.5px solid var(--audio-border);border-radius:22px;box-shadow:0 8px 36px rgba(168,85,247,.22);padding:14px 16px;display:none;flex-direction:column;gap:10px;backdrop-filter:blur(20px);animation:slideUp .35s ease;transition:background .4s,border-color .4s}
+#audio-bar.open{display:flex}
+.ab-row1{display:flex;align-items:center;gap:10px}
+/* Waveform */
+.waveform{display:flex;align-items:center;gap:3px;height:28px;flex-shrink:0}
+.wb{width:3px;border-radius:3px;background:var(--primary);height:6px}
+#audio-bar.playing .wb:nth-child(1){animation:wave .8s ease-in-out infinite 0s}
+#audio-bar.playing .wb:nth-child(2){animation:wave .8s ease-in-out infinite .1s}
+#audio-bar.playing .wb:nth-child(3){animation:wave .8s ease-in-out infinite .2s}
+#audio-bar.playing .wb:nth-child(4){animation:wave .8s ease-in-out infinite .3s}
+#audio-bar.playing .wb:nth-child(5){animation:wave .8s ease-in-out infinite .15s}
+#audio-bar.playing .wb:nth-child(6){animation:wave .8s ease-in-out infinite .25s}
+#audio-bar.playing .wb:nth-child(7){animation:wave .8s ease-in-out infinite .05s}
+.ab-info{flex:1;min-width:0}
+.ab-title{font-size:.82rem;font-weight:700;color:var(--primary-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-status{font-size:.7rem;color:var(--text-light);margin-top:2px}
+.ab-ctrls{display:flex;align-items:center;gap:6px}
+.ac-btn{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:var(--transition);background:var(--primary-light);color:var(--primary-dark)}
+.ac-btn:hover{background:var(--primary);color:#fff;transform:scale(1.1)}
+.ac-btn.play-main{width:42px;height:42px;font-size:1.2rem;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:0 4px 16px rgba(192,132,252,.4)}
+.ac-btn.play-main:hover{transform:scale(1.12)}
+/* Progresso */
+.ab-prog{display:flex;align-items:center;gap:8px}
+.ab-prog-bg{flex:1;height:4px;background:var(--primary-light);border-radius:4px;overflow:hidden}
+.ab-prog-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:4px;width:0%;transition:width .3s}
+.ab-prog-txt{font-size:.68rem;color:var(--text-light);white-space:nowrap;min-width:64px;text-align:right}
+/* Linha 3 */
+.ab-row3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ab-lbl{font-size:.72rem;color:var(--text-light);font-weight:700;white-space:nowrap}
+.spd-btns{display:flex;gap:4px}
+.spd-btn{padding:4px 8px;border-radius:20px;border:1.5px solid var(--border-color);background:var(--bg-card);color:var(--text-secondary);font-size:.7rem;font-weight:700;cursor:pointer;transition:var(--transition);font-family:'Lato',sans-serif}
+.spd-btn.on,.spd-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.voice-sel{flex:1;min-width:0;max-width:160px;padding:5px 10px;border:1.5px solid var(--border-color);border-radius:20px;font-size:.75rem;background:var(--bg-card);color:var(--text-primary);font-family:'Lato',sans-serif;outline:none;cursor:pointer}
+.voice-sel:focus{border-color:var(--primary)}
+.ab-close{margin-left:auto;width:28px;height:28px;border-radius:50%;border:none;background:var(--nude-dark);color:var(--text-light);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.ab-close:hover{background:var(--accent);color:#fff}
+
+/* ── MODAL CONQUISTA ── */
+#ach-modal{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;background:rgba(61,44,53,.6);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .3s}
+#ach-modal.show{opacity:1;pointer-events:all}
+.ach-card{background:var(--bg-card);border-radius:28px;padding:38px 34px;text-align:center;max-width:320px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.22);transform:scale(.8);transition:transform .4s cubic-bezier(.175,.885,.32,1.275)}
+#ach-modal.show .ach-card{transform:scale(1)}
+.ach-emoji{font-size:3.8rem;display:block;margin-bottom:10px;animation:bounce .6s ease}
+.ach-lbl{font-size:.73rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:2px;margin-bottom:7px}
+.ach-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--text-primary);margin-bottom:7px;font-weight:700}
+.ach-desc{font-size:.88rem;color:var(--text-secondary);margin-bottom:22px}
+.ach-btn{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border:none;border-radius:50px;padding:12px 30px;font-size:.93rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;transition:var(--transition)}
+.ach-btn:hover{transform:translateY(-2px)}
+.confetti-p{position:fixed;width:10px;height:10px;border-radius:2px;pointer-events:none;z-index:6000;animation:confettiFall 2.5s ease-in forwards}
+
+/* ── MODAL INSTALAR ── */
+#install-modal{position:fixed;inset:0;z-index:4000;display:flex;align-items:flex-end;justify-content:center;background:rgba(61,44,53,.5);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s}
+#install-modal.show{opacity:1;pointer-events:all}
+.inst-card{background:var(--bg-card);border-radius:28px 28px 0 0;padding:28px 26px 38px;width:100%;max-width:480px;transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.13)}
+#install-modal.show .inst-card{transform:translateY(0)}
+.inst-handle{width:40px;height:4px;background:var(--border-color);border-radius:4px;margin:0 auto 20px}
+.inst-icon{width:80px;height:80px;border-radius:20px;margin:0 auto 10px;background:linear-gradient(135deg,#c084fc,#fb7185);display:flex;align-items:center;justify-content:center;font-size:2.4rem;box-shadow:0 6px 22px rgba(192,132,252,.38)}
+.inst-name{font-family:'Dancing Script',cursive;font-size:1.5rem;color:var(--primary-dark);text-align:center;margin-bottom:4px}
+.inst-desc{font-size:.78rem;color:var(--text-light);text-align:center;margin-bottom:18px}
+#btn-native-install{width:100%;padding:14px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border:none;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;transition:var(--transition);margin-bottom:12px;display:none}
+#btn-native-install.show{display:block}
+#btn-native-install:hover{transform:translateY(-2px)}
+.inst-steps{list-style:none;margin-bottom:18px}
+.inst-step{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.ist-num{width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.ist-txt{font-size:.87rem;color:var(--text-secondary);line-height:1.6}
+.inst-close{width:100%;padding:13px;background:var(--nude-dark);color:var(--text-secondary);border:1.5px solid var(--border-color);border-radius:50px;font-size:.93rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;transition:var(--transition)}
+.inst-close:hover{background:var(--primary-light);color:var(--primary-dark)}
+
+/* ── FINAL PAGE ── */
+.final-page{min-height:calc(100vh - 140px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px}
+.final-stars{font-size:3rem;margin-bottom:14px;animation:rotate 4s linear infinite;display:block}
+.final-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,2.4rem);color:var(--primary-dark);font-weight:700;margin-bottom:10px}
+.final-sub{font-size:1rem;color:var(--text-secondary);font-style:italic;margin-bottom:28px;max-width:480px}
+.ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0;width:100%;max-width:380px}
+.ach-badge{background:var(--nude-dark);border-radius:var(--radius-sm);padding:14px 7px;text-align:center;border:2px solid var(--border-color);transition:var(--transition)}
+.ach-badge.unlocked{background:var(--primary-light);border-color:var(--primary)}
+.ach-badge .be{font-size:1.7rem;display:block;margin-bottom:4px}
+.ach-badge .bn{font-size:.63rem;color:var(--text-secondary);font-weight:700}
+.ach-badge.unlocked .bn{color:var(--primary-dark)}
+.cta-box{background:linear-gradient(135deg,var(--primary-light),var(--secondary-light));border-radius:var(--radius);padding:26px;margin:22px 0;width:100%;max-width:480px}
+.cta-box h4{font-family:'Playfair Display',serif;color:var(--primary-dark);font-size:1.15rem;margin-bottom:7px}
+.cta-box p{font-size:.88rem;color:var(--text-secondary);margin-bottom:14px}
+.cta-btn{display:inline-block;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border:none;border-radius:50px;padding:12px 26px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;transition:var(--transition)}
+.cta-btn:hover{transform:translateY(-2px)}
+
+/* ── ANIMAÇÕES ── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes popIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-20px)}70%{transform:translateY(-10px)}}
+@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes audioPulse{0%,100%{box-shadow:0 2px 8px rgba(192,132,252,.4)}50%{box-shadow:0 2px 20px rgba(192,132,252,.8),0 0 0 6px rgba(192,132,252,.15)}}
+@keyframes wave{0%,100%{height:6px}25%{height:18px}50%{height:10px}75%{height:22px}}
+
+@media(max-width:480px){
+  .page-inner{padding:22px 14px}
+  .login-container{padding:32px 20px}
+  .ab-row3{gap:6px}
+  .voice-sel{max-width:110px}
+}
+@media(min-width:768px){
+  .ch-header-img{height:250px}
+  #audio-bar{bottom:14px;border-radius:24px}
+}
+/* capa com imagem */
+.cover-img{max-width:260px;width:70%;border-radius:20px;margin:0 auto 18px;display:block;box-shadow:0 12px 40px rgba(0,0,0,.18)}
+/* mensagem de capítulo concluído */
+.complete-msg{text-align:center;padding:20px;background:linear-gradient(135deg,var(--primary-light),var(--secondary-light));border-radius:var(--radius);margin:24px 0;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)}
+.complete-msg .cm-emoji{font-size:2.4rem;display:block;margin-bottom:6px}
+.complete-msg h4{font-family:'Playfair Display',serif;color:var(--primary-dark)}
+
+/* ── modo escuro: títulos, subtítulos e caixas com a mesma cor clara do texto ── */
+[data-theme="dark"] .ch-title,
+[data-theme="dark"] .cover-title,
+[data-theme="dark"] .final-title,
+[data-theme="dark"] .sum-title,
+[data-theme="dark"] .ch-name{color:var(--text-primary)}
+[data-theme="dark"] .ch-subtitle,
+[data-theme="dark"] .cover-subtitle,
+[data-theme="dark"] .final-sub,
+[data-theme="dark"] .sum-desc,
+[data-theme="dark"] .cover-author{color:var(--text-secondary)}
+[data-theme="dark"] .hl-box p,
+[data-theme="dark"] .tip-box p,
+[data-theme="dark"] .act-box p,
+[data-theme="dark"] .t-txt,
+[data-theme="dark"] .quote-box p{color:var(--text-primary)}
+[data-theme="dark"] .hl-box .bt,
+[data-theme="dark"] .tech-box h4,
+[data-theme="dark"] .act-box h4,
+[data-theme="dark"] .cta-box h4,
+[data-theme="dark"] .complete-msg h4{color:var(--primary)}
+[data-theme="dark"] .quote-box .qa{color:var(--text-light)}
+[data-theme="dark"] .ch-tag{color:var(--text-primary)}
+</style>
+</head>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-container">
+    <div class="login-logo-wrap" id="login-logo-wrap">🧘‍♀️</div>
+    <div class="login-app-name" id="login-app-name">Ebook</div>
+    <div class="login-subtitle" id="login-subtitle"></div>
+    <div class="login-form">
+      <input type="email" id="login-email" class="login-input" placeholder="Seu e-mail" autocomplete="email">
+      <input type="password" id="login-pw" class="login-input" placeholder="Sua senha" autocomplete="current-password">
+      <div class="login-error" id="login-err">❌ Acesso não autorizado. Verifique suas credenciais.</div>
+      <button class="login-btn" onclick="doLogin()">Entrar ✨</button>
+    </div>
+    <p class="login-access-text" id="login-access-text">🔒 Acesso restrito</p>
+  </div>
+</div>
+
+<!-- PWA BANNER -->
+<div id="pwa-banner">
+  <div class="pwa-b-icon" id="pwa-b-icon">📖</div>
+  <div class="pwa-b-text">
+    <div class="pwa-b-title" id="pwa-b-title">Instalar</div>
+    <div class="pwa-b-sub">Adicione na tela inicial • Funciona offline</div>
+  </div>
+  <button class="pwa-b-btn" id="pwa-banner-btn">📲 Instalar</button>
+  <button class="pwa-b-close" onclick="dismissBanner()">✕</button>
+</div>
+
+<!-- TOPBAR TAB -->
+<div id="topbar-tab" onclick="toggleTopbar(true)"><span>▼ MENU</span></div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <button class="tb-btn" onclick="toggleSidebar()">☰</button>
+  <div class="tb-title" id="tb-title">Ebook</div>
+  <div class="tb-div"></div>
+  <button class="tb-btn" onclick="zoom(-1)">𝐴-</button>
+  <button class="tb-btn" onclick="zoom(1)">𝐴+</button>
+  <div class="tb-div"></div>
+  <button id="tb-audio" onclick="toggleAudioBar()" title="Audiobook">🎧<span class="audio-dot"></span></button>
+  <button class="tb-btn" id="btn-theme" onclick="toggleTheme()">🌙</button>
+  <button class="tb-btn" onclick="showInstall()">📲</button>
+  <button class="tb-btn" id="tb-logout" onclick="doLogout()">🚪</button>
+  <button class="tb-btn" onclick="toggleTopbar(false)" style="font-size:.78rem">▲</button>
+</div>
+
+<!-- OVERLAY + SIDEBAR -->
+<div id="overlay" onclick="toggleSidebar()"></div>
+<div id="sidebar">
+  <div class="sb-header">
+    <button class="sb-close" onclick="toggleSidebar()">✕</button>
+    <div class="sb-avatar" id="sb-avatar">📖</div>
+    <div class="sb-name" id="sb-name">Boa leitura!</div>
+    <div class="sb-email" id="sb-email"></div>
+    <div class="sb-level"><span id="sb-level">🌱 Iniciante</span></div>
+  </div>
+  <div class="sb-prog">
+    <div class="sb-prog-lbl"><span>Progresso</span><span id="sb-pct">0%</span></div>
+    <div class="prog-bg"><div class="prog-fill" id="sb-pfill" style="width:0%"></div></div>
+  </div>
+  <div class="sb-chapters" id="sb-chs"></div>
+  <div class="sb-footer">
+    <div class="sb-stats">
+      <div><span class="stat-val" id="st-ach">0</span><span class="stat-lbl">🏆 Conquistas</span></div>
+      <div><span class="stat-val" id="st-str">0</span><span class="stat-lbl">🔥 Dias</span></div>
+      <div><span class="stat-val" id="st-pg">0</span><span class="stat-lbl">📖 Lidos</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<div id="reading-area">
+</div><!-- /reading-area -->
+</div><!-- /app -->
+
+<!-- AUDIOBOOK BAR -->
+<div id="audio-bar">
+  <div class="ab-row1">
+    <div class="waveform"><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div></div>
+    <div class="ab-info">
+      <div class="ab-title" id="ab-title">Página atual</div>
+      <div class="ab-status" id="ab-status">Toque ▶ para ouvir</div>
+    </div>
+    <div class="ab-ctrls">
+      <button class="ac-btn" id="btn-prev" onclick="audioPrev()" title="Anterior">⏮</button>
+      <button class="ac-btn play-main" id="btn-play" onclick="audioPlay()" title="Play">▶</button>
+      <button class="ac-btn" id="btn-next" onclick="audioNext()" title="Próximo">⏭</button>
+      <button class="ac-btn" onclick="audioStop()" title="Parar">⏹</button>
+    </div>
+  </div>
+  <div class="ab-prog">
+    <div class="ab-prog-bg"><div class="ab-prog-fill" id="ab-pfill"></div></div>
+    <div class="ab-prog-txt" id="ab-ptxt">0 / 0</div>
+  </div>
+  <div class="ab-row3">
+    <span class="ab-lbl">Vel.:</span>
+    <div class="spd-btns">
+      <button class="spd-btn" data-s="0.8" onclick="setSpd(0.8)">0.8×</button>
+      <button class="spd-btn on" data-s="1" onclick="setSpd(1)">1×</button>
+      <button class="spd-btn" data-s="1.2" onclick="setSpd(1.2)">1.2×</button>
+      <button class="spd-btn" data-s="1.5" onclick="setSpd(1.5)">1.5×</button>
+    </div>
+    <span id="voice-wrap" style="display:contents"><span class="ab-lbl">Voz:</span>
+    <select class="voice-sel" id="voice-sel" onchange="setVoice()"></select></span>
+    <button class="ab-close" onclick="closeAudio()">✕</button>
+  </div>
+</div>
+
+<!-- PROGRESSO -->
+<div id="prog-bar-wrap"><div id="prog-bar-fill" style="width:0%"></div></div>
+<div id="prog-label">0% concluído</div>
+
+<!-- MODAL CONQUISTA -->
+<div id="ach-modal">
+  <div class="ach-card">
+    <span class="ach-emoji" id="ach-emoji">🏅</span>
+    <div class="ach-lbl">Conquista Desbloqueada!</div>
+    <div class="ach-title" id="ach-title">Título</div>
+    <div class="ach-desc" id="ach-desc">Descrição</div>
+    <button class="ach-btn" onclick="closeAch()">Continuar Lendo 📖</button>
+  </div>
+</div>
+
+<!-- MODAL INSTALAR -->
+<div id="install-modal" onclick="closeInstall(event)">
+  <div class="inst-card">
+    <div class="inst-handle"></div>
+    <div class="inst-icon" id="inst-app-icon">📖</div>
+    <div class="inst-name" id="inst-app-name">Ebook</div>
+    <div class="inst-desc">Adicione na tela inicial • Funciona offline</div>
+    <button id="btn-native-install" onclick="nativeInstall()">📲 Instalar agora</button>
+    <ul class="inst-steps" id="inst-steps"></ul>
+    <button class="inst-close" onclick="closeInstall()">Fechar</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+const CFG = /*__CFG__*/{};
+const E = CFG.ebook || {};
+const CORES = E.cores || {};
+const CHAVE = 'ebk_' + ((CFG.app && CFG.app.id) || 'x');
+
+/* ================================================
+   PWA — MANIFEST + SERVICE WORKER CORRETOS
+   ================================================
+   PROBLEMA ANTERIOR: SW via blob:URL falha no Android
+   SOLUÇÃO: SW inline via data:URL (funciona) +
+   ícones PNG gerados via Canvas (requisito Android Chrome)
+   ================================================ */
+
+// Gera ícone PNG via Canvas (NECESSÁRIO para Android — SVG não é aceito como ícone PWA)
+function generateIconPNG(size) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  // Fundo gradiente
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  grad.addColorStop(0, CORES.primary || '#c084fc');
+  grad.addColorStop(1, CORES.accent || '#fb7185');
+  // Rounded rect
+  const r = size * 0.22;
+  ctx.beginPath();
+  ctx.moveTo(r, 0); ctx.lineTo(size-r, 0);
+  ctx.quadraticCurveTo(size, 0, size, r);
+  ctx.lineTo(size, size-r);
+  ctx.quadraticCurveTo(size, size, size-r, size);
+  ctx.lineTo(r, size);
+  ctx.quadraticCurveTo(0, size, 0, size-r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+  // Emoji centralizado
+  ctx.font = `${size * 0.55}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(E.appIcone || '📖', size/2, size * 0.45);
+  // Texto
+  ctx.font = `bold ${size * 0.13}px sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.fillText(String(E.titulo || '').toLowerCase().slice(0, 12), size/2, size * 0.82);
+  return canvas.toDataURL('image/png');
+}
+
+const ICON_192 = generateIconPNG(192);
+const ICON_512 = generateIconPNG(512);
+
+// Apple touch icon
+document.getElementById('apple-touch-icon').href = ICON_192;
+
+// Injeta manifest com ícones PNG reais
+function injectManifest() {
+  const manifest = {
+    name: E.titulo || 'Ebook',
+    short_name: String(E.titulo || 'Ebook').slice(0, 12),
+    description: (E.subtitulo || '').replace(/<[^>]+>/g, ' '),
+    start_url: './',
+    scope: './',
+    display: 'standalone',
+    background_color: '#fff9fc',
+    theme_color: CORES.primary || '#c084fc',
+    orientation: 'portrait-primary',
+    lang: 'pt-BR',
+    categories: ['education', 'health'],
+    icons: [
+      { src: ICON_192, sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: ICON_192, sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+      { src: ICON_512, sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: ICON_512, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  document.getElementById('manifest-link').href = URL.createObjectURL(blob);
+}
+
+// Service Worker via inline string — registrado como Blob com tipo correto
+// O escopo precisa ser '.' para cobrir o arquivo HTML
+function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  const SW_CODE = `
+const CACHE_NAME = CHAVE + '-v1';
+const CACHED_URLS = ['./'];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(CACHED_URLS)).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+    )).then(() => clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+      return fetch(event.request).then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match('./'));
+    })
+  );
+});
+`;
+  try {
+    const swBlob = new Blob([SW_CODE], { type: 'application/javascript' });
+    const swURL = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swURL, { scope: './' })
+      .then(reg => {
+        console.log('[PWA] Service Worker registrado:', reg.scope);
+      })
+      .catch(err => {
+        // Fallback: tenta registrar via data URI
+        console.warn('[PWA] Blob SW falhou, tentando data URI:', err);
+        const swDataURL = 'data:application/javascript,' + encodeURIComponent(SW_CODE);
+        navigator.serviceWorker.register(swDataURL).catch(e => console.warn('[PWA] SW:', e));
+      });
+  } catch(e) {
+    console.warn('[PWA] SW não suportado:', e);
+  }
+}
+
+// Captura evento de instalação nativa (Android Chrome)
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  console.log('[PWA] beforeinstallprompt capturado ✓');
+  // Mostra banner após 3s
+  setTimeout(() => {
+    if (!sessionStorage.getItem('pwa_dismissed')) {
+      document.getElementById('pwa-banner').classList.add('show');
+    }
+  }, 3000);
+  // Ativa botão nativo no modal
+  document.getElementById('btn-native-install').classList.add('show');
+  document.getElementById('btn-native-install').textContent = '📲 Instalar no Android';
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  document.getElementById('pwa-banner').classList.remove('show');
+  document.getElementById('btn-native-install').classList.remove('show');
+  console.log('[PWA] App instalado! ✓');
+});
+
+function nativeInstall() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choice => {
+      console.log('[PWA] Escolha do usuário:', choice.outcome);
+      deferredPrompt = null;
+      closeInstall();
+    });
+  }
+}
+
+document.getElementById('pwa-banner-btn').onclick = () => {
+  dismissBanner();
+  if (deferredPrompt) {
+    nativeInstall();
+  } else {
+    showInstall();
+  }
+};
+
+function dismissBanner() {
+  document.getElementById('pwa-banner').classList.remove('show');
+  sessionStorage.setItem('pwa_dismissed', '1');
+}
+
+// Inicializa PWA
+injectManifest();
+registerSW();
+
+/* ================================================
+   CREDENCIAIS
+   ================================================ */
+const USERS = (E.login && E.login.usuarios) || [];
+
+/* ================================================
+   CAPÍTULOS
+   ================================================ */
+const CHAPTERS = [];
+const PAG = [];
+function montarIndice(){
+  CHAPTERS.length = 0; PAG.length = 0;
+  let n = 0;
+  const add = (o) => { o.page = n; CHAPTERS.push(o); PAG.push(o); n++; };
+  add({ id:0, title:'Capa', cover:true });
+  if (E.carta && E.carta.ativo) add({ tipo:'carta', title:(E.carta.menu || 'Carta da Autora'), desc:(E.carta.desc || '') });
+  if (E.sumario && E.sumario.ativo) add({ tipo:'sumario', title:'Sumário', desc:'Visão geral' });
+  (E.capitulos || []).forEach((c, i) => add({ tipo:'cap', cap:c, num:i+1, title:(c.menu || c.titulo), desc:(c.desc || '') }));
+  if (E.final && E.final.ativo) add({ tipo:'final', title:(E.final.menu || 'Resultado Final'), desc:'Conquistas' });
+}
+const CAPS = () => PAG.filter(p => p.tipo === 'cap').map(p => p.page);
+const ULTIMA = () => PAG.length - 1;
+
+const ACHS = [
+  { id:'first',    emoji:'🏅', title:'Primeiro Passo',   desc:'Leu o primeiro capítulo!' },
+  { id:'half',     emoji:'📚', title:'Leitora Dedicada', desc:'Chegou à metade do guia!' },
+  { id:'done',     emoji:'🏆', title:'Mestra',           desc:'Completou 100% do guia!' },
+  { id:'streak3',  emoji:'🔥', title:'Em Chamas',        desc:'3 dias consecutivos lendo!' },
+  { id:'sprint',   emoji:'⚡', title:'Maratonista',      desc:'5 capítulos em um dia!' },
+  { id:'all',      emoji:'💎', title:'Colecionadora',    desc:'Desbloqueou tudo!' },
+];
+
+/* ================================================
+   ESTADO
+   ================================================ */
+let S = {
+  page: 0, read: [], achs: [],
+  streak: 0, lastDate: null,
+  cToday: 0, lastCDate: null,
+  theme: 'light', fontSize: 16,
+  user: null,
+};
+
+/* ================================================
+   AUDIOBOOK STATE — CORRIGIDO
+   ================================================
+   FIXES APLICADOS:
+   1. Chunking de texto (máx 200 chars) para evitar
+      o bug do Chrome que para após 15s
+   2. Delay maior (300ms) antes de speak() no Android
+   3. keepAlive: ping periódico para evitar que o
+      synth "adormeça" no Android
+   4. Gesto do usuário: o speak() só é chamado dentro
+      de um handler onclick (já garantido)
+   5. workaround: synth.cancel() + setTimeout 300ms
+   ================================================ */
+const AU = {
+  synth: window.speechSynthesis,
+  voices: [],
+  voice: null,
+  speed: 1.0,
+  paras: [],     // parágrafos da página
+  chunks: [],    // chunks de texto
+  chunkIdx: 0,
+  paraIdx: 0,
+  playing: false,
+  paused: false,
+  keepAliveTimer: null,
+};
+
+/* ================================================
+   INIT
+   ================================================ */
+function init() {
+  loadS();
+  montarIndice();
+  aplicarIdentidade();
+  montarPaginas();
+  if (CFG.preview === 'app' && E.login && E.login.ativo) { S.user = (USERS[0] || {}).email || 'leitor'; showApp(); }
+  else if (!E.login || !E.login.ativo) { document.getElementById('login-screen').classList.add('hidden'); showApp(); }
+  else checkLogin();
+  applyTheme();
+  applyFont();
+  updateStreak();
+  initVoices();
+}
+
+function loadS() {
+  try { const r = localStorage.getItem(CHAVE + '_s'); if(r) S = {...S, ...JSON.parse(r)}; } catch(e){}
+}
+function saveS() {
+  try { localStorage.setItem(CHAVE + '_s', JSON.stringify(S)); } catch(e){}
+}
+
+/* ================================================
+   LOGIN
+   ================================================ */
+function checkLogin() {
+  const u = sessionStorage.getItem(CHAVE + '_user');
+  if (u) { S.user = u; showApp(); }
+}
+
+function doLogin() {
+  const em = document.getElementById('login-email').value.trim().toLowerCase();
+  const pw = document.getElementById('login-pw').value;
+  const err = document.getElementById('login-err');
+  const u = USERS.find(x => x.email.toLowerCase()===em && x.senha===pw);
+  if (u) {
+    err.classList.remove('show');
+    sessionStorage.setItem(CHAVE + '_user', em);
+    S.user = em; saveS();
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('pwa-banner').classList.remove('show');
+    showApp();
+  } else {
+    err.classList.add('show');
+    document.getElementById('login-pw').value = '';
+  }
+}
+
+document.getElementById('login-email').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('login-pw').focus(); });
+document.getElementById('login-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+function doLogout() {
+  if (confirm('Deseja sair de ' + (E.titulo || 'ebook') + '?')) {
+    audioStop(); sessionStorage.removeItem(CHAVE + '_user'); location.reload();
+  }
+}
+
+function showApp() {
+  document.getElementById('app').classList.add('visible');
+  renderSB(); renderSum(); renderFinalAch(); updateStats();
+  goTo(S.page || 0, false);
+}
+
+/* ================================================
+   NAVEGAÇÃO
+   ================================================ */
+function goTo(n, anim=true) {
+  const cur = document.querySelector('.page.active');
+  if (cur) {
+    const ci = parseInt(cur.id.replace('page-',''));
+    if (ci < n) cur.classList.add('exit-left');
+    cur.classList.remove('active');
+    setTimeout(()=>cur.classList.remove('exit-left'), 400);
+  }
+  const tgt = document.getElementById('page-'+n);
+  if (!tgt) return;
+  setTimeout(()=>{ tgt.classList.add('active'); tgt.scrollTop=0; }, anim?50:0);
+  S.page = n; updateProg(); updateSBActive(n); saveS();
+  // Para audio ao trocar página
+  if (AU.playing) audioStop();
+  // Atualiza título no player
+  const ch = CHAPTERS.find(c=>c.page===n);
+  if (ch) document.getElementById('ab-title').textContent = ch.title;
+  // Prepara parágrafos para audio
+  setTimeout(()=>prepareParas(), 200);
+}
+
+function completeNext(cur, nxt) {
+  if (!S.read.includes(cur)) {
+    S.read.push(cur);
+    const today = new Date().toDateString();
+    if (S.lastCDate !== today) { S.cToday=1; S.lastCDate=today; }
+    else S.cToday++;
+    saveS(); checkAchs(cur);
+    const cm = document.getElementById('cmsg-' + cur); if (cm) cm.style.display = 'block';
+  }
+  updateProg(); renderSB(); goTo(nxt);
+}
+
+/* ================================================
+   PROGRESSO
+   ================================================ */
+function getPct() {
+  const caps = CAPS(); if (!caps.length) return 0;
+  return Math.round((S.read.filter(p => caps.indexOf(p) >= 0).length / caps.length) * 100);
+}
+function updateProg() {
+  const p = getPct();
+  document.getElementById('prog-bar-fill').style.width = p+'%';
+  document.getElementById('prog-label').textContent = p+'% concluído';
+  document.getElementById('sb-pfill').style.width = p+'%';
+  document.getElementById('sb-pct').textContent = p+'%';
+  // Nível
+  const nomes = (E.niveis && E.niveis.length) ? E.niveis : ['🌱 Iniciante','📗 Aprendiz','📘 Praticante','📕 Avançada','🎓 Especialista','👑 Mestre'];
+  const lvls = nomes.map((t,i)=>[Math.round((i+1)*100/nomes.length), t]);
+  document.getElementById('sb-level').textContent = (lvls.find(([x])=>p<=x)||lvls[lvls.length-1])[1];
+}
+
+/* ================================================
+   STREAK
+   ================================================ */
+function updateStreak() {
+  const today = new Date().toDateString();
+  const yest = new Date(Date.now()-86400000).toDateString();
+  if (!S.lastDate) { S.streak=1; S.lastDate=today; }
+  else if (S.lastDate===today) {}
+  else if (S.lastDate===yest) { S.streak=(S.streak||0)+1; S.lastDate=today; if(S.streak>=3) unlock('streak3'); }
+  else { S.streak=1; S.lastDate=today; }
+  saveS(); updateStats();
+}
+
+/* ================================================
+   CONQUISTAS
+   ================================================ */
+function checkAchs(pg) {
+  const p = getPct();
+  if (pg === CAPS()[0]) unlock('first');
+  if (p>=50) unlock('half');
+  if (p>=100) { unlock('done'); setTimeout(checkAll, 3500); }
+  if (S.cToday>=5) unlock('sprint');
+}
+function checkAll() {
+  if (ACHS.filter(a=>a.id!=='all').every(a=>S.achs.includes(a.id))) unlock('all');
+}
+function unlock(id) {
+  if (S.achs.includes(id)) return;
+  const def = ACHS.find(a=>a.id===id); if(!def) return;
+  S.achs.push(id); saveS(); updateStats(); renderFinalAch();
+  setTimeout(()=>showAch(def), 700);
+}
+function showAch(d) {
+  document.getElementById('ach-emoji').textContent = d.emoji;
+  document.getElementById('ach-title').textContent = d.title;
+  document.getElementById('ach-desc').textContent = d.desc;
+  document.getElementById('ach-modal').classList.add('show');
+  confetti();
+}
+function closeAch() { document.getElementById('ach-modal').classList.remove('show'); }
+function confetti() {
+  ['#c084fc','#f9a8d4','#fb7185','#fbbf24','#86efac'].forEach(c=>{
+    for(let i=0;i<6;i++){
+      const el=document.createElement('div'); el.className='confetti-p';
+      el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${c};transform:rotate(${Math.random()*360}deg);animation-delay:${Math.random()*0.5}s;animation-duration:${1.5+Math.random()*1.5}s;`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),3000);
+    }
+  });
+}
+
+/* ================================================
+   SIDEBAR
+   ================================================ */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+  document.getElementById('sb-email').textContent = S.user||'';
+}
+function renderSB() {
+  const c = document.getElementById('sb-chs'); c.innerHTML='';
+  PAG.filter(ch=>!ch.cover).forEach((ch,k)=>{
+    const rd=S.read.includes(ch.page), ac=S.page===ch.page;
+    const el=document.createElement('div');
+    el.className=`ch-item${rd?' completed':''}${ac?' active':''}`;
+    el.innerHTML=`<div class="ch-num">${k+1}</div><div class="ch-info"><div class="ch-name">${ch.title}</div>${ch.desc?`<div class="ch-status">${ch.desc}</div>`:''}</div><span class="ch-icon">${ac?'📖':rd?'✅':'○'}</span>`;
+    el.onclick=()=>{ goTo(ch.page); toggleSidebar(); };
+    c.appendChild(el);
+  });
+}
+function updateSBActive(pg) {
+  document.querySelectorAll('.ch-item').forEach((el,i)=>{
+    el.classList.remove('active');
+    const ch=CHAPTERS.filter(c=>!c.cover)[i];
+    if(ch&&ch.page===pg){ el.classList.add('active'); el.querySelector('.ch-icon').textContent='📖'; }
+  });
+}
+function updateStats() {
+  document.getElementById('st-ach').textContent=S.achs.length;
+  document.getElementById('st-str').textContent=S.streak||0;
+  document.getElementById('st-pg').textContent=S.read.filter(p=>p>=3&&p<=14).length;
+  updateProg();
+}
+function renderSum() {
+  const c=document.getElementById('sum-list'); if(!c) return; c.innerHTML='';
+  PAG.filter(ch=>ch.tipo==='cap').forEach((ch,k)=>{
+    const rd=S.read.includes(ch.page);
+    const el=document.createElement('div'); el.className='sum-item';
+    el.innerHTML=`<div class="sum-num">${k+1}</div><div class="sum-info"><div class="sum-title">${ch.title}</div>${ch.desc?`<div class="sum-desc">${ch.desc}</div>`:''}</div><span class="sum-st">${rd?'✅':'○'}</span>`;
+    el.onclick=()=>goTo(ch.page); c.appendChild(el);
+  });
+}
+function renderFinalAch() {
+  const g=document.getElementById('final-ach-grid'); if(!g) return; g.innerHTML='';
+  ACHS.forEach(d=>{
+    const u=S.achs.includes(d.id);
+    const el=document.createElement('div'); el.className=`ach-badge${u?' unlocked':''}`;
+    el.innerHTML=`<span class="be">${u?d.emoji:'🔒'}</span><span class="bn">${d.title}</span>`;
+    g.appendChild(el);
+  });
+}
+
+/* ================================================
+   TOPBAR
+   ================================================ */
+function toggleTopbar(show) {
+  document.getElementById('topbar').classList.toggle('collapsed',!show);
+  document.getElementById('topbar-tab').classList.toggle('show',!show);
+  document.body.classList.toggle('tb-off',!show);
+}
+function zoom(d) { S.fontSize=Math.max(12,Math.min(24,S.fontSize+(d*2))); applyFont(); saveS(); }
+function applyFont() { document.documentElement.style.fontSize=S.fontSize+'px'; }
+function toggleTheme() { S.theme=S.theme==='light'?'dark':'light'; applyTheme(); saveS(); }
+function applyTheme() { document.documentElement.setAttribute('data-theme',S.theme); document.getElementById('btn-theme').textContent=S.theme==='dark'?'☀️':'🌙'; }
+
+/* ================================================
+   MODAL INSTALAR
+   ================================================ */
+function showInstall() {
+  const ua = navigator.userAgent;
+  let steps = [];
+  if (/iPad|iPhone|iPod/.test(ua)) {
+    steps = ['Toque no ícone compartilhar ⬆️ no Safari','Toque em "Adicionar à Tela de Início"','Toque em "Adicionar"','<strong>' + (E.titulo || 'Ebook') + '</strong> aparecerá na sua tela inicial 🎉'];
+  } else if (/Android/.test(ua)) {
+    steps = ['Toque nos 3 pontinhos ⋮ no Chrome','Toque em "Adicionar à tela inicial"','Toque em "Adicionar"','<strong>' + (E.titulo || 'Ebook') + '</strong> aparecerá na sua tela inicial 🎉'];
+  } else {
+    steps = ['Clique nos 3 pontinhos ⋮ no Chrome','Clique em \'Instalar\' + (E.titulo || \'o ebook\')','Clique em "Instalar" na janela que aparecer','App instalado no seu computador 🎉'];
+  }
+  document.getElementById('inst-steps').innerHTML = steps.map((s,i)=>`<li class="inst-step"><div class="ist-num">${i+1}</div><div class="ist-txt">${s}</div></li>`).join('');
+  document.getElementById('install-modal').classList.add('show');
+}
+function closeInstall(e) {
+  if (!e || e.target===document.getElementById('install-modal')) document.getElementById('install-modal').classList.remove('show');
+}
+
+/* ================================================
+   AUDIOBOOK — SISTEMA COMPLETAMENTE REESCRITO
+   ================================================
+
+   PROBLEMA 1: SpeechSynthesis para após ~15s no Chrome
+   FIX: Divide texto em chunks de ≤180 chars na fronteira
+        de palavras e dispara utterances sequencialmente
+
+   PROBLEMA 2: Não fala no Android sem interação prévia
+   FIX: speak() sempre chamado diretamente de um onclick
+        (gesto do usuário válido)
+
+   PROBLEMA 3: synth "adormece" em background Android
+   FIX: keepAlive que chama synth.pause()/resume() a cada
+        10s para manter o contexto de áudio ativo
+
+   PROBLEMA 4: Vozes não carregam imediatamente
+   FIX: Evento voiceschanged + timeout fallback
+
+   ================================================ */
+
+function initVoices() {
+  if (!AU.synth) return;
+  const load = () => {
+    const all = AU.synth.getVoices();
+    // Prioridade: pt-BR > pt > qualquer pt > todas
+    AU.voices = all.filter(v => v.lang.startsWith('pt-BR')) ||
+                all.filter(v => v.lang.startsWith('pt')) ||
+                all.filter(v => v.lang.includes('pt')) ||
+                all;
+    if (!AU.voices.length) AU.voices = all;
+
+    const sel = document.getElementById('voice-sel');
+    sel.innerHTML = '';
+    AU.voices.forEach((v, i) => {
+      const o = document.createElement('option');
+      o.value = i;
+      // Nome limpo e curto
+      o.textContent = v.name.replace(/Google\s*/i,'').replace(/\(Brazil\)/i,'').trim().substring(0,20);
+      sel.appendChild(o);
+    });
+
+    // Seleciona pt-BR por padrão
+    const ptBR = AU.voices.findIndex(v => v.lang === 'pt-BR');
+    if (ptBR >= 0) { sel.value = ptBR; AU.voice = AU.voices[ptBR]; }
+    else if (AU.voices.length) { sel.value = 0; AU.voice = AU.voices[0]; }
+  };
+
+  // Chrome às vezes retorna lista vazia na primeira chamada
+  if (AU.synth.getVoices().length > 0) { load(); }
+  AU.synth.addEventListener('voiceschanged', load);
+  // Fallback após 1s
+  setTimeout(load, 1000);
+}
+
+function setVoice() {
+  const idx = parseInt(document.getElementById('voice-sel').value);
+  AU.voice = isNaN(idx) ? null : AU.voices[idx];
+}
+
+// Divide texto em chunks respeitando palavras (fix do bug 15s do Chrome)
+function chunkText(text, maxLen=180) {
+  const words = text.split(' ');
+  const chunks = [];
+  let cur = '';
+  words.forEach(w => {
+    if ((cur + ' ' + w).trim().length <= maxLen) {
+      cur = (cur + ' ' + w).trim();
+    } else {
+      if (cur) chunks.push(cur);
+      cur = w;
+    }
+  });
+  if (cur) chunks.push(cur);
+  return chunks;
+}
+
+// Coleta parágrafos da página ativa
+function prepareParas() {
+  const pg = document.querySelector('.page.active');
+  if (!pg) return;
+  AU.paras = [...pg.querySelectorAll('p, .ch-subtitle, .t-txt')].filter(el => {
+    const t = el.innerText.trim();
+    return t.length > 12 && !el.closest('#audio-bar') && !el.closest('#ach-modal') &&
+           !el.closest('#install-modal') && !el.closest('.nav-btns') && !el.closest('.complete-msg');
+  });
+  AU.paraIdx = 0;
+  AU.chunkIdx = 0;
+  AU.chunks = [];
+  updateAudioUI();
+}
+
+// PLAY principal — chamado diretamente por onclick (gesto do usuário)
+function audioPlay() {
+  if (!AU.synth && !MP3.ativo) {
+    alert('Seu navegador não suporta leitura em voz alta.\nUse o Chrome no Android ou Safari no iPhone.');
+    return;
+  }
+
+  // Se pausado, retoma
+  if (AU.paused) {
+    AU.synth.resume();
+    AU.playing = true;
+    AU.paused = false;
+    setAudioPlaying(true);
+    startKeepAlive();
+    return;
+  }
+
+  // Retoma a narração gravada
+  if (MP3.ativo && MP3.el) { MP3.el.play(); AU.playing = true; setAudioPlaying(true); return; }
+
+  // Para qualquer leitura anterior
+  AU.synth && AU.synth.cancel();
+  AU.playing = true;
+  AU.paused = false;
+
+  // Garante que parágrafos estão preparados
+  if (!AU.paras.length) prepareParas();
+  if (!AU.paras.length) {
+    document.getElementById('ab-status').textContent = 'Nenhum texto encontrado nesta página.';
+    return;
+  }
+
+  setAudioPlaying(true);
+
+  // 1º tenta a sua voz gravada; se não houver arquivo, usa a voz do aparelho
+  tentarMP3(() => { startKeepAlive(); setTimeout(() => speakPara(AU.paraIdx), 150) });
+}
+
+// Fala um parágrafo (dividido em chunks)
+function speakPara(idx) {
+  if (!AU.playing || idx >= AU.paras.length) {
+    finishAudio();
+    return;
+  }
+
+  AU.paraIdx = idx;
+  const el = AU.paras[idx];
+  const rawText = el.innerText.trim().replace(/\s+/g, ' ');
+
+  // Cria chunks para este parágrafo
+  AU.chunks = chunkText(rawText, 180);
+  AU.chunkIdx = 0;
+
+  // Destaque visual
+  clearHL();
+  el.classList.add('speaking');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Atualiza UI
+  document.getElementById('ab-status').textContent = `Parágrafo ${idx+1} de ${AU.paras.length}`;
+  updateAudioUI();
+
+  // Fala o primeiro chunk
+  speakChunk(0, idx);
+}
+
+// Fala um chunk individual
+function speakChunk(chunkIdx, paraIdx) {
+  if (!AU.playing) return;
+  if (chunkIdx >= AU.chunks.length) {
+    // Chunk terminou — próximo parágrafo
+    const nextPara = paraIdx + 1;
+    setTimeout(() => speakPara(nextPara), 100);
+    return;
+  }
+
+  const text = AU.chunks[chunkIdx];
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate = AU.speed;
+  utt.pitch = 1.0;
+  utt.volume = 1.0;
+  utt.lang = 'pt-BR';
+  if (AU.voice) utt.voice = AU.voice;
+
+  utt.onend = () => {
+    if (!AU.playing) return;
+    AU.chunkIdx = chunkIdx + 1;
+    speakChunk(AU.chunkIdx, paraIdx);
+  };
+
+  utt.onerror = (e) => {
+    if (e.error === 'interrupted' || e.error === 'canceled') return;
+    console.warn('[TTS] Erro no chunk:', e.error);
+    // Tenta o próximo chunk mesmo com erro
+    if (AU.playing) {
+      setTimeout(() => speakChunk(chunkIdx + 1, paraIdx), 200);
+    }
+  };
+
+  // CRÍTICO: no Android Chrome às vezes o speak() falha silenciosamente
+  // se chamado muito rápido após cancel(). Usar setTimeout 0 resolve.
+  setTimeout(() => {
+    if (AU.playing) AU.synth.speak(utt);
+  }, 0);
+}
+
+function audioPause() {
+  if (!AU.playing) return;
+  if (MP3.ativo && MP3.el) { MP3.el.pause(); AU.playing=false; AU.paused=true; setAudioPlaying(false);
+    document.getElementById('ab-status').textContent = '⏸ Pausado'; return; }
+  AU.synth.pause();
+  AU.playing = false;
+  AU.paused = true;
+  setAudioPlaying(false);
+  stopKeepAlive();
+  document.getElementById('ab-status').textContent = '⏸ Pausado';
+}
+
+function audioStop() {
+  pararMP3();
+  AU.synth && AU.synth.cancel();
+  AU.playing = false;
+  AU.paused = false;
+  AU.paraIdx = 0;
+  AU.chunkIdx = 0;
+  stopKeepAlive();
+  clearHL();
+  setAudioPlaying(false);
+  document.getElementById('ab-status').textContent = 'Toque ▶ para ouvir';
+  document.getElementById('btn-play').textContent = '▶';
+  updateAudioUI();
+}
+
+function finishAudio() {
+  pararMP3();
+  AU.playing = false;
+  AU.paused = false;
+  stopKeepAlive();
+  clearHL();
+  setAudioPlaying(false);
+  document.getElementById('ab-status').textContent = '✅ Leitura concluída!';
+  document.getElementById('btn-play').textContent = '▶';
+  AU.paraIdx = 0;
+  updateAudioUI();
+}
+
+// Botão Play/Pause toggle
+function audioTogglePlay() {
+  if (AU.playing) { audioPause(); } else { audioPlay(); }
+}
+
+// Substituindo o botão #btn-play para toggle
+document.getElementById('btn-play').onclick = audioTogglePlay;
+
+function audioPrev() {
+  if (MP3.ativo && MP3.el) { const i=Math.max(0,AU.paraIdx-1);
+    MP3.el.currentTime=(i>0?MP3.marcas[i-1]:0)*MP3.el.duration; destacarPara(i); return; }
+  AU.synth && AU.synth.cancel();
+  AU.playing = false;
+  AU.paused = false;
+  clearHL();
+  AU.paraIdx = Math.max(0, AU.paraIdx - 1);
+  setTimeout(() => {
+    AU.playing = true;
+    setAudioPlaying(true);
+    startKeepAlive();
+    speakPara(AU.paraIdx);
+  }, 100);
+}
+
+function audioNext() {
+  if (MP3.ativo && MP3.el) { const i=Math.min(AU.paras.length-1,AU.paraIdx+1);
+    MP3.el.currentTime=(i>0?MP3.marcas[i-1]:0)*MP3.el.duration; destacarPara(i); return; }
+  AU.synth && AU.synth.cancel();
+  AU.playing = false;
+  AU.paused = false;
+  clearHL();
+  AU.paraIdx = Math.min(AU.paras.length - 1, AU.paraIdx + 1);
+  setTimeout(() => {
+    AU.playing = true;
+    setAudioPlaying(true);
+    startKeepAlive();
+    speakPara(AU.paraIdx);
+  }, 100);
+}
+
+function setSpd(s) {
+  AU.speed = s;
+  document.querySelectorAll('.spd-btn').forEach(b => b.classList.toggle('on', parseFloat(b.dataset.s)===s));
+  if (MP3.ativo && MP3.el) { MP3.el.playbackRate = s; return; }
+  // Reinicia com nova velocidade se estiver tocando
+  if (AU.playing) {
+    const idx = AU.paraIdx;
+    AU.synth.cancel();
+    setTimeout(() => { if(AU.playing) speakPara(idx); }, 200);
+  }
+}
+
+function clearHL() {
+  document.querySelectorAll('.speaking').forEach(el => el.classList.remove('speaking'));
+}
+
+function setAudioPlaying(on) {
+  const bar = document.getElementById('audio-bar');
+  const btn = document.getElementById('tb-audio');
+  const pbtn = document.getElementById('btn-play');
+  bar.classList.toggle('playing', on);
+  btn.classList.toggle('playing', on);
+  if (on) { pbtn.textContent = '⏸'; pbtn.title = 'Pausar'; }
+  else { pbtn.textContent = '▶'; pbtn.title = 'Reproduzir'; }
+}
+
+function updateAudioUI() {
+  const total = AU.paras.length;
+  const cur = Math.min(AU.paraIdx, total);
+  const pct = total > 0 ? (cur / total) * 100 : 0;
+  document.getElementById('ab-pfill').style.width = pct + '%';
+  document.getElementById('ab-ptxt').textContent = `${cur} / ${total}`;
+}
+
+// KeepAlive: resolve bug do Android onde synth "adormece"
+function startKeepAlive() {
+  stopKeepAlive();
+  AU.keepAliveTimer = setInterval(() => {
+    if (AU.playing && AU.synth && !AU.synth.speaking && !AU.synth.pending) {
+      // Synth acordado mas não está falando — pode ter travado
+      console.log('[TTS] KeepAlive: synth ocioso, verificando...');
+    }
+    // Trick: pause/resume para manter contexto de áudio ativo no Android
+    if (AU.playing && AU.synth && AU.synth.speaking) {
+      AU.synth.pause();
+      setTimeout(() => { if(AU.playing) AU.synth.resume(); }, 50);
+    }
+  }, 10000);
+}
+
+function stopKeepAlive() {
+  if (AU.keepAliveTimer) { clearInterval(AU.keepAliveTimer); AU.keepAliveTimer = null; }
+}
+
+// Abre/fecha player
+function toggleAudioBar() {
+  const bar = document.getElementById('audio-bar');
+  if (bar.classList.contains('open')) {
+    closeAudio();
+  } else {
+    bar.classList.add('open');
+    document.getElementById('tb-audio').style.opacity = '1';
+    prepareParas();
+    const ch = CHAPTERS.find(c=>c.page===S.page);
+    if (ch) document.getElementById('ab-title').textContent = ch.title;
+    document.getElementById('ab-status').textContent = AU.paras.length + ' parágrafos • Toque ▶';
+  }
+}
+
+function closeAudio() {
+  audioStop();
+  document.getElementById('audio-bar').classList.remove('open');
+  document.getElementById('audio-bar').classList.remove('playing');
+  document.getElementById('tb-audio').classList.remove('playing');
+}
+
+// Para ao minimizar/fechar aba
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && AU.playing) audioPause();
+});
+
+/* ================================================
+   SWIPE + TECLADO
+   ================================================ */
+let tx=0, ty=0;
+document.getElementById('reading-area').addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+document.getElementById('reading-area').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>60){
+    const pg=parseInt(document.querySelector('.page.active')?.id.replace('page-','')||0);
+    if(dx<0&&pg<ULTIMA()) goTo(pg+1); else if(dx>0&&pg>0) goTo(pg-1);
+  }
+},{passive:true});
+
+document.addEventListener('keydown',e=>{
+  // Não interfere com campos de texto
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
+  const pg=parseInt(document.querySelector('.page.active')?.id.replace('page-','')||0);
+  if(e.key==='ArrowRight'&&pg<ULTIMA()) goTo(pg+1);
+  if(e.key==='ArrowLeft'&&pg>0) goTo(pg-1);
+  if(e.key===' '){ e.preventDefault(); audioTogglePlay(); }
+});
+
+/* ================================================
+   START
+   ================================================ */
+
+/* ================================================
+   MONTAGEM DAS PÁGINAS (vindas do editor)
+   ================================================ */
+function navBtns(i, tipo) {
+  const ant = i > 0 ? '<button class="nb nb-s" onclick="goTo(' + (i - 1) + ')">← Voltar</button>' : '';
+  let prox = '';
+  if (i < ULTIMA()) {
+    const rot = (PAG[i + 1] && PAG[i + 1].tipo === 'final') ? 'Ver Resultado' : (tipo === 'cap' ? 'Próximo Capítulo' : 'Continuar');
+    prox = '<button class="nb nb-p" onclick="' + (tipo === 'cap' ? 'completeNext(' + i + ',' + (i + 1) + ')' : 'goTo(' + (i + 1) + ')') + '">' + rot + ' →</button>';
+  }
+  return '<div class="nav-btns">' + ant + prox + '</div>';
+}
+function htmlPagina(p, i) {
+  if (p.cover) {
+    return '<div class="page active" id="page-0"><div class="cover-page">' +
+      '<div class="cover-deco"></div><div class="cover-deco"></div><div class="cover-content">' +
+      (E.capaImagem ? '<img src="' + E.capaImagem + '" alt="" class="cover-img">' : '<span class="cover-emoji">' + (E.emoji || '📖') + '</span>') +
+      '<h1 class="cover-title">' + (E.titulo || 'Meu Ebook') + '</h1>' +
+      '<p class="cover-subtitle">' + (E.subtitulo || '') + '</p>' +
+      (E.autor ? '<p class="cover-author">' + E.autor + '</p>' : '') +
+      '<button class="cover-btn" onclick="goTo(1)">' + (E.botaoCapa || 'Começar a Ler') + ' →</button>' +
+      '</div></div></div>';
+  }
+  let dentro = '';
+  if (p.tipo === 'carta') {
+    const c = E.carta;
+    dentro = (c.imagem ? '<img src="' + c.imagem + '" alt="" class="ch-header-img" loading="lazy">' : '') +
+      '<div class="ch-tag">' + (c.tag || '💌 Carta da Autora') + '</div>' +
+      '<h2 class="ch-title">' + (c.titulo || '') + '</h2><div class="ch-divider"></div>' + (c.conteudo || '');
+  } else if (p.tipo === 'sumario') {
+    dentro = '<div class="ch-tag">📋 Sumário</div><h2 class="ch-title">' + (E.sumario.titulo || 'O Que Vem Por Aí') + '</h2>' +
+      '<div class="ch-divider"></div><p>' + (E.sumario.texto || '') + '</p><div id="sum-list"></div>';
+  } else if (p.tipo === 'cap') {
+    const c = p.cap;
+    dentro = (c.imagem ? '<img src="' + c.imagem + '" alt="" class="ch-header-img" loading="lazy">' : '') +
+      '<div class="ch-tag">' + (c.tag || ('Capítulo ' + p.num)) + '</div>' +
+      '<h2 class="ch-title">' + (c.titulo || '') + '</h2>' +
+      (c.subtitulo ? '<h3 class="ch-subtitle">' + c.subtitulo + '</h3>' : '') +
+      '<div class="ch-divider"></div>' + (c.conteudo || '') +
+      '<div class="complete-msg" id="cmsg-' + i + '" style="display:none">' +
+      '<span class="cm-emoji">' + (c.emojiFim || '🏅') + '</span>' +
+      '<h4>' + (c.tituloFim || 'Capítulo concluído!') + '</h4></div>';
+  } else if (p.tipo === 'final') {
+    const f = E.final;
+    return '<div class="page" id="page-' + i + '"><div class="page-inner"><div class="final-page">' +
+      '<span class="final-stars">' + (f.emoji || '✨') + '</span>' +
+      '<h2 class="final-title">' + (f.titulo || 'Parabéns!') + '</h2>' +
+      '<p class="final-sub">' + (f.texto || '') + '</p>' +
+      '<div class="ach-grid" id="final-ach-grid"></div>' +
+      '<div class="cta-box"><h4>' + (f.ctaTitulo || '') + '</h4><p>' + (f.ctaTexto || '') + '</p>' +
+      '<button class="cta-btn" onclick="' + (f.ctaLink ? "window.open('" + f.ctaLink + "','_blank','noopener')" : 'goTo(0)') + '">' + (f.ctaBotao || '🔄 Reler') + '</button></div>' +
+      '<div style="margin-top:14px"><button class="nb nb-s" onclick="goTo(' + (i - 1) + ')">← Voltar</button></div>' +
+      '</div></div></div>';
+  }
+  return '<div class="page" id="page-' + i + '"><div class="page-inner">' + dentro + navBtns(i, p.tipo) + '</div></div>';
+}
+function montarPaginas() {
+  document.getElementById('reading-area').innerHTML = PAG.map(htmlPagina).join('');
+}
+function aplicarIdentidade() {
+  const r = document.documentElement.style;
+  /* As cores do editor só valem no tema claro. No escuro entram as cores
+     escuras, incluindo as de texto — senão o título ficaria escuro no fundo escuro. */
+  document.documentElement.setAttribute('data-theme', S.theme === 'dark' ? 'dark' : 'light');
+  const st = document.createElement('style');
+  st.textContent = '[data-theme="light"]{' +
+    (CORES.primary ? '--primary:' + CORES.primary + ';--primary-dark:' + (CORES.primaryDark || CORES.primary) + ';' : '') +
+    (CORES.secondary ? '--secondary:' + CORES.secondary + ';' : '') +
+    (CORES.accent ? '--accent:' + CORES.accent + ';' : '') +
+    (CORES.bg ? '--bg-light:' + CORES.bg + ';' : '') +
+    (CORES.card ? '--bg-card:' + CORES.card + ';' : '') +
+    (CORES.texto ? '--text-primary:' + CORES.texto + ';' : '') +
+    '}' +
+    '[data-theme="dark"]{' +
+    (CORES.primary ? '--primary:' + CORES.primary + ';--primary-dark:' + (CORES.primaryDark || CORES.primary) + ';' : '') +
+    (CORES.accent ? '--accent:' + CORES.accent + ';' : '') +
+    '--bg-light:' + (CORES.bgEscuro || '#140e18') + ';' +
+    '--bg-card:' + (CORES.cardEscuro || '#1e1520') + ';' +
+    '--text-primary:' + (CORES.textoEscuro || '#f3e8ff') + ';' +
+    '--text-secondary:#d8b4fe;--text-light:#a78bba;--border-color:#3d2850;' +
+    '--nude:#1e1520;--nude-dark:#2a1e28;--primary-light:#3b1f5e;--secondary-light:#2d1a26;' +
+    '}';
+  document.head.appendChild(st);
+  document.title = E.titulo || 'Ebook';
+  const mt = document.querySelector('meta[name="theme-color"]');
+  if (mt && CORES.primary) mt.content = CORES.primary;
+  const põe = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt };
+  põe('login-logo-wrap', E.appIcone || '📖');
+  põe('login-app-name', (E.login && E.login.titulo) || E.titulo || 'Ebook');
+  põe('login-subtitle', (E.login && E.login.subtitulo) || '');
+  põe('login-access-text', (E.login && E.login.aviso) || '🔒 Acesso restrito');
+  põe('tb-title', E.appNome || E.titulo || 'Ebook');
+  põe('sb-avatar', E.emoji || '📖');
+  põe('sb-name', E.saudacao || 'Boa leitura!');
+  põe('pwa-b-icon', E.appIcone || '📖');
+  põe('pwa-b-title', 'Instalar ' + (E.titulo || 'Ebook'));
+  põe('inst-app-name', E.titulo || 'Ebook');
+  põe('inst-app-icon', E.appIcone || '📖');
+  const em = document.getElementById('sb-email'); if (em) em.textContent = S.user || (E.autor || '');
+  if (!E.audio || !E.audio.ativo) { const b = document.getElementById('tb-audio'); if (b) b.style.display = 'none' }
+  if (!E.login || !E.login.ativo) { const b = document.getElementById('tb-logout'); if (b) b.style.display = 'none' }
+  if (E.audio && E.audio.vel) AU.speed = E.audio.vel;
+}
+
+/* ================================================
+   ÁUDIO GRAVADO (MP3 por página)
+   Se existir audio/pagina-NN.mp3 o player usa a sua
+   voz. O trecho destacado é estimado pelo tamanho do
+   texto: no MP3 não há marca de tempo por frase, e no
+   parágrafo esse desvio é imperceptível.
+   ================================================ */
+const MP3 = { el: null, marcas: [], ativo: false };
+function arquivoDaPagina(n) { return ((E.audio && E.audio.pasta) || 'audio') + '/pagina-' + String(n).padStart(2, '0') + '.mp3' }
+function calcularMarcas() {
+  const tam = AU.paras.map(el => Math.max(12, el.innerText.trim().length));
+  const total = tam.reduce((a, b) => a + b, 0) || 1;
+  let acc = 0; MP3.marcas = tam.map(t => { acc += t; return acc / total });
+}
+function indicePorFracao(f) {
+  for (let i = 0; i < MP3.marcas.length; i++) if (f <= MP3.marcas[i]) return i;
+  return MP3.marcas.length - 1;
+}
+function destacarPara(i) {
+  if (i < 0 || !AU.paras[i] || AU.paraIdx === i && AU.paras[i].classList.contains('speaking')) return;
+  clearHL(); AU.paraIdx = i;
+  AU.paras[i].classList.add('speaking');
+  AU.paras[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('ab-status').textContent = 'Parágrafo ' + (i + 1) + ' de ' + AU.paras.length;
+  updateAudioUI();
+}
+function tentarMP3(aoFalhar) {
+  const a = new Audio(arquivoDaPagina(S.page));
+  a.preload = 'metadata';
+  let decidiu = false;
+  a.addEventListener('loadedmetadata', () => {
+    if (decidiu) return; decidiu = true;
+    MP3.el = a; MP3.ativo = true;
+    calcularMarcas();
+    a.playbackRate = AU.speed;
+    a.play().catch(() => {});
+    AU.playing = true; setAudioPlaying(true);
+    const vs = document.getElementById('voice-wrap'); if (vs) vs.style.display = 'none';
+    document.getElementById('ab-status').textContent = '🎙️ Narração gravada';
+  });
+  a.addEventListener('timeupdate', () => { if (a.duration) destacarPara(indicePorFracao(a.currentTime / a.duration)) });
+  a.addEventListener('ended', () => { MP3.ativo = false; MP3.el = null; finishAudio() });
+  a.addEventListener('error', () => { if (decidiu) return; decidiu = true; aoFalhar() });
+  a.load();
+  setTimeout(() => { if (!decidiu) { decidiu = true; aoFalhar() } }, 1200);
+}
+function pararMP3() {
+  if (MP3.el) { try { MP3.el.pause(); MP3.el.currentTime = 0 } catch (e) {} }
+  MP3.el = null; MP3.ativo = false;
+  const vs = document.getElementById('voice-wrap'); if (vs) vs.style.display = '';
+}
+
+
+/* ================================================
+   START
+   ================================================ */
+init();
 [[/script]]
 </body>
 </html>
@@ -1780,15 +3404,20 @@ function reId(o){if(o&&o.id)o.id=uid('x');(o.modulos||[]).forEach(reId);(o.conte
 const TIPOS_PG={curso:'Curso (módulos)',quiz:'Quiz',painel:'Painel do aluno',conquistas:'Conquistas',texto:'Texto',links:'Links',arquivos:'Downloads',html:'HTML livre'};
 const TIPOS_CT={video:'Vídeo',texto:'Texto / HTML',imagem:'Imagens',audio:'Áudio',pintura:'Pintura',quiz:'Quiz',form:'Formulário'};
 const ICO_CT={video:'play',texto:'book',imagem:'grid',audio:'chat',pintura:'pen',quiz:'chart',form:'file'};
-function novaPergunta(){return{id:uid('q'),texto:'Escreva a pergunta aqui',imagem:'',video:'',
- alts:[{t:'Alternativa certa',ok:true},{t:'Outra alternativa',ok:false}]}}
+function novaPergunta(tipo){return{id:uid('q'),texto:'Escreva a pergunta aqui',imagem:'',video:'',tipo:tipo||'certa',
+ alts:tipo==='perfil'
+  ?[{t:'Opção A',ok:false,img:'',perfil:''},{t:'Opção B',ok:false,img:'',perfil:''}]
+  :[{t:'Alternativa certa',ok:true,img:'',perfil:''},{t:'Outra alternativa',ok:false,img:'',perfil:''}]}}
 function novoQuiz(){return{
  introTitulo:'Vamos começar?',introTexto:'São poucas perguntas. Responda com calma.',introImagem:'',introBotao:'Começar',
  gamificado:false,embaralhar:false,mostrarCerta:true,
  perguntas:[novaPergunta()],
  faixas:[
   {min:0,titulo:'Bora treinar mais',texto:'Você acertou {acertos} de {total}. Dá pra melhorar rápido.',imagem:'',botao:'Quero aprender',link:'',cor:'#ffb020'},
-  {min:70,titulo:'Muito bem, {nome}!',texto:'Você acertou {acertos} de {total}. Está pronto para o próximo passo.',imagem:'',botao:'Ver a oferta',link:'',cor:'#00d4aa'}]}}
+  {min:70,titulo:'Muito bem, {nome}!',texto:'Você acertou {acertos} de {total}. Está pronto para o próximo passo.',imagem:'',botao:'Ver a oferta',link:'',cor:'#00d4aa'}],
+ resultados:[
+  {chave:'A',titulo:'Perfil A',texto:'{nome}, seu perfil é o A. Explique aqui o que isso significa.',imagem:'',botao:'Quero a solução do perfil A',link:'',cor:'#00d4aa'},
+  {chave:'B',titulo:'Perfil B',texto:'{nome}, seu perfil é o B. Explique aqui o que isso significa.',imagem:'',botao:'Quero a solução do perfil B',link:'',cor:'#ffb020'}]}}
 function novoModulo(){return{id:uid('m'),titulo:'Novo módulo',descricao:'',icone:'play',capa:'',layout:'lista',
  tamNome:'m',tamDesc:'m',plano:'todos',drip:0,conteudos:[]}}
 function novoConteudo(tipo){const c={id:uid('c'),titulo:'Novo conteúdo',descricao:'',tipo:tipo,plano:'todos',drip:0,
@@ -1816,6 +3445,7 @@ function seed(){
  const c1=uid('c'),c2=uid('c'),c3=uid('c');
  return{
  modoApp:'membros',
+ ebook:seedEbook(),
  app:{id:uid('app'),nome:'Meu App',slogan:'Conteúdo na palma da mão',logo:null,
   cor:'#00d4aa',fundo:'#0e0f1a',card:'#1b1e34',tema:'escuro',raio:'18',versao:'3.0'},
  auth:{ativo:true,titulo:'Bem-vindo de volta',subtitulo:'Entre para continuar de onde parou',
@@ -1850,19 +3480,28 @@ let cfg=seed(),abertos={};
 /* ============ abas ============ */
 const ABAS_MEMBROS=[['identidade','Identidade'],['acesso','Acesso'],['usuarios','Usuários'],['paginas','Páginas'],['modulos','Módulos'],['conteudos','Conteúdos'],['menu','Menu'],['efeitos','Efeitos'],['game','Gamificação'],['publicar','Publicar']];
 const ABAS_QUIZ=[['identidade','Identidade'],['quizmodo','Quiz'],['efeitos','Efeitos'],['publicar','Publicar']];
-const TODOS_PAINEIS=['identidade','acesso','usuarios','paginas','modulos','conteudos','menu','efeitos','game','quizmodo','publicar'];
+const TODOS_PAINEIS=['identidade','acesso','usuarios','paginas','modulos','conteudos','menu','efeitos','game','quizmodo','ebook','ebookaudio','publicar'];
 let aba='paginas',previewModo='app';
-function abasAtuais(){return cfg.modoApp==='quiz'?ABAS_QUIZ:ABAS_MEMBROS}
+function abasAtuais(){return cfg.modoApp==='quiz'?ABAS_QUIZ:(cfg.modoApp==='ebook'?ABAS_EBOOK:ABAS_MEMBROS)}
+const AVISO_MODO={
+ quiz:'No modo Quiz de Captação o arquivo vira um funil de perguntas que termina no checkout. O resto do projeto fica guardado, mas escondido. Trocar agora?',
+ ebook:'No modo Ebook Web o arquivo vira um livro digital com capa, capítulos, narração em áudio e conquistas. O resto do projeto fica guardado, mas escondido. Trocar agora?',
+ membros:'Voltar para o App de Membros? O quiz e o ebook continuam guardados no projeto.'};
 function setModo(m){
  if(cfg.modoApp===m)return;
- if(m==='quiz'&&cfg.modoApp==='membros'&&!confirm('No modo Quiz de Captação o app vira um funil de perguntas com envio para checkout — o conteúdo de membros fica guardado, mas escondido. Trocar de modo agora?'))return;
- cfg.modoApp=m;aba=(m==='quiz')?'quizmodo':'paginas';previewModo=(m==='quiz')?'app':'app';render()}
+ if(!confirm(AVISO_MODO[m]))return;
+ cfg.modoApp=m;
+ aba=(m==='quiz')?'quizmodo':(m==='ebook'?'ebook':'paginas');
+ previewModo='app';render()}
 function irAba(a){aba=a;render()}
 function renderTabs(){
- document.getElementById('modo-membros').classList.toggle('on',cfg.modoApp!=='quiz');
+ document.getElementById('modo-membros').classList.toggle('on',cfg.modoApp==='membros');
  document.getElementById('modo-quiz').classList.toggle('on',cfg.modoApp==='quiz');
+ document.getElementById('modo-ebook').classList.toggle('on',cfg.modoApp==='ebook');
  const fm=document.getElementById('faixaModo');
- fm.innerHTML=cfg.modoApp==='quiz'
+ fm.innerHTML=cfg.modoApp==='ebook'
+  ?'<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--acc)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M9 3v18"/></svg><span><b>Modo Ebook Web</b> — o arquivo gerado é o livro digital: capa, carta, sumário, capítulos, menu lateral, zoom, modo escuro, conquistas e narração em áudio parágrafo a parágrafo.</span>'
+  :cfg.modoApp==='quiz'
   ?'<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--acc2)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span><b>Modo Quiz de Captação</b> — o arquivo gerado é só o quiz: pergunta, pergunta, dados do lead e um botão que leva para o checkout ou página de vendas. Não tem login nem menu de membros.</span>'
   :'<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--acc)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg><span><b>Modo App de Membros</b> — o arquivo gerado é a área de membros completa, com login, conteúdo e menu.</span>';
  if(!abasAtuais().some(([k])=>k===aba))aba=abasAtuais()[0][0];
@@ -1961,7 +3600,18 @@ function delConteudo(pi,mi,ci){const a=cfg.paginas[pi].modulos[mi].conteudos;if(
 function movConteudo(pi,mi,ci,d){const a=cfg.paginas[pi].modulos[mi].conteudos;if(ci+d<0||ci+d>=a.length)return;[a[ci],a[ci+d]]=[a[ci+d],a[ci]];render()}
 
 /* ============ quiz (editor) ============ */
-function addPergunta(p){REF(p).perguntas.push(novaPergunta());render()}
+function addPergunta(p,tipo){const q=REF(p);q.perguntas.push(novaPergunta(tipo));render();
+ toast(tipo==='perfil'?'Pergunta de perfil criada':'Pergunta com resposta certa criada')}
+function setTipoPergunta(p,i,t){const pg=REF(p).perguntas[i];pg.tipo=t;
+ if(t==='perfil')pg.alts.forEach(a=>a.ok=false);
+ else if(!pg.alts.some(a=>a.ok))pg.alts[0].ok=true;
+ render()}
+function addResultado(p){const q=REF(p);q.resultados=q.resultados||[];
+ const letra=String.fromCharCode(65+q.resultados.length);
+ q.resultados.push({chave:letra,titulo:'Perfil '+letra,texto:'{nome}, esse é o seu perfil.',imagem:'',botao:'',link:'',cor:'#00d4aa'});
+ render()}
+function delResultado(p,i){const q=REF(p);if(q.resultados.length<2)return toast('Deixe pelo menos dois resultados');
+ q.resultados.splice(i,1);render()}
 function dupPergunta(p,i){const a=REF(p).perguntas,q=clone(a[i]);q.id=uid('q');a.splice(i+1,0,q);render()}
 function delPergunta(p,i){const a=REF(p).perguntas;if(a.length<2)return toast('O quiz precisa de ao menos uma pergunta');a.splice(i,1);render()}
 function movPergunta(p,i,d){const a=REF(p).perguntas;if(i+d<0||i+d>=a.length)return;[a[i],a[i+d]]=[a[i+d],a[i]];render()}
@@ -1990,12 +3640,55 @@ function editorQuiz(path,q){
    </div>
    <div class="f"><label>Vídeo da pergunta (opcional)</label>
      <input type="text" value="${esc(p.video)}" placeholder="https://youtu.be/..." oninput="${path}.perguntas[${i}].video=this.value.trim();toque()"></div>
-   <label>Alternativas — marque a certa</label>
-   ${p.alts.map((a,j)=>`<div class="row" style="margin-bottom:7px">
-     <input type="radio" name="ok_${path.replace(/\W/g,'')}_${i}" ${a.ok?'checked':''} onchange="marcarCerta('${path}',${i},${j})" style="width:18px;height:18px;accent-color:var(--acc);flex:none">
-     <input type="text" style="flex:1" value="${esc(a.t)}" oninput="${path}.perguntas[${i}].alts[${j}].t=this.value;toque()">
-     <button class="btn sm d" onclick="delAlt('${path}',${i},${j})">×</button></div>`).join('')}
+   <div class="f"><label>Tipo desta pergunta</label><div class="opc">
+     <button class="${(p.tipo||'certa')!=='perfil'?'on':''}" onclick="setTipoPergunta('${path}',${i},'certa')">Tem resposta certa<small>conta ponto e usa a faixa de acerto</small></button>
+     <button class="${p.tipo==='perfil'?'on':''}" onclick="setTipoPergunta('${path}',${i},'perfil')">Sobre a pessoa<small>cada opção leva a um resultado</small></button>
+   </div></div>
+   <label>${p.tipo==='perfil'?'Opções — escolha o resultado de cada uma':'Alternativas — marque a certa'}</label>
+   ${p.alts.map((a,j)=>`<div class="alt-lin">
+     ${a.img?`<img class="mini" src="${a.img}" alt="">`:'<div class="mini" style="display:grid;place-items:center;color:var(--txt3);font-size:11px">sem<br>foto</div>'}
+     <div style="flex:1;min-width:150px">
+      <input type="text" value="${esc(a.t)}" placeholder="texto da opção" oninput="${path}.perguntas[${i}].alts[${j}].t=this.value;toque()">
+      <div class="row" style="margin-top:7px">
+       ${p.tipo==='perfil'
+         ? `<select style="flex:1" onchange="${path}.perguntas[${i}].alts[${j}].perfil=this.value;render()">
+             <option value="">— leva para qual resultado? —</option>
+             ${(q.resultados||[]).map(r=>`<option value="${esc(r.chave)}" ${a.perfil===r.chave?'selected':''}>${esc(r.chave)} — ${esc(r.titulo)}</option>`).join('')}
+            </select>`
+         : `<label class="sw" style="flex:1"><input type="radio" name="ok_${path.replace(/\W/g,'')}_${i}" ${a.ok?'checked':''} onchange="marcarCerta('${path}',${i},${j})"><span>é a resposta certa</span></label>`}
+       <button class="btn sm" onclick="escolherImagem(d=>{${path}.perguntas[${i}].alts[${j}].img=d;render()},600,true)">Imagem</button>
+       ${a.img?`<button class="btn sm d" onclick="${path}.perguntas[${i}].alts[${j}].img='';render()">Tirar</button>`:''}
+       <button class="btn sm d" onclick="delAlt('${path}',${i},${j})">Remover</button>
+      </div>
+     </div>
+    </div>`).join('')}
    <button class="btn sm" onclick="addAlt('${path}',${i})">+ alternativa</button>
+  </div>`).join('');
+
+ const rs=(q.resultados||[]).map((r,i)=>`
+  <div class="faixa" style="border-left-color:${esc(r.cor||'#00d4aa')}">
+   <div class="head">
+    <div class="av" style="background:${esc(r.cor||'#00d4aa')};color:#111">${esc(r.chave||'?')}</div>
+    <div class="t">${esc(r.titulo)}<small>quem escolher mais opções desta letra cai aqui</small></div>
+    <button class="btn sm d" onclick="delResultado('${path}',${i})">Remover</button>
+   </div>
+   <div class="grid3">
+    <div class="f"><label>Letra / chave</label><input type="text" value="${esc(r.chave)}" oninput="${path}.resultados[${i}].chave=this.value.trim();render()"></div>
+    <div class="f"><label>Título do resultado</label><input type="text" value="${esc(r.titulo)}" oninput="${path}.resultados[${i}].titulo=this.value;toque()"></div>
+    <div class="f"><label>Cor</label><input type="color" value="${esc(r.cor||'#00d4aa')}" oninput="${path}.resultados[${i}].cor=this.value;toque()"></div>
+   </div>
+   <div class="f"><label>Texto do resultado</label>
+    <textarea style="min-height:70px" oninput="${path}.resultados[${i}].texto=this.value;toque()">${esc(r.texto)}</textarea>
+    <p class="hint" style="margin:6px 0 0">Use <code>{nome}</code>, <code>{acertos}</code>, <code>{total}</code> e <code>{pct}</code>.</p></div>
+   <div class="grid2">
+    <div class="f"><label>Texto do botão</label><input type="text" value="${esc(r.botao)}" placeholder="Quero a solução" oninput="${path}.resultados[${i}].botao=this.value;toque()"></div>
+    <div class="f"><label>Link do botão (checkout / vendas)</label><input type="text" value="${esc(r.link)}" placeholder="https://pay..." oninput="${path}.resultados[${i}].link=this.value.trim();toque()"></div>
+   </div>
+   <div class="row">
+    ${r.imagem?`<img class="mini" src="${r.imagem}" alt="">`:''}
+    <button class="btn sm" onclick="escolherImagem(d=>{${path}.resultados[${i}].imagem=d;render()},700,true)">Imagem do resultado</button>
+    ${r.imagem?`<button class="btn sm d" onclick="${path}.resultados[${i}].imagem='';render()">Tirar</button>`:''}
+   </div>
   </div>`).join('');
 
  const fs=q.faixas.map((f,i)=>`
@@ -2050,7 +3743,14 @@ function editorQuiz(path,q){
  <div class="card" style="background:var(--bg2)">
   <h3>Perguntas <span class="tag">${q.perguntas.length}</span></h3>
   ${ps}
-  <button class="btn p" onclick="addPergunta('${path}')">+ Adicionar pergunta</button>
+  <div class="row"><button class="btn p" onclick="addPergunta('${path}','certa')">+ Pergunta com resposta certa</button>
+  <button class="btn b" onclick="addPergunta('${path}','perfil')">+ Pergunta sobre a pessoa</button></div>
+ </div>
+ <div class="card" style="background:var(--bg2)">
+  <h3>Resultados por perfil <span class="tag">${(q.resultados||[]).length}</span></h3>
+  <p class="hint">Quando o quiz tem perguntas <b>sobre a pessoa</b>, o app conta as escolhas e mostra o resultado da letra mais votada — com o botão de checkout dela. Se não houver nenhuma pergunta desse tipo, valem as faixas de acerto abaixo.</p>
+  ${rs}
+  <button class="btn p" onclick="addResultado('${path}')">+ Adicionar resultado</button>
  </div>
  <div class="card" style="background:var(--bg2)">
   <h3>Tela final por faixa de acerto</h3>
@@ -2317,6 +4017,285 @@ function renderConteudos(){
   (conts||'<div class="empty">Módulo sem conteúdo. Escolha um formato abaixo para criar o Conteúdo 1.</div>')+
   `<div class="row" style="margin-top:6px">${Object.keys(TIPOS_CT).map(t=>`<button class="btn ${t==='video'?'p':''}" onclick="addConteudo(${pi},${mi},'${t}')">+ ${TIPOS_CT[t]}</button>`).join('')}</div>`}
 
+/* ============================================
+   MODO EBOOK WEB
+   ============================================ */
+const ABAS_EBOOK=[['identidade','Identidade'],['ebook','Ebook'],['ebookaudio','Áudio & Acesso'],['publicar','Publicar']];
+
+function novoCapitulo(n){return{id:uid('cap'),tag:'Capítulo '+n,titulo:'Título do capítulo '+n,subtitulo:'',
+ desc:'Resumo curto para o sumário',menu:'',imagem:'',
+ conteudo:'<p>Escreva aqui o primeiro parágrafo do capítulo. Cada parágrafo vira um trecho da narração em áudio.</p>\n<p>Use os botões acima para inserir destaque, citação, técnica em passos, exercício e imagem.</p>',
+ emojiFim:'🏅',tituloFim:'Capítulo concluído! 💜'}}
+
+function seedEbook(){return{
+ titulo:'Respira',subtitulo:'Um Guia Gentil para Cuidar<br>da Sua Saúde Mental',autor:'Por Ana Clara',
+ emoji:'🌸',appNome:'Respira ✨',appIcone:'🧘‍♀️',saudacao:'Bem-vinda! 💜',botaoCapa:'Começar a Ler',capaImagem:'',
+ cores:{primary:'#c084fc',primaryDark:'#a855f7',secondary:'#f9a8d4',accent:'#fb7185',bg:'#fff9fc',card:'#ffffff',texto:'#3d2c35',bgEscuro:'#140e18',cardEscuro:'#1e1520'},
+ login:{ativo:true,titulo:'Equilíbrio Mental',subtitulo:'Seu guia de saúde mental e bem-estar',
+  aviso:'🔒 Acesso exclusivo para leitoras cadastradas',
+  usuarios:[]},
+ carta:{ativo:true,tag:'💌 Carta da Autora',titulo:'Para Você, que Chegou até Aqui',menu:'Carta da Autora',
+  desc:'Uma mensagem de coração',imagem:'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&q=80',
+  conteudo:'<p>Se você está lendo essas palavras, é porque algo dentro de você sentiu que era hora de parar. De respirar. De se olhar com mais gentileza.</p>\n<div class="quote-box"><p>Você não precisa se consertar. Você precisa se entender.</p><p class="qa">— Ana Clara</p></div>\n<p>Este guia foi criado para ser o seu companheiro. Não precisa ser perfeita nessa jornada. Só precisa aparecer. 💜</p>'},
+ sumario:{ativo:true,titulo:'O Que Vem Por Aí',texto:'Cada capítulo é um passo suave. Toque em qualquer capítulo para ir direto a ele.'},
+ capitulos:[
+  {id:uid('cap'),tag:'Capítulo 1',titulo:'O Que é Ansiedade, Afinal?',subtitulo:'Entendendo a voz que nunca cala',
+   desc:'Entendendo o alarme interno',menu:'Cap. 1 — O Que é Ansiedade?',imagem:'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80',
+   conteudo:'<p>Era uma terça-feira comum. Carla estava no trabalho quando de repente sentiu: coração acelerado, palmas suadas, uma certeza inexplicável de que algo muito ruim estava prestes a acontecer.</p>\n<div class="hl-box"><div class="bt">💡 O que é a ansiedade?</div><p>A ansiedade é a resposta natural do seu cérebro ao perigo — real ou imaginário. O problema é quando esse alarme dispara sem motivo.</p></div>\n<p>Pense na ansiedade como um sistema de alarme muito sensível. Útil quando há fumaça de verdade. Problemático quando toca a cada ventinha.</p>\n<div class="act-box"><span class="ai">✍️</span><h4>Exercício do Capítulo</h4><p>Escreva: <em>"Quando fico ansiosa, meu corpo sente..."</em> e liste 3 sensações físicas que você reconhece.</p></div>',
+   emojiFim:'🏅',tituloFim:'Primeiro Passo dado! 💜'},
+  {id:uid('cap'),tag:'Capítulo 2',titulo:'A Arte de Respirar',subtitulo:'A técnica 4-7-8 que acalma em 2 minutos',
+   desc:'Técnica 4-7-8',menu:'Cap. 2 — A Arte de Respirar',imagem:'https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&q=80',
+   conteudo:'<p>A respiração é o controle remoto do seu sistema nervoso. É a única função automática do corpo que você também consegue comandar de propósito.</p>\n<div class="tech-box"><h4>🌬️ Técnica 4-7-8</h4>\n<div class="t-step"><div class="t-num">1</div><div class="t-txt"><strong>Inspire pelo nariz</strong> contando até 4.</div></div>\n<div class="t-step"><div class="t-num">2</div><div class="t-txt"><strong>Segure o ar</strong> contando até 7.</div></div>\n<div class="t-step"><div class="t-num">3</div><div class="t-txt"><strong>Solte pela boca</strong> contando até 8, devagar.</div></div></div>\n<div class="tip-box"><span class="bi">💜</span><p><strong>Dica:</strong> repita 4 ciclos. Se ficar tonta, volte ao ritmo normal e tente de novo mais tarde.</p></div>',
+   emojiFim:'🌬️',tituloFim:'Capítulo 2 concluído!'}
+ ],
+ final:{ativo:true,menu:'Resultado Final',emoji:'✨',titulo:'Parabéns, Leitora! 👑',
+  texto:'Você completou <strong>Respira</strong>. Isso é incrível — e você merece celebrar!',
+  ctaTitulo:'💜 Sua Jornada Continua',ctaTexto:'Volte aos capítulos sempre que precisar. Cada dia é uma nova oportunidade de cuidar de você.',
+  ctaBotao:'🔄 Reler o Guia',ctaLink:''},
+ audio:{ativo:true,pasta:'audio',vel:1},
+ niveis:['🌱 Iniciante','🌿 Aprendiz','🌷 Dedicada','🌸 Avançada','👑 Mestra'],
+ instalar:true}}
+
+/* ---- blocos prontos, com a marcação exata do modelo ---- */
+const BLOCOS={
+ paragrafo:{nome:'Parágrafo',html:'<p>Escreva o texto aqui. Cada parágrafo vira um trecho da narração.</p>'},
+ subtitulo:{nome:'Subtítulo',html:'<h3 class="ch-subtitle">Título da seção</h3>'},
+ destaque:{nome:'Destaque',html:'<div class="hl-box"><div class="bt">💡 Título do destaque</div><p>Texto que merece atenção especial.</p></div>'},
+ citacao:{nome:'Citação',html:'<div class="quote-box"><p>A frase que fica na memória.</p><p class="qa">— Autor</p></div>'},
+ dica:{nome:'Dica',html:'<div class="tip-box"><span class="bi">💜</span><p><strong>Dica:</strong> um conselho curto e prático.</p></div>'},
+ tecnica:{nome:'Técnica em passos',html:'<div class="tech-box"><h4>🧠 Nome da técnica</h4>\n<div class="t-step"><div class="t-num">1</div><div class="t-txt"><strong>Primeiro passo:</strong> explique aqui.</div></div>\n<div class="t-step"><div class="t-num">2</div><div class="t-txt"><strong>Segundo passo:</strong> explique aqui.</div></div>\n<div class="t-step"><div class="t-num">3</div><div class="t-txt"><strong>Terceiro passo:</strong> explique aqui.</div></div></div>'},
+ exercicio:{nome:'Exercício',html:'<div class="act-box"><span class="ai">✍️</span><h4>Exercício do Capítulo</h4><p>O que a pessoa deve fazer agora, em uma ou duas frases.</p></div>'},
+ imagem:{nome:'Imagem',html:'<img src="COLE_O_ENDERECO_AQUI" alt="" class="inline-img" loading="lazy">'}
+};
+function inserirBloco(path,tipo){
+ const o=REF(path);
+ o.conteudo=(o.conteudo?o.conteudo+'\n':'')+BLOCOS[tipo].html;
+ render();toast(BLOCOS[tipo].nome+' inserido no fim do capítulo')}
+function inserirImagemBloco(path){
+ escolherImagem(d=>{const o=REF(path);
+  o.conteudo=(o.conteudo?o.conteudo+'\n':'')+'<img src="'+d+'" alt="" class="inline-img" loading="lazy">';
+  render();toast('Imagem inserida no capítulo')},900,true)}
+
+function addCapitulo(){cfg.ebook.capitulos.push(novoCapitulo(cfg.ebook.capitulos.length+1));render();toast('Capítulo criado')}
+function dupCapitulo(i){const c=clone(cfg.ebook.capitulos[i]);c.id=uid('cap');c.titulo+=' (cópia)';
+ cfg.ebook.capitulos.splice(i+1,0,c);abertos[c.id]=true;render();toast('Capítulo duplicado')}
+function delCapitulo(i){if(!confirm('Remover o capítulo "'+cfg.ebook.capitulos[i].titulo+'"?'))return;
+ cfg.ebook.capitulos.splice(i,1);render()}
+function movCapitulo(i,d){const a=cfg.ebook.capitulos;if(i+d<0||i+d>=a.length)return;[a[i],a[i+d]]=[a[i+d],a[i]];render()}
+function addUsuarioEbook(){cfg.ebook.login.usuarios.push({email:'',senha:'123456'});render()}
+function delUsuarioEbook(i){cfg.ebook.login.usuarios.splice(i,1);render()}
+
+function campoImg(base,val,rot,tam){
+ return`<div class="f"><label>${rot}</label><div class="row">
+  ${val?`<img class="mini" src="${val}" alt="">`:'<span class="hint">sem imagem</span>'}
+  <button class="btn sm" onclick="escolherImagem(d=>{${base}=d;render()},${tam||900},true)">Enviar imagem</button>
+  ${val?`<button class="btn sm d" onclick="${base}='';render()">Remover</button>`:''}
+ </div><input type="text" style="margin-top:10px" placeholder="ou cole o endereço de uma imagem"
+  value="${esc(val&&val.indexOf('data:')===0?'':val)}" oninput="${base}=this.value;toque()"></div>`}
+
+function renderEbook(){
+ const E=cfg.ebook,el=document.getElementById('painelEbook');
+ const paletas=[['#c084fc','#f9a8d4','#fb7185','#fff9fc','Lilás'],['#0ea5e9','#38bdf8','#f59e0b','#f8fbff','Oceano'],
+  ['#16a34a','#86efac','#f59e0b','#f7fdf9','Natureza'],['#e11d48','#fb7185','#f59e0b','#fffafb','Coral'],
+  ['#7c3aed','#a78bfa','#f472b6','#faf8ff','Violeta'],['#111827','#6b7280','#f59e0b','#fafafa','Sóbrio']];
+ el.innerHTML=`
+ <div class="card">
+  <h3>Capa</h3>
+  <p class="hint">É a primeira tela do ebook, com o botão de começar a leitura.</p>
+  <div class="grid2">
+   <div class="f"><label>Título</label><input type="text" value="${esc(E.titulo)}" oninput="cfg.ebook.titulo=this.value;toque()"></div>
+   <div class="f"><label>Autor</label><input type="text" value="${esc(E.autor)}" oninput="cfg.ebook.autor=this.value;toque()"></div>
+  </div>
+  <div class="f"><label>Subtítulo (aceita &lt;br&gt; para quebrar linha)</label>
+   <input type="text" value="${esc(E.subtitulo)}" oninput="cfg.ebook.subtitulo=this.value;toque()"></div>
+  <div class="grid3">
+   <div class="f"><label>Emoji da capa</label><input type="text" value="${esc(E.emoji)}" oninput="cfg.ebook.emoji=this.value;toque()"></div>
+   <div class="f"><label>Nome na barra do topo</label><input type="text" value="${esc(E.appNome)}" oninput="cfg.ebook.appNome=this.value;toque()"></div>
+   <div class="f"><label>Texto do botão</label><input type="text" value="${esc(E.botaoCapa)}" oninput="cfg.ebook.botaoCapa=this.value;toque()"></div>
+  </div>
+  ${campoImg('cfg.ebook.capaImagem',E.capaImagem,'Imagem da capa (opcional — substitui o emoji)',700)}
+ </div>
+
+ <div class="card">
+  <h3>Cores</h3>
+  <p class="hint">O modo escuro é gerado sozinho a partir dessas cores.</p>
+  <div class="grid4">
+   <div class="f"><label>Principal</label><input type="color" value="${esc(E.cores.primary)}" oninput="cfg.ebook.cores.primary=this.value;toque()"></div>
+   <div class="f"><label>Secundária</label><input type="color" value="${esc(E.cores.secondary)}" oninput="cfg.ebook.cores.secondary=this.value;toque()"></div>
+   <div class="f"><label>Realce</label><input type="color" value="${esc(E.cores.accent)}" oninput="cfg.ebook.cores.accent=this.value;toque()"></div>
+   <div class="f"><label>Fundo</label><input type="color" value="${esc(E.cores.bg)}" oninput="cfg.ebook.cores.bg=this.value;toque()"></div>
+  </div>
+  <div class="grid2">
+   <div class="f"><label>Fundo do modo escuro</label><input type="color" value="${esc(E.cores.bgEscuro||'#140e18')}" oninput="cfg.ebook.cores.bgEscuro=this.value;toque()"></div>
+   <div class="f"><label>Cartões do modo escuro</label><input type="color" value="${esc(E.cores.cardEscuro||'#1e1520')}" oninput="cfg.ebook.cores.cardEscuro=this.value;toque()"></div>
+  </div>
+  <div class="row">${paletas.map(p=>`<button class="btn sm" onclick="paletaEbook('${p[0]}','${p[1]}','${p[2]}','${p[3]}')">${p[4]}</button>`).join('')}</div>
+ </div>
+
+ <div class="card">
+  <h3>Carta da autora <span class="tag">${E.carta.ativo?'ligada':'desligada'}</span></h3>
+  <div class="f"><label class="sw"><input type="checkbox" ${E.carta.ativo?'checked':''} onchange="cfg.ebook.carta.ativo=this.checked;render()"><span>Mostrar a carta logo depois da capa</span></label></div>
+  <div class="grid2">
+   <div class="f"><label>Etiqueta</label><input type="text" value="${esc(E.carta.tag)}" oninput="cfg.ebook.carta.tag=this.value;toque()"></div>
+   <div class="f"><label>Título</label><input type="text" value="${esc(E.carta.titulo)}" oninput="cfg.ebook.carta.titulo=this.value;toque()"></div>
+  </div>
+  ${campoImg('cfg.ebook.carta.imagem',E.carta.imagem,'Imagem do topo')}
+  <div class="f"><label>Texto da carta (HTML)</label>
+   <textarea style="min-height:150px" oninput="cfg.ebook.carta.conteudo=this.value;toque()" spellcheck="false">${esc(E.carta.conteudo)}</textarea>
+   <div class="row" style="margin-top:8px">${Object.keys(BLOCOS).filter(k=>k!=='imagem').map(k=>`<button class="btn sm" onclick="inserirBloco('cfg.ebook.carta','${k}')">+ ${BLOCOS[k].nome}</button>`).join('')}
+   <button class="btn sm" onclick="inserirImagemBloco('cfg.ebook.carta')">+ Imagem</button></div></div>
+ </div>
+
+ <div class="card">
+  <h3>Sumário</h3>
+  <div class="f"><label class="sw"><input type="checkbox" ${E.sumario.ativo?'checked':''} onchange="cfg.ebook.sumario.ativo=this.checked;render()"><span>Mostrar a página de sumário</span></label></div>
+  <div class="grid2">
+   <div class="f"><label>Título</label><input type="text" value="${esc(E.sumario.titulo)}" oninput="cfg.ebook.sumario.titulo=this.value;toque()"></div>
+   <div class="f"><label>Texto de apoio</label><input type="text" value="${esc(E.sumario.texto)}" oninput="cfg.ebook.sumario.texto=this.value;toque()"></div>
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>Capítulos <span class="tag">${E.capitulos.length}</span></h3>
+  <p class="hint">Cada capítulo é uma página. Os parágrafos são a base da narração em áudio.</p>
+  ${E.capitulos.map((c,i)=>{
+   const b='cfg.ebook.capitulos['+i+']';
+   return `<div class="mod">
+    <div class="head">
+     ${c.imagem?`<img class="av" src="${c.imagem}" alt="">`:`<div class="av">${i+1}</div>`}
+     <div class="t">${esc(c.titulo)}<small>${esc(c.tag)}${c.subtitulo?' · '+esc(c.subtitulo):''}</small></div>
+     <button class="btn sm" onclick="movCapitulo(${i},-1)">↑</button>
+     <button class="btn sm" onclick="movCapitulo(${i},1)">↓</button>
+     <button class="btn sm" onclick="dupCapitulo(${i})">Duplicar</button>
+     <button class="btn sm d" onclick="delCapitulo(${i})">Remover</button>
+    </div>
+    <details ${abertos[c.id]?'open':''} ontoggle="abertos['${c.id}']=this.open"><summary>Editar capítulo</summary>
+     <div class="grid2">
+      <div class="f"><label>Etiqueta</label><input type="text" value="${esc(c.tag)}" oninput="${b}.tag=this.value;toque()"></div>
+      <div class="f"><label>Título</label><input type="text" value="${esc(c.titulo)}" oninput="${b}.titulo=this.value;toque()"></div>
+     </div>
+     <div class="grid2">
+      <div class="f"><label>Subtítulo</label><input type="text" value="${esc(c.subtitulo)}" oninput="${b}.subtitulo=this.value;toque()"></div>
+      <div class="f"><label>Resumo no sumário</label><input type="text" value="${esc(c.desc)}" oninput="${b}.desc=this.value;toque()"></div>
+     </div>
+     <div class="grid2">
+      <div class="f"><label>Nome no menu lateral</label><input type="text" value="${esc(c.menu)}" placeholder="usa o título se ficar vazio" oninput="${b}.menu=this.value;toque()"></div>
+      <div class="f"><label>Mensagem ao concluir</label><input type="text" value="${esc(c.tituloFim)}" oninput="${b}.tituloFim=this.value;toque()"></div>
+     </div>
+     ${campoImg(b+'.imagem',c.imagem,'Imagem do topo do capítulo')}
+     <div class="f"><label>Conteúdo (HTML)</label>
+      <textarea style="min-height:220px" oninput="${b}.conteudo=this.value;toque()" spellcheck="false">${esc(c.conteudo)}</textarea>
+      <div class="row" style="margin-top:8px">
+       ${Object.keys(BLOCOS).filter(k=>k!=='imagem').map(k=>`<button class="btn sm" onclick="inserirBloco('${b}','${k}')">+ ${BLOCOS[k].nome}</button>`).join('')}
+       <button class="btn sm" onclick="inserirImagemBloco('${b}')">+ Imagem</button>
+      </div>
+      <p class="hint" style="margin:8px 0 0">Áudio desta página: <code>audio/pagina-${String(paginaDoCapitulo(i)).padStart(2,'0')}.mp3</code></p>
+     </div>
+    </details></div>`}).join('')}
+  <button class="btn p" onclick="addCapitulo()">+ Adicionar capítulo</button>
+ </div>
+
+ <div class="card">
+  <h3>Página final</h3>
+  <div class="f"><label class="sw"><input type="checkbox" ${E.final.ativo?'checked':''} onchange="cfg.ebook.final.ativo=this.checked;render()"><span>Mostrar a página de encerramento com as conquistas</span></label></div>
+  <div class="grid2">
+   <div class="f"><label>Título</label><input type="text" value="${esc(E.final.titulo)}" oninput="cfg.ebook.final.titulo=this.value;toque()"></div>
+   <div class="f"><label>Emoji</label><input type="text" value="${esc(E.final.emoji)}" oninput="cfg.ebook.final.emoji=this.value;toque()"></div>
+  </div>
+  <div class="f"><label>Texto (HTML)</label><textarea style="min-height:70px" oninput="cfg.ebook.final.texto=this.value;toque()">${esc(E.final.texto)}</textarea></div>
+  <div class="grid2">
+   <div class="f"><label>Título do bloco final</label><input type="text" value="${esc(E.final.ctaTitulo)}" oninput="cfg.ebook.final.ctaTitulo=this.value;toque()"></div>
+   <div class="f"><label>Texto do botão</label><input type="text" value="${esc(E.final.ctaBotao)}" oninput="cfg.ebook.final.ctaBotao=this.value;toque()"></div>
+  </div>
+  <div class="f"><label>Texto do bloco</label><input type="text" value="${esc(E.final.ctaTexto)}" oninput="cfg.ebook.final.ctaTexto=this.value;toque()"></div>
+  <div class="f"><label>Link do botão (deixe vazio para reler o guia)</label>
+   <input type="text" value="${esc(E.final.ctaLink)}" placeholder="https://... página de vendas, grupo, próximo produto" oninput="cfg.ebook.final.ctaLink=this.value.trim();toque()"></div>
+ </div>`}
+function paletaEbook(p,s2,a,bg){const c=cfg.ebook.cores;c.primary=p;c.primaryDark=p;c.secondary=s2;c.accent=a;c.bg=bg;render()}
+function paginaDoCapitulo(i){
+ const E=cfg.ebook;let n=1;
+ if(E.carta.ativo)n++;if(E.sumario.ativo)n++;
+ return n+i}
+
+function renderEbookAudio(){
+ const E=cfg.ebook,el=document.getElementById('painelEbookAudio');
+ const linhas=[];
+ linhas.push(['00','Capa']);
+ let n=1;
+ if(E.carta.ativo){linhas.push([String(n).padStart(2,'0'),'Carta da autora']);n++}
+ if(E.sumario.ativo){linhas.push([String(n).padStart(2,'0'),'Sumário']);n++}
+ E.capitulos.forEach(c=>{linhas.push([String(n).padStart(2,'0'),c.titulo]);n++});
+ if(E.final.ativo)linhas.push([String(n).padStart(2,'0'),'Página final']);
+ el.innerHTML=`
+ <div class="card">
+  <h3>Narração em áudio</h3>
+  <p class="hint">O leitor toca 🔊 na barra do topo e o ebook lê a página em voz alta, destacando um parágrafo por vez.</p>
+  <div class="f"><label class="sw big"><input type="checkbox" ${E.audio.ativo?'checked':''} onchange="cfg.ebook.audio.ativo=this.checked;render()"><span>Ligar o botão de ouvir</span></label></div>
+  <div class="grid2">
+   <div class="f"><label>Pasta dos áudios</label><input type="text" value="${esc(E.audio.pasta)}" oninput="cfg.ebook.audio.pasta=this.value.trim();toque()"></div>
+   <div class="f"><label>Velocidade inicial</label><select onchange="cfg.ebook.audio.vel=parseFloat(this.value);toque()">
+    ${[0.8,1,1.15,1.35].map(v=>`<option value="${v}" ${E.audio.vel==v?'selected':''}>${v}x</option>`).join('')}</select></div>
+  </div>
+  <div class="note"><b>Como colocar a sua voz:</b> grave um arquivo por página e salve numa pasta <code>audio</code> ao lado do HTML, com o nome exato da lista abaixo. O app detecta sozinho — não precisa configurar nada. Onde houver arquivo, ele usa a sua voz; onde não houver, cai na voz sintética do aparelho. Dá para ir gravando aos poucos.</div>
+  <div class="row" style="margin:14px 0 0"><button class="btn" onclick="copiarListaAudio()">Copiar lista de nomes</button></div>
+  <div class="code" style="margin-top:12px">${linhas.map(l=>'audio/pagina-'+l[0]+'.mp3   →   '+esc(l[1])).join('\n')}</div>
+ </div>
+
+ <div class="card">
+  <h3>Por que parágrafo, e não frase</h3>
+  <p class="hint" style="margin-bottom:10px">Vale saber para gravar do jeito certo.</p>
+  <ol class="steps">
+   <li><b>Com a sua voz gravada</b>, o MP3 é só uma faixa de som: não existe marca dizendo "aqui começa a frase 3". O app estima a posição pelo tamanho do texto já lido. No parágrafo o desvio é imperceptível; na frase, ele se acumularia e o destaque sairia do lugar.</li>
+   <li><b>Com a voz do aparelho</b>, o navegador até avisa quando muda de palavra, mas esse aviso falha em boa parte dos celulares. Por isso o app manda falar um parágrafo por vez e destaca o que está sendo dito — funciona igual em todo lugar.</li>
+   <li><b>Na prática</b>: grave lendo do começo ao fim, em ritmo constante, sem pausas longas fora dos parágrafos. Assim o destaque acompanha bem.</li>
+  </ol>
+ </div>
+
+ <div class="card">
+  <h3>Acesso ao ebook</h3>
+  <div class="f"><label class="sw big"><input type="checkbox" ${E.login.ativo?'checked':''} onchange="cfg.ebook.login.ativo=this.checked;render()"><span>Exigir e-mail e senha para abrir</span></label></div>
+  <div class="grid2">
+   <div class="f"><label>Nome na tela de entrada</label><input type="text" value="${esc(E.login.titulo)}" oninput="cfg.ebook.login.titulo=this.value;toque()"></div>
+   <div class="f"><label>Ícone</label><input type="text" value="${esc(E.appIcone)}" oninput="cfg.ebook.appIcone=this.value;toque()"></div>
+  </div>
+  <div class="grid2">
+   <div class="f"><label>Frase de apoio</label><input type="text" value="${esc(E.login.subtitulo)}" oninput="cfg.ebook.login.subtitulo=this.value;toque()"></div>
+   <div class="f"><label>Aviso do rodapé</label><input type="text" value="${esc(E.login.aviso)}" oninput="cfg.ebook.login.aviso=this.value;toque()"></div>
+  </div>
+  <label>Leitores</label>
+  ${E.login.usuarios.map((u,i)=>`<div class="row" style="margin-bottom:8px">
+   <input type="email" style="flex:2" placeholder="e-mail" value="${esc(u.email)}" oninput="cfg.ebook.login.usuarios[${i}].email=this.value.trim();toque()">
+   <input type="text" style="flex:1" placeholder="senha" value="${esc(u.senha)}" oninput="cfg.ebook.login.usuarios[${i}].senha=this.value;toque()">
+   <button class="btn sm d" onclick="delUsuarioEbook(${i})">×</button></div>`).join('')}
+  <button class="btn" onclick="addUsuarioEbook()">+ Adicionar leitor</button>
+ </div>
+
+ <div class="card">
+  <h3>Extras</h3>
+  <div class="grid2">
+   <div class="f"><label class="sw"><input type="checkbox" ${E.instalar?'checked':''} onchange="cfg.ebook.instalar=this.checked;render()"><span>Botão de instalar na tela inicial</span></label></div>
+   <div class="f"><label>Saudação no menu lateral</label><input type="text" value="${esc(E.saudacao)}" oninput="cfg.ebook.saudacao=this.value;toque()"></div>
+  </div>
+  <div class="f"><label>Níveis de leitura (um por linha, do 0% ao 100%)</label>
+   <textarea style="min-height:110px" oninput="cfg.ebook.niveis=this.value.split('\\n').map(x=>x.trim()).filter(Boolean);toque()">${esc((E.niveis||[]).join('\n'))}</textarea></div>
+  <p class="hint" style="margin:0">As conquistas (primeiro capítulo, metade, 100%, 3 dias seguidos, 5 capítulos no dia e colecionadora) já vêm prontas, com confete e modal.</p>
+ </div>`}
+function copiarListaAudio(){
+ const E=cfg.ebook;const l=['pagina-00.mp3 — Capa'];let n=1;
+ if(E.carta.ativo){l.push('pagina-'+String(n).padStart(2,'0')+'.mp3 — Carta da autora');n++}
+ if(E.sumario.ativo){l.push('pagina-'+String(n).padStart(2,'0')+'.mp3 — Sumário');n++}
+ E.capitulos.forEach(c=>{l.push('pagina-'+String(n).padStart(2,'0')+'.mp3 — '+c.titulo);n++});
+ if(E.final.ativo)l.push('pagina-'+String(n).padStart(2,'0')+'.mp3 — Página final');
+ const t=l.join('\n');
+ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Lista copiada')).catch(()=>toast('Copie da tela mesmo'))}
+
+function gerarEbook(modo){
+ const c={app:clone(cfg.app),ebook:clone(cfg.ebook),preview:modo||null};
+ const json=JSON.stringify(c).replace(/</g,'\\u003c').replace(/\u2028|\u2029/g,'');
+ return document.getElementById('tplEbook').textContent
+  .replace('/*__CFG__*/{}',()=>json)
+  .replace(/\[\[\/script\]\]/g,()=>'<'+'/script>').trim()}
+
 /* ============ menu ============ */
 function addNav(){if(cfg.nav.length>=5&&!confirm('Mais de 5 botões espremem o rodapé. Adicionar mesmo assim?'))return;
  cfg.nav.push({id:uid('n'),label:'Novo',icone:'grid',tipo:'pagina',alvo:(cfg.paginas[0]||{}).id||'perfil',url:''});render()}
@@ -2390,7 +4369,7 @@ function gerarMembros(modo){
  return document.getElementById('tpl').textContent
   .replace('/*__CFG__*/{}',()=>json)
   .replace(/\[\[\/script\]\]/g,()=>'<'+'/script>').trim()}
-function gerar(modo){return cfg.modoApp==='quiz'?gerarQuiz():gerarMembros(modo)}
+function gerar(modo){return cfg.modoApp==='quiz'?gerarQuiz():(cfg.modoApp==='ebook'?gerarEbook(modo):gerarMembros(modo))}
 
 let tPrev;
 function toque(){clearTimeout(tPrev);tPrev=setTimeout(atualizarPreview,500)}
@@ -2401,7 +4380,7 @@ function atualizarPreview(){
  document.getElementById('tam').textContent=(new Blob([html]).size/1024).toFixed(0)+' KB';
  document.getElementById('codePrev').textContent=html.slice(0,1200)+'\n\n… (+'+(html.length-1200)+' caracteres)';
  const pvBar=document.querySelector('.pbar');
- if(pvBar)pvBar.style.display=cfg.modoApp==='quiz'?'none':'flex';
+ if(pvBar)pvBar.style.display=(cfg.modoApp==='quiz'||cfg.modoApp==='ebook')?'none':'flex';
  document.getElementById('pv-login').classList.toggle('p',previewModo==='login');
  document.getElementById('pv-app').classList.toggle('p',previewModo==='app')}
 
@@ -2411,6 +4390,9 @@ function baixar(nome,txt,mime){const a=document.createElement('a');
  a.download=nome;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
 const slug=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'app';
 function baixarApp(){
+ if(cfg.modoApp==='ebook'){
+  if(!cfg.ebook.capitulos.length)return toast('Crie ao menos um capítulo antes de gerar');
+  baixar(slug(cfg.ebook.titulo)+'-ebook.html',gerar(null),'text/html');toast('Ebook gerado');return}
  if(cfg.modoApp==='quiz'){
   if(!cfg.quizStandalone.perguntas.length)return toast('Adicione ao menos uma pergunta antes de gerar');
   baixar(slug(cfg.app.nome)+'-quiz.html',gerar(null),'text/html');toast('Quiz gerado');return}
@@ -2469,6 +4451,8 @@ function migrar(d){
  d.game=Object.assign(clone(base.game),d.game||{});
  if(d.game.ativo===undefined)d.game.ativo=false;
  if(!d.modoApp)d.modoApp='membros';
+ if(!d.ebook)d.ebook=seedEbook();
+ else{const se=seedEbook();['cores','login','carta','sumario','final','audio'].forEach(k=>{d.ebook[k]=Object.assign(clone(se[k]),d.ebook[k]||{})});if(!d.ebook.capitulos)d.ebook.capitulos=se.capitulos;if(!d.ebook.niveis)d.ebook.niveis=se.niveis}
  d.quizStandalone=Object.assign(clone(base.quizStandalone),d.quizStandalone||{});
  (d.paginas||[]).forEach(p=>{
   if(!p.modulos)p.modulos=[];if(!p.layout)p.layout='lista';if(!p.tamNome)p.tamNome='m';if(!p.tamDesc)p.tamDesc='m';
@@ -2514,13 +4498,14 @@ function renderQuizModo(){
    ?`<label>Seu e-mail</label><input type="text" value="${esc(q.email||'')}" placeholder="voce@exemplo.com" oninput="cfg.quizStandalone.email=this.value.trim();toque()">`
    :`<label>Endereço da planilha (webhook)</label><input type="text" value="${esc(q.webhook||'')}" placeholder="https://script.google.com/.../exec" oninput="cfg.quizStandalone.webhook=this.value.trim();toque()">`}}
 function render(){
- const y=window.scrollY;
- renderTabs();aplicarBinds();renderFx();renderUsuarios();renderPaginas();renderModulos();renderConteudos();renderMenu();renderQuizModo();
+ const col=document.getElementById('colEditor');
+ const y=window.scrollY,yc=col?col.scrollTop:0;
+ renderTabs();aplicarBinds();renderFx();renderUsuarios();renderPaginas();renderModulos();renderConteudos();renderMenu();renderQuizModo();renderEbook();renderEbookAudio();
  document.getElementById('gameBox').classList.toggle('desligado',!cfg.game.ativo);
  const lp=document.getElementById('logoPrev');
  lp.innerHTML=cfg.app.logo?'<img src="'+cfg.app.logo+'" style="width:100%;height:100%;border-radius:14px;object-fit:cover">'
   :esc(String(cfg.app.nome||'A').charAt(0).toUpperCase());
- atualizarPreview();window.scrollTo(0,y)}
+ atualizarPreview();window.scrollTo(0,y);if(col)col.scrollTop=yc}
 render();
 </script>
 
