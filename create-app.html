@@ -181,10 +181,12 @@ details[open]>summary:before{content:"\25BE  "}
 .trilha span{color:var(--txt2)}
 .preview{position:sticky;top:78px}
 @media(min-width:1101px){
- html,body{height:100%;overflow:hidden}
- .wrap{height:calc(100vh - 64px);align-items:stretch;padding-bottom:0}
- #colEditor{overflow-y:auto;overflow-x:hidden;padding:0 10px 40px 0;height:100%}
- .preview{position:static!important;overflow-y:auto;height:100%;padding-bottom:30px}
+ html{height:100%}
+ body{height:100vh;overflow:hidden;display:flex;flex-direction:column}
+ .top{position:static;flex:none}
+ .wrap{flex:1;min-height:0;align-items:stretch;padding-bottom:0;overflow:hidden}
+ #colEditor{overflow-y:auto;overflow-x:hidden;padding:0 12px 40px 0;min-height:0}
+ .preview{position:static!important;overflow-y:auto;min-height:0;padding-bottom:30px}
  #colEditor::-webkit-scrollbar,.preview::-webkit-scrollbar{width:9px}
 }
 .phone{width:100%;max-width:392px;margin:0 auto;background:#000;border-radius:38px;padding:11px;
@@ -201,6 +203,20 @@ details[open]>summary:before{content:"\25BE  "}
 .steps li:before{content:counter(s);position:absolute;left:0;top:-1px;width:23px;height:23px;border-radius:7px;
  background:var(--card2);color:var(--acc);display:grid;place-items:center;font-size:11px;font-weight:800}
 .steps li b{color:var(--txt)}
+#fullPrev{position:fixed;inset:0;z-index:300;background:rgba(8,9,16,.94);backdrop-filter:blur(6px);
+ display:none;flex-direction:column}
+#fullPrev.on{display:flex}
+.fp-bar{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);
+ background:var(--card);flex-wrap:wrap}
+.fp-bar .sp{flex:1}
+.fp-devs{display:flex;gap:6px}
+.fp-palco{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:16px}
+.fp-slot{position:relative;flex:none}
+.fp-dev{position:absolute;top:0;left:0;background:#000;border-radius:38px;padding:12px;
+ box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 1px #2a2f4d;transform-origin:top left}
+.fp-dev.plano{border-radius:14px;padding:8px}
+.fp-dev iframe{width:100%;height:100%;border:0;border-radius:28px;background:#fff;display:block}
+.fp-dev.plano iframe{border-radius:8px}
 #toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,80px);background:var(--card2);border:1px solid var(--line);
  border-left:3px solid var(--acc);padding:12px 18px;border-radius:10px;z-index:200;transition:.25s;opacity:0;font-size:13px;font-weight:600}
 #toast.on{transform:translate(-50%,0);opacity:1}
@@ -491,10 +507,24 @@ details[open]>summary:before{content:"\25BE  "}
      <button class="btn sm" onclick="setPreview('login')" id="pv-login">Entrada</button>
      <button class="btn sm" onclick="setPreview('app')" id="pv-app">Dentro do app</button>
      <button class="btn sm" onclick="atualizarPreview()">Recarregar</button>
+     <button class="btn sm b" onclick="abrirPreviewCheio()">⛶ Tela cheia</button>
    </div>
    <div class="phone"><iframe id="frame" title="Prévia do app"></iframe></div>
    <div class="pinfo">Prévia ao vivo — é o mesmo arquivo que será baixado</div>
  </div>
+</div>
+
+<div id="fullPrev">
+  <div class="fp-bar">
+    <b>Prévia em tela cheia</b>
+    <div class="fp-devs" id="fp-devs"></div>
+    <div class="sp"></div>
+    <button class="btn sm" onclick="setPreviewCheio('login')" id="fp-login">Entrada</button>
+    <button class="btn sm" onclick="setPreviewCheio('app')" id="fp-app">Dentro do app</button>
+    <button class="btn sm" onclick="recarregarCheio()">Recarregar</button>
+    <button class="btn sm d" onclick="fecharPreviewCheio()">✕ Fechar</button>
+  </div>
+  <div class="fp-palco" id="fp-palco"><div class="fp-slot" id="fp-slot"><div class="fp-dev" id="fp-dev"><iframe id="frameFull" title="Prévia"></iframe></div></div></div>
 </div>
 
 <div id="toast"></div>
@@ -645,6 +675,27 @@ p.ps{margin:0 0 18px;color:var(--txt2);font-size:13.5px}
 .bdg b{display:block;font-size:11.5px;line-height:1.3}
 .bdg span{display:block;font-size:10px;color:var(--txt2);margin-top:3px}
 
+
+/* player do app */
+.vp{background:#000;border-radius:14px;overflow:hidden;margin-bottom:14px}
+.vp-tela{position:relative;padding-top:56.25%;background:#000;cursor:pointer}
+.vp-tela>img.thumb,.vp-tela>video.thumb,.vp-tela>video,.vp-tela>iframe,.vp-tela>div{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vp-tela>img.thumb,.vp-tela>video.thumb{object-fit:cover}
+.vp.tocando .ply{display:none}
+.vp.tocando .vp-tela{cursor:default}
+.vp-erro{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;
+ color:#fff;background:#111;font-size:13px;line-height:1.5}
+.vp-ctrl{display:flex;align-items:center;gap:8px;padding:8px 10px;background:color-mix(in srgb,var(--card) 92%,#000)}
+.vpb{background:none;border:0;color:var(--txt);cursor:pointer;font-size:15px;padding:6px;border-radius:8px;line-height:1;flex:none}
+.vpb:hover{background:color-mix(in srgb,var(--txt2) 22%,transparent)}
+.vpb.vel{font-size:12px;font-weight:800;color:var(--acc)}
+.vps{flex:1;min-width:40px;-webkit-appearance:none;appearance:none;height:5px;border-radius:5px;
+ background:color-mix(in srgb,var(--txt2) 40%,transparent);accent-color:var(--acc);cursor:pointer}
+.vps::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--acc)}
+.vps::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:var(--acc)}
+.vpt{font-size:11.5px;color:var(--txt2);font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
+.vp:fullscreen{display:flex;flex-direction:column;justify-content:center;background:#000}
+.vp:fullscreen .vp-tela{flex:1;padding-top:0}
 .fr{position:relative;padding-top:56.25%;background:#000;border-radius:14px;overflow:hidden;margin-bottom:8px}
 .fr iframe,.fr video{position:absolute;inset:0;width:100%;height:100%;border:0}
 .fr img.thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -1052,28 +1103,179 @@ function proximo(cid){const t=todos(),i=t.findIndex(o=>o.c.id===cid);
  for(let k=i+1;k<t.length;k++){const o=t[k];if(!travaC(o.p,o.m,o.c))return o.c.id}return null}
 function concluirAqui(cid){concluir(cid);desenhar()}
 
-function embed(u){u=String(u||'').trim();
- const y=u.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{6,})/);
- if(y)return{t:'yt',id:y[1]};
- const v=u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
- if(v)return{t:'if',u:'https://player.vimeo.com/video/'+v[1]};
- if(/\.(mp4|webm|ogg|mov|m3u8)($|\?)/i.test(u))return{t:'vd',u:u};
+/* ============ player do app ============
+   O vídeo toca dentro do app, com controles próprios.
+   YouTube entra pela API oficial de iframe, arquivos usam
+   o vídeo nativo e as demais plataformas entram
+   incorporadas. Nada abre em outra aba.
+   ======================================== */
+function embed(u){
+ u=String(u||'').trim();
+ if(!u)return{t:'nada'};
+ if(/^<iframe/i.test(u)){const m=u.match(/src\s*=\s*["']([^"']+)["']/i);if(m)u=m[1]}
+ const yt=u.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{6,})/);
+ if(yt){const l=u.match(/[?&]list=([\w-]+)/);return{t:'yt',id:yt[1],lista:l?l[1]:''}}
+ const dr=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([\w-]{20,})/);
+ if(dr)return{t:'if',u:'https://drive.google.com/file/d/'+dr[1]+'/preview'};
+ const vi=u.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/(\w+))?/);
+ if(vi)return{t:'if',u:'https://player.vimeo.com/video/'+vi[1]+(vi[2]?'?h='+vi[2]:'')};
+ const dm=u.match(/(?:dailymotion\.com\/video\/|dai\.ly\/)([\w]+)/);
+ if(dm)return{t:'if',u:'https://geo.dailymotion.com/player.html?video='+dm[1]};
+ const tw=u.match(/twitch\.tv\/videos\/(\d+)/);
+ if(tw)return{t:'if',u:'https://player.twitch.tv/?video='+tw[1]+'&parent='+location.hostname+'&autoplay=false'};
+ const lo=u.match(/loom\.com\/share\/([\w]+)/);
+ if(lo)return{t:'if',u:'https://www.loom.com/embed/'+lo[1]};
+ const sm=u.match(/streamable\.com\/([\w]+)/);
+ if(sm)return{t:'if',u:'https://streamable.com/e/'+sm[1]};
+ if(/\.(mp4|webm|ogg|ogv|mov|m4v)($|\?)/i.test(u)||/^data:video\//i.test(u)||/^blob:/i.test(u))return{t:'vd',u:u};
  if(/^https?:\/\//i.test(u))return{t:'if',u:u};
  return{t:'nada'}}
+
+/* API do YouTube carregada só quando alguém dá play */
+const YTAPI={fila:[],carregando:false};
+function carregarYT(cb){
+ if(window.YT&&window.YT.Player)return cb();
+ YTAPI.fila.push(cb);
+ if(YTAPI.carregando)return;
+ YTAPI.carregando=true;
+ const antes=window.onYouTubeIframeAPIReady;
+ window.onYouTubeIframeAPIReady=function(){
+  if(typeof antes==='function'){try{antes()}catch(e){}}
+  YTAPI.fila.forEach(f=>{try{f()}catch(e){}});YTAPI.fila=[]};
+ const s=document.createElement('script');
+ s.src='https://www.youtube.com/iframe_api';
+ s.onerror=function(){YTAPI.fila.forEach(f=>{try{f(true)}catch(e){}});YTAPI.fila=[]};
+ document.head.appendChild(s);
+}
+
+const PL={};let plSeq=0;
+function relogio(s){s=Math.max(0,Math.floor(s||0));
+ const m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
+
 function player(url){
  const e=embed(url);
- if(e.t==='nada')return'<div class="c"><h3>Sem vídeo</h3><p>Cole o link do vídeo no editor.</p></div>';
- if(e.t==='vd')return'<div class="fr"><video controls playsinline preload="metadata" src="'+esc(e.u)+'"></video></div>';
- if(e.t==='yt')
-  return'<div class="fr yt" onclick="tocarYT(this,\''+e.id+'\')" role="button" tabindex="0">'+
-   '<img class="thumb" src="https://i.ytimg.com/vi/'+e.id+'/hqdefault.jpg" alt="" loading="lazy">'+
+ if(e.t==='nada')
+  return'<div class="c"><h3>Sem vídeo</h3><p>Cole o link no editor. Aceita YouTube, Google Drive, Vimeo, Loom, Dailymotion e arquivos .mp4.</p></div>';
+ if(e.t==='if')
+  return'<div class="fr"><iframe src="'+esc(e.u)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div>';
+
+ const id='vp'+(++plSeq);
+ PL[id]={tipo:e.t,vid:e.id,u:e.u,lista:e.lista,aberto:false,tocando:false,vel:1,mudo:false};
+ const capa=(e.t==='yt')
+  ?'<img class="thumb" src="https://i.ytimg.com/vi/'+e.id+'/hqdefault.jpg" alt="" loading="lazy" onerror="this.src=\'https://i.ytimg.com/vi/'+e.id+'/mqdefault.jpg\'">'
+  :'<video class="thumb" src="'+esc(e.u)+'#t=0.1" preload="metadata" muted playsinline></video>';
+ return'<div class="vp" id="'+id+'">'+
+  '<div class="vp-tela" id="'+id+'_tela" onclick="plToque(\''+id+'\')">'+capa+
    '<span class="ply"><i></i></span></div>'+
-   '<a class="abrir" href="https://www.youtube.com/watch?v='+e.id+'" target="_blank" rel="noopener">Não abriu? <b>Ver no YouTube</b></a>';
- return'<div class="fr"><iframe src="'+esc(e.u)+'" allow="accelerometer;autoplay;encrypted-media;picture-in-picture;fullscreen" allowfullscreen loading="lazy"></iframe></div>'}
-function tocarYT(el,id){
- el.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+id+
-  '?autoplay=1&playsinline=1&rel=0&modestbranding=1" allow="autoplay;accelerometer;encrypted-media;gyroscope;picture-in-picture;fullscreen" allowfullscreen></iframe>';
- el.onclick=null}
+  '<div class="vp-ctrl">'+
+   '<button class="vpb" id="'+id+'_pp" onclick="plPlay(\''+id+'\')" aria-label="Tocar">▶</button>'+
+   '<input class="vps" id="'+id+'_barra" type="range" min="0" max="1000" value="0" aria-label="Posição do vídeo"'+
+    ' onpointerdown="plSegura(\''+id+'\',1)" onpointerup="plSegura(\''+id+'\',0)" oninput="plBuscar(\''+id+'\',this.value)">'+
+   '<span class="vpt" id="'+id+'_t">0:00 / 0:00</span>'+
+   '<button class="vpb vel" id="'+id+'_vel" onclick="plVel(\''+id+'\')" aria-label="Velocidade">1x</button>'+
+   '<button class="vpb" id="'+id+'_som" onclick="plMudo(\''+id+'\')" aria-label="Som">🔊</button>'+
+   '<button class="vpb" onclick="plCheia(\''+id+'\')" aria-label="Tela cheia">⛶</button>'+
+  '</div></div>'}
+
+function plToque(id){const s=PL[id];if(!s)return;if(s.aberto)plPlay(id);else plAbrir(id)}
+function plAbrir(id){
+ const s=PL[id],tela=document.getElementById(id+'_tela');
+ if(!s||s.aberto||!tela)return;
+ s.aberto=true;
+ const box=document.getElementById(id);if(box)box.classList.add('tocando');
+ if(s.tipo==='vd'){
+  tela.innerHTML='<video id="'+id+'_v" playsinline preload="auto" src="'+esc(s.u)+'"></video>';
+  const v=document.getElementById(id+'_v');
+  s.api=v;
+  v.addEventListener('play',function(){s.tocando=true;plBotao(id)});
+  v.addEventListener('pause',function(){s.tocando=false;plBotao(id)});
+  v.addEventListener('ended',function(){s.tocando=false;plBotao(id)});
+  const p=v.play();if(p&&p.catch)p.catch(function(){});
+  plRelogio(id);return;
+ }
+ tela.innerHTML='<div id="'+id+'_yt"></div>';
+ carregarYT(function(falhou){
+  if(falhou||!window.YT||!window.YT.Player)return plErro(id);
+  const vars={controls:0,rel:0,modestbranding:1,playsinline:1,fs:0,iv_load_policy:3,disablekb:1};
+  if(location.protocol==='http:'||location.protocol==='https:')vars.origin=location.origin;
+  if(s.lista)vars.list=s.lista;
+  try{
+   s.api=new YT.Player(id+'_yt',{videoId:s.vid,playerVars:vars,events:{
+    onReady:function(ev){s.api=ev.target;try{ev.target.playVideo()}catch(e){}plRelogio(id)},
+    onStateChange:function(ev){s.tocando=(ev.data===1);plBotao(id)},
+    onError:function(){plErro(id)}}});
+  }catch(e){plErro(id)}
+ });
+}
+function plErro(id){
+ const tela=document.getElementById(id+'_tela');if(!tela)return;
+ tela.innerHTML='<div class="vp-erro">Não consegui carregar este vídeo aqui.<br>'+
+  (location.protocol==='file:'
+   ?'O arquivo está aberto direto do computador. Publique o app num endereço https e o vídeo toca normalmente.'
+   :'Confira o link no editor ou se o vídeo permite ser incorporado.')+'</div>';
+ const s=PL[id];if(s)s.aberto=false;
+}
+function plPlay(id){
+ const s=PL[id];if(!s)return;
+ if(!s.aberto)return plAbrir(id);
+ const a=s.api;if(!a)return;
+ try{
+  if(s.tocando){a.pauseVideo?a.pauseVideo():a.pause()}
+  else{a.playVideo?a.playVideo():a.play()}
+ }catch(e){}
+}
+function plBotao(id){
+ const b=document.getElementById(id+'_pp');if(!b)return;
+ b.textContent=(PL[id]&&PL[id].tocando)?'❚❚':'▶'}
+function plDados(id){
+ const s=PL[id];if(!s||!s.api)return null;
+ try{
+  if(s.tipo==='yt')return{p:s.api.getCurrentTime?s.api.getCurrentTime():0,d:s.api.getDuration?s.api.getDuration():0};
+  return{p:s.api.currentTime||0,d:s.api.duration||0};
+ }catch(e){return null}
+}
+function plRelogio(id){
+ const s=PL[id];if(!s)return;
+ clearInterval(s.timer);
+ s.timer=setInterval(function(){
+  const box=document.getElementById(id);
+  if(!box||!document.body.contains(box)){clearInterval(s.timer);return}
+  const d=plDados(id);if(!d||!d.d)return;
+  const barra=document.getElementById(id+'_barra'),txt=document.getElementById(id+'_t');
+  if(barra&&!s.arrastando)barra.value=Math.round(d.p/d.d*1000);
+  if(txt)txt.textContent=relogio(d.p)+' / '+relogio(d.d);
+ },400);
+}
+function plSegura(id,v){const s=PL[id];if(s)s.arrastando=!!(+v)}
+function plBuscar(id,v){
+ const s=PL[id];if(!s||!s.api)return;
+ const d=plDados(id);if(!d||!d.d)return;
+ const alvo=d.d*(v/1000);
+ try{ s.tipo==='yt'?s.api.seekTo(alvo,true):(s.api.currentTime=alvo) }catch(e){}
+ const txt=document.getElementById(id+'_t');
+ if(txt)txt.textContent=relogio(alvo)+' / '+relogio(d.d);
+}
+function plVel(id){
+ const s=PL[id];if(!s)return;
+ const passos=[1,1.25,1.5,1.75,2,0.75];
+ s.vel=passos[(passos.indexOf(s.vel)+1)%passos.length];
+ try{ s.tipo==='yt'?s.api.setPlaybackRate(s.vel):(s.api.playbackRate=s.vel) }catch(e){}
+ const b=document.getElementById(id+'_vel');if(b)b.textContent=s.vel+'x';
+}
+function plMudo(id){
+ const s=PL[id];if(!s||!s.api)return;
+ s.mudo=!s.mudo;
+ try{ s.tipo==='yt'?(s.mudo?s.api.mute():s.api.unMute()):(s.api.muted=s.mudo) }catch(e){}
+ const b=document.getElementById(id+'_som');if(b)b.textContent=s.mudo?'🔇':'🔊';
+}
+function plCheia(id){
+ const box=document.getElementById(id);if(!box)return;
+ if(document.fullscreenElement){document.exitFullscreen();return}
+ const f=box.requestFullscreen||box.webkitRequestFullscreen;
+ if(f){try{f.call(box)}catch(e){}}
+}
+
+
 const vwVideo=c=>player(c.url)+(c.html?'<div class="rico">'+c.html+'</div>':'');
 const vwImagem=c=>'<div class="gal">'+linhas(c.imagens).map(l=>'<figure><img src="'+esc(l[1]||l[0])+'" alt="'+esc(l[0])+'" loading="lazy">'+
  (l[1]?'<figcaption>'+esc(l[0])+'</figcaption>':'')+'</figure>').join('')+'</div>'+(c.html?'<div class="rico">'+c.html+'</div>':'');
@@ -1556,7 +1758,36 @@ main.tr-zoom{animation:trZoom .26s ease}
 .pg i{display:block;height:100%;background:var(--acc);border-radius:7px;transition:width .5s}
 .qz .perg{font-size:20px;font-weight:700;line-height:1.35;margin-bottom:18px;text-align:center}
 .midia{border-radius:var(--r);overflow:hidden;margin-bottom:18px;display:block;width:100%}
+
+/* player do app */
+.vp{background:#000;border-radius:14px;overflow:hidden;margin-bottom:14px}
+.vp-tela{position:relative;padding-top:56.25%;background:#000;cursor:pointer}
+.vp-tela>img.thumb,.vp-tela>video.thumb,.vp-tela>video,.vp-tela>iframe,.vp-tela>div{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vp-tela>img.thumb,.vp-tela>video.thumb{object-fit:cover}
+.vp.tocando .ply{display:none}
+.vp.tocando .vp-tela{cursor:default}
+.vp-erro{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;
+ color:#fff;background:#111;font-size:13px;line-height:1.5}
+.vp-ctrl{display:flex;align-items:center;gap:8px;padding:8px 10px;background:color-mix(in srgb,var(--card) 92%,#000)}
+.vpb{background:none;border:0;color:var(--txt);cursor:pointer;font-size:15px;padding:6px;border-radius:8px;line-height:1;flex:none}
+.vpb:hover{background:color-mix(in srgb,var(--txt2) 22%,transparent)}
+.vpb.vel{font-size:12px;font-weight:800;color:var(--acc)}
+.vps{flex:1;min-width:40px;-webkit-appearance:none;appearance:none;height:5px;border-radius:5px;
+ background:color-mix(in srgb,var(--txt2) 40%,transparent);accent-color:var(--acc);cursor:pointer}
+.vps::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--acc)}
+.vps::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:var(--acc)}
+.vpt{font-size:11.5px;color:var(--txt2);font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
+.vp:fullscreen{display:flex;flex-direction:column;justify-content:center;background:#000}
+.vp:fullscreen .vp-tela{flex:1;padding-top:0}
 .fr{position:relative;padding-top:56.25%;background:#000;border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+
+.fr img.thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fr.yt{cursor:pointer}
+.ply{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(transparent,rgba(0,0,0,.45))}
+.ply i{width:66px;height:66px;border-radius:50%;background:rgba(0,0,0,.62);border:2px solid rgba(255,255,255,.9);display:grid;place-items:center}
+.ply i:before{content:"";border-left:19px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:5px}
+.abrir{display:inline-block;color:var(--txt2);font-size:12.5px;text-decoration:none;margin:-6px 0 14px}
+.abrir b{color:var(--acc)}
 .fr iframe,.fr video{position:absolute;inset:0;width:100%;height:100%;border:0}
 .fr img.thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .fr.yt{cursor:pointer}
@@ -1644,26 +1875,179 @@ function confete(estrela){
   if(t<190)requestAnimationFrame(loop);else ctx.clearRect(0,0,cv.width,cv.height)})()}
 
 /* vídeo */
-function embed(u){u=String(u||'').trim();
- const y=u.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{6,})/);
- if(y)return{t:'yt',id:y[1]};
- const v=u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
- if(v)return{t:'if',u:'https://player.vimeo.com/video/'+v[1]};
- if(/\.(mp4|webm|ogg|mov|m3u8)($|\?)/i.test(u))return{t:'vd',u:u};
+/* ============ player do app ============
+   O vídeo toca dentro do app, com controles próprios.
+   YouTube entra pela API oficial de iframe, arquivos usam
+   o vídeo nativo e as demais plataformas entram
+   incorporadas. Nada abre em outra aba.
+   ======================================== */
+function embed(u){
+ u=String(u||'').trim();
+ if(!u)return{t:'nada'};
+ if(/^<iframe/i.test(u)){const m=u.match(/src\s*=\s*["']([^"']+)["']/i);if(m)u=m[1]}
+ const yt=u.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{6,})/);
+ if(yt){const l=u.match(/[?&]list=([\w-]+)/);return{t:'yt',id:yt[1],lista:l?l[1]:''}}
+ const dr=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([\w-]{20,})/);
+ if(dr)return{t:'if',u:'https://drive.google.com/file/d/'+dr[1]+'/preview'};
+ const vi=u.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/(\w+))?/);
+ if(vi)return{t:'if',u:'https://player.vimeo.com/video/'+vi[1]+(vi[2]?'?h='+vi[2]:'')};
+ const dm=u.match(/(?:dailymotion\.com\/video\/|dai\.ly\/)([\w]+)/);
+ if(dm)return{t:'if',u:'https://geo.dailymotion.com/player.html?video='+dm[1]};
+ const tw=u.match(/twitch\.tv\/videos\/(\d+)/);
+ if(tw)return{t:'if',u:'https://player.twitch.tv/?video='+tw[1]+'&parent='+location.hostname+'&autoplay=false'};
+ const lo=u.match(/loom\.com\/share\/([\w]+)/);
+ if(lo)return{t:'if',u:'https://www.loom.com/embed/'+lo[1]};
+ const sm=u.match(/streamable\.com\/([\w]+)/);
+ if(sm)return{t:'if',u:'https://streamable.com/e/'+sm[1]};
+ if(/\.(mp4|webm|ogg|ogv|mov|m4v)($|\?)/i.test(u)||/^data:video\//i.test(u)||/^blob:/i.test(u))return{t:'vd',u:u};
  if(/^https?:\/\//i.test(u))return{t:'if',u:u};
  return{t:'nada'}}
+
+/* API do YouTube carregada só quando alguém dá play */
+const YTAPI={fila:[],carregando:false};
+function carregarYT(cb){
+ if(window.YT&&window.YT.Player)return cb();
+ YTAPI.fila.push(cb);
+ if(YTAPI.carregando)return;
+ YTAPI.carregando=true;
+ const antes=window.onYouTubeIframeAPIReady;
+ window.onYouTubeIframeAPIReady=function(){
+  if(typeof antes==='function'){try{antes()}catch(e){}}
+  YTAPI.fila.forEach(f=>{try{f()}catch(e){}});YTAPI.fila=[]};
+ const s=document.createElement('script');
+ s.src='https://www.youtube.com/iframe_api';
+ s.onerror=function(){YTAPI.fila.forEach(f=>{try{f(true)}catch(e){}});YTAPI.fila=[]};
+ document.head.appendChild(s);
+}
+
+const PL={};let plSeq=0;
+function relogio(s){s=Math.max(0,Math.floor(s||0));
+ const m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
+
 function player(url){
  const e=embed(url);
- if(e.t==='nada')return'';
- if(e.t==='vd')return'<div class="fr"><video controls playsinline preload="metadata" src="'+esc(e.u)+'"></video></div>';
- if(e.t==='yt')return'<div class="fr yt" onclick="tocarYT(this,\''+e.id+'\')" role="button" tabindex="0">'+
-   '<img class="thumb" src="https://i.ytimg.com/vi/'+e.id+'/hqdefault.jpg" alt="" loading="lazy">'+
-   '<span class="ply"><i></i></span></div>';
- return'<div class="fr"><iframe src="'+esc(e.u)+'" allow="accelerometer;autoplay;encrypted-media;picture-in-picture;fullscreen" allowfullscreen loading="lazy"></iframe></div>'}
-function tocarYT(el,id){
- el.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+id+
-  '?autoplay=1&playsinline=1&rel=0&modestbranding=1" allow="autoplay;accelerometer;encrypted-media;gyroscope;picture-in-picture;fullscreen" allowfullscreen></iframe>';
- el.onclick=null}
+ if(e.t==='nada')
+  return'<div class="c"><h3>Sem vídeo</h3><p>Cole o link no editor. Aceita YouTube, Google Drive, Vimeo, Loom, Dailymotion e arquivos .mp4.</p></div>';
+ if(e.t==='if')
+  return'<div class="fr"><iframe src="'+esc(e.u)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div>';
+
+ const id='vp'+(++plSeq);
+ PL[id]={tipo:e.t,vid:e.id,u:e.u,lista:e.lista,aberto:false,tocando:false,vel:1,mudo:false};
+ const capa=(e.t==='yt')
+  ?'<img class="thumb" src="https://i.ytimg.com/vi/'+e.id+'/hqdefault.jpg" alt="" loading="lazy" onerror="this.src=\'https://i.ytimg.com/vi/'+e.id+'/mqdefault.jpg\'">'
+  :'<video class="thumb" src="'+esc(e.u)+'#t=0.1" preload="metadata" muted playsinline></video>';
+ return'<div class="vp" id="'+id+'">'+
+  '<div class="vp-tela" id="'+id+'_tela" onclick="plToque(\''+id+'\')">'+capa+
+   '<span class="ply"><i></i></span></div>'+
+  '<div class="vp-ctrl">'+
+   '<button class="vpb" id="'+id+'_pp" onclick="plPlay(\''+id+'\')" aria-label="Tocar">▶</button>'+
+   '<input class="vps" id="'+id+'_barra" type="range" min="0" max="1000" value="0" aria-label="Posição do vídeo"'+
+    ' onpointerdown="plSegura(\''+id+'\',1)" onpointerup="plSegura(\''+id+'\',0)" oninput="plBuscar(\''+id+'\',this.value)">'+
+   '<span class="vpt" id="'+id+'_t">0:00 / 0:00</span>'+
+   '<button class="vpb vel" id="'+id+'_vel" onclick="plVel(\''+id+'\')" aria-label="Velocidade">1x</button>'+
+   '<button class="vpb" id="'+id+'_som" onclick="plMudo(\''+id+'\')" aria-label="Som">🔊</button>'+
+   '<button class="vpb" onclick="plCheia(\''+id+'\')" aria-label="Tela cheia">⛶</button>'+
+  '</div></div>'}
+
+function plToque(id){const s=PL[id];if(!s)return;if(s.aberto)plPlay(id);else plAbrir(id)}
+function plAbrir(id){
+ const s=PL[id],tela=document.getElementById(id+'_tela');
+ if(!s||s.aberto||!tela)return;
+ s.aberto=true;
+ const box=document.getElementById(id);if(box)box.classList.add('tocando');
+ if(s.tipo==='vd'){
+  tela.innerHTML='<video id="'+id+'_v" playsinline preload="auto" src="'+esc(s.u)+'"></video>';
+  const v=document.getElementById(id+'_v');
+  s.api=v;
+  v.addEventListener('play',function(){s.tocando=true;plBotao(id)});
+  v.addEventListener('pause',function(){s.tocando=false;plBotao(id)});
+  v.addEventListener('ended',function(){s.tocando=false;plBotao(id)});
+  const p=v.play();if(p&&p.catch)p.catch(function(){});
+  plRelogio(id);return;
+ }
+ tela.innerHTML='<div id="'+id+'_yt"></div>';
+ carregarYT(function(falhou){
+  if(falhou||!window.YT||!window.YT.Player)return plErro(id);
+  const vars={controls:0,rel:0,modestbranding:1,playsinline:1,fs:0,iv_load_policy:3,disablekb:1};
+  if(location.protocol==='http:'||location.protocol==='https:')vars.origin=location.origin;
+  if(s.lista)vars.list=s.lista;
+  try{
+   s.api=new YT.Player(id+'_yt',{videoId:s.vid,playerVars:vars,events:{
+    onReady:function(ev){s.api=ev.target;try{ev.target.playVideo()}catch(e){}plRelogio(id)},
+    onStateChange:function(ev){s.tocando=(ev.data===1);plBotao(id)},
+    onError:function(){plErro(id)}}});
+  }catch(e){plErro(id)}
+ });
+}
+function plErro(id){
+ const tela=document.getElementById(id+'_tela');if(!tela)return;
+ tela.innerHTML='<div class="vp-erro">Não consegui carregar este vídeo aqui.<br>'+
+  (location.protocol==='file:'
+   ?'O arquivo está aberto direto do computador. Publique o app num endereço https e o vídeo toca normalmente.'
+   :'Confira o link no editor ou se o vídeo permite ser incorporado.')+'</div>';
+ const s=PL[id];if(s)s.aberto=false;
+}
+function plPlay(id){
+ const s=PL[id];if(!s)return;
+ if(!s.aberto)return plAbrir(id);
+ const a=s.api;if(!a)return;
+ try{
+  if(s.tocando){a.pauseVideo?a.pauseVideo():a.pause()}
+  else{a.playVideo?a.playVideo():a.play()}
+ }catch(e){}
+}
+function plBotao(id){
+ const b=document.getElementById(id+'_pp');if(!b)return;
+ b.textContent=(PL[id]&&PL[id].tocando)?'❚❚':'▶'}
+function plDados(id){
+ const s=PL[id];if(!s||!s.api)return null;
+ try{
+  if(s.tipo==='yt')return{p:s.api.getCurrentTime?s.api.getCurrentTime():0,d:s.api.getDuration?s.api.getDuration():0};
+  return{p:s.api.currentTime||0,d:s.api.duration||0};
+ }catch(e){return null}
+}
+function plRelogio(id){
+ const s=PL[id];if(!s)return;
+ clearInterval(s.timer);
+ s.timer=setInterval(function(){
+  const box=document.getElementById(id);
+  if(!box||!document.body.contains(box)){clearInterval(s.timer);return}
+  const d=plDados(id);if(!d||!d.d)return;
+  const barra=document.getElementById(id+'_barra'),txt=document.getElementById(id+'_t');
+  if(barra&&!s.arrastando)barra.value=Math.round(d.p/d.d*1000);
+  if(txt)txt.textContent=relogio(d.p)+' / '+relogio(d.d);
+ },400);
+}
+function plSegura(id,v){const s=PL[id];if(s)s.arrastando=!!(+v)}
+function plBuscar(id,v){
+ const s=PL[id];if(!s||!s.api)return;
+ const d=plDados(id);if(!d||!d.d)return;
+ const alvo=d.d*(v/1000);
+ try{ s.tipo==='yt'?s.api.seekTo(alvo,true):(s.api.currentTime=alvo) }catch(e){}
+ const txt=document.getElementById(id+'_t');
+ if(txt)txt.textContent=relogio(alvo)+' / '+relogio(d.d);
+}
+function plVel(id){
+ const s=PL[id];if(!s)return;
+ const passos=[1,1.25,1.5,1.75,2,0.75];
+ s.vel=passos[(passos.indexOf(s.vel)+1)%passos.length];
+ try{ s.tipo==='yt'?s.api.setPlaybackRate(s.vel):(s.api.playbackRate=s.vel) }catch(e){}
+ const b=document.getElementById(id+'_vel');if(b)b.textContent=s.vel+'x';
+}
+function plMudo(id){
+ const s=PL[id];if(!s||!s.api)return;
+ s.mudo=!s.mudo;
+ try{ s.tipo==='yt'?(s.mudo?s.api.mute():s.api.unMute()):(s.api.muted=s.mudo) }catch(e){}
+ const b=document.getElementById(id+'_som');if(b)b.textContent=s.mudo?'🔇':'🔊';
+}
+function plCheia(id){
+ const box=document.getElementById(id);if(!box)return;
+ if(document.fullscreenElement){document.exitFullscreen();return}
+ const f=box.requestFullscreen||box.webkitRequestFullscreen;
+ if(f){try{f.call(box)}catch(e){}}
+}
+
+
 
 /* tema */
 (function(){
@@ -3806,7 +4190,7 @@ function campoPlano(base,val,oque){
  <p class="hint" style="margin:6px 0 0">Plano é a etiqueta de cada usuário na aba Usuários. "Todos" libera para qualquer pessoa logada.</p></div>`}
 
 const DICA={
- video:'Cole o link do YouTube, Vimeo ou de um .mp4.',
+ video:'Aceita YouTube, Vimeo, Google Drive (link de compartilhamento), Dailymotion, Loom, Streamable, Twitch e arquivos .mp4/.webm. Também aceita o código &lt;iframe&gt; completo de outras plataformas.',
  texto:'HTML simples: &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;&lt;li&gt;, &lt;img&gt;, &lt;blockquote&gt;.',
  imagem:'Uma imagem por linha:  legenda | endereço da imagem.',
  audio:'Link de um arquivo .mp3 ou .m4a. A capa é opcional.',
@@ -4374,15 +4758,73 @@ function gerar(modo){return cfg.modoApp==='quiz'?gerarQuiz():(cfg.modoApp==='ebo
 let tPrev;
 function toque(){clearTimeout(tPrev);tPrev=setTimeout(atualizarPreview,500)}
 function setPreview(m){previewModo=m;atualizarPreview()}
+let urlPrev=null,urlPrevCheio=null;
+function porBlob(fr,html,qual){
+ try{
+  const nova=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));
+  fr.removeAttribute('srcdoc');fr.src=nova;
+  const velha=(qual==='cheio')?urlPrevCheio:urlPrev;
+  if(velha)setTimeout(()=>URL.revokeObjectURL(velha),1500);
+  if(qual==='cheio')urlPrevCheio=nova;else urlPrev=nova;
+ }catch(e){fr.srcdoc=html}
+}
 function atualizarPreview(){
  const html=gerar(previewModo);
- document.getElementById('frame').srcdoc=html;
+ porBlob(document.getElementById('frame'),html,'pequeno');
  document.getElementById('tam').textContent=(new Blob([html]).size/1024).toFixed(0)+' KB';
  document.getElementById('codePrev').textContent=html.slice(0,1200)+'\n\n… (+'+(html.length-1200)+' caracteres)';
  const pvBar=document.querySelector('.pbar');
  if(pvBar)pvBar.style.display=(cfg.modoApp==='quiz'||cfg.modoApp==='ebook')?'none':'flex';
  document.getElementById('pv-login').classList.toggle('p',previewModo==='login');
  document.getElementById('pv-app').classList.toggle('p',previewModo==='app')}
+
+
+/* ============ prévia em tela cheia ============ */
+const DEVS=[['celular','Celular',390,844,false],['grande','Celular grande',430,932,false],
+ ['tablet','Tablet',820,1180,true],['desktop','Computador',1280,800,true]];
+let devAtual='celular',previewCheioModo=null;
+function abrirPreviewCheio(){
+ previewCheioModo=previewCheioModo||previewModo;
+ document.getElementById('fullPrev').classList.add('on');
+ renderDevs();recarregarCheio();ajustarDev();
+ /* o modal acabou de aparecer: mede de novo já com o tamanho real na tela */
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(ajustarDev);
+ setTimeout(ajustarDev,120)}
+function fecharPreviewCheio(){document.getElementById('fullPrev').classList.remove('on');
+ const fr=document.getElementById('frameFull');fr.removeAttribute('src');fr.srcdoc='';
+ if(urlPrevCheio){URL.revokeObjectURL(urlPrevCheio);urlPrevCheio=null}}
+function setPreviewCheio(m){previewCheioModo=m;recarregarCheio()}
+function recarregarCheio(){
+ const fr=document.getElementById('frameFull');if(!fr)return;
+ porBlob(fr,gerar(previewCheioModo||'app'),'cheio');
+ const l=document.getElementById('fp-login'),a=document.getElementById('fp-app');
+ const soApp=cfg.modoApp!=='membros';
+ if(l){l.style.display=soApp?'none':'';l.classList.toggle('p',previewCheioModo==='login')}
+ if(a){a.style.display=soApp?'none':'';a.classList.toggle('p',previewCheioModo!=='login')}}
+function renderDevs(){
+ const el=document.getElementById('fp-devs');if(!el)return;
+ el.innerHTML=DEVS.map(d=>'<button class="btn sm'+(devAtual===d[0]?' p':'')+'" onclick="setDev(\''+d[0]+'\')">'+d[1]+'</button>').join('')}
+function setDev(k){devAtual=k;renderDevs();ajustarDev()}
+function ajustarDev(){
+ const d=DEVS.find(x=>x[0]===devAtual)||DEVS[0];
+ const box=document.getElementById('fp-dev'),slot=document.getElementById('fp-slot'),
+       palco=document.getElementById('fp-palco');
+ if(!box||!slot||!palco)return;
+ box.classList.toggle('plano',!!d[4]);
+ box.style.width=d[2]+'px';box.style.height=d[3]+'px';
+ /* o encaixe recebe o tamanho JÁ reduzido, então o centro fica no centro de verdade
+    e nada passa da borda da tela */
+ const livreH=palco.clientHeight-32,livreL=palco.clientWidth-32;
+ let k=Math.min(livreH/d[3],livreL/d[2]);
+ if(!(k>0))k=1;
+ if(k>1)k=1;
+ box.style.transform='scale('+k+')';
+ slot.style.width=Math.round(d[2]*k)+'px';
+ slot.style.height=Math.round(d[3]*k)+'px'}
+if(typeof window!=='undefined'&&window.addEventListener){
+ window.addEventListener('resize',()=>{if(document.getElementById('fullPrev').classList.contains('on'))ajustarDev()});
+ window.addEventListener('keydown',e=>{if(e.key==='Escape')fecharPreviewCheio()});
+}
 
 /* ============ arquivos ============ */
 function baixar(nome,txt,mime){const a=document.createElement('a');
