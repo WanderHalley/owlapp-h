@@ -1727,9 +1727,22 @@ function desenhar(){
  '<nav>'+CFG.nav.map(n=>'<button class="'+(n.alvo===R.pid?'on':'')+'" onclick="irPara(\''+n.alvo+'\')">'+
   svg(n.icone)+'<span>'+esc(n.label)+'</span></button>').join('')+'</nav></div>';
  const bi=document.getElementById('b-instalar');if(bi&&promptPWA)bi.style.display='block';
- const fila=POS;POS=[];fila.forEach(f=>{try{f()}catch(e){}})}
+ const fila=POS;POS=[];fila.forEach(f=>{try{f()}catch(e){}})
+ avisarRota()}
+function avisarRota(){
+ if(!CFG.preview)return;
+ try{if(window.parent&&window.parent!==window)window.parent.postMessage({halley:'rota',rota:R},'*')}catch(e){}}
 function abrirApp(){
  tocarStreak();if(gameOn())checarConquistas();
+ /* na prévia, volta exatamente para a tela que estava aberta */
+ if(CFG.rota&&CFG.rota.pid){
+  const r=CFG.rota,pOk=(r.pid==='perfil')||CFG.paginas.some(p=>p.id===r.pid);
+  if(pOk){
+   R={tela:r.tela||'pagina',pid:r.pid,mid:r.mid||null,cid:r.cid||null};
+   if(R.tela==='conteudo'&&!achar(R.cid))R={tela:'pagina',pid:r.pid,mid:null,cid:null};
+   if(R.tela==='modulo'){const pg=pag(R.pid);if(!pg||!(pg.modulos||[]).some(m=>m.id===R.mid))R={tela:'pagina',pid:r.pid,mid:null,cid:null}}
+   desenhar();return}
+ }
  const salvo=S.get('aba');
  const ok=salvo&&(salvo==='perfil'||CFG.paginas.some(p=>p.id===salvo));
  R={tela:'pagina',pid:ok?salvo:((CFG.nav[0]||{}).alvo||'perfil'),mid:null,cid:null};
@@ -3055,6 +3068,7 @@ function init() {
   aplicarIdentidade();
   montarPaginas();
   const SEM_LOGIN = (!E.login || !E.login.ativo || E.login.modo === 'hub');
+  if (CFG.rota && typeof CFG.rota.pagina === 'number' && CFG.rota.pagina < PAG.length) S.page = CFG.rota.pagina;
   if (CFG.preview === 'app' && !SEM_LOGIN) { S.user = (USERS[0] || {}).email || 'leitor'; showApp(); }
   else if (SEM_LOGIN) { document.getElementById('login-screen').classList.add('hidden'); showApp(); }
   else checkLogin();
@@ -4200,11 +4214,17 @@ function desenhar(){
    '<button class="me" onclick="ir(\'perfil\')">'+ini(U?U.nome:'?')+'</button></header>')+
   '<main>'+corpo+'</main>'+
   '<nav>'+abas.map(a=>'<button class="'+(R.tela===a[0]?'on':'')+'" onclick="ir(\''+a[0]+'\')">'+
-   svg(a[2])+'<span>'+a[1]+'</span></button>').join('')+'</nav>'}
+   svg(a[2])+'<span>'+a[1]+'</span></button>').join('')+'</nav>';
+ if(CFG.preview){try{if(window.parent&&window.parent!==window)window.parent.postMessage({halley:'rota',rota:R},'*')}catch(e){}}}
 
 /* ---------- início ---------- */
 aplicarTema();
-if(CFG.preview==='app'||H.login===false){U=usuarios()[0]||{nome:'Visitante',email:'',produtos:[]};desenhar()}
+function restaurarRota(){
+ if(!CFG.rota||!CFG.rota.tela)return;
+ const r=CFG.rota;
+ if(r.tela==='produto'&&!PRODS.some(p=>p.id===r.pid))return;
+ R={tela:r.tela,pid:r.pid||null}}
+if(CFG.preview==='app'||H.login===false){U=usuarios()[0]||{nome:'Visitante',email:'',produtos:[]};restaurarRota();desenhar()}
 else{const s=S.obj('sessao',null);
  const u=s&&usuarios().find(x=>String(x.email).toLowerCase()===String(s.email).toLowerCase());
  if(u){U=u;desenhar()}else telaLogin()}
@@ -4348,6 +4368,7 @@ const AVISO_MODO={
 function setModo(m){
  if(cfg.modoApp===m)return;
  if(!confirm(AVISO_MODO[m]))return;
+  rotaPreview=null;
  cfg.modoApp=m;
  aba=(m==='quiz')?'quizmodo':m==='ebook'?'ebook':m==='hub'?'hub':'paginas';
  previewModo='app';render()}
@@ -5157,6 +5178,7 @@ function copiarListaAudio(){
 
 function gerarEbook(modo){
  const c={app:identEbook(),ebook:clone(cfg.ebook),preview:modo||null};
+ if(modo&&rotaPreview)c.rota=rotaPreview;
  const json=JSON.stringify(c).replace(/</g,'\\u003c').replace(/\u2028|\u2029/g,'');
  return document.getElementById('tplEbook').textContent
   .replace('/*__CFG__*/{}',()=>json)
@@ -5354,6 +5376,7 @@ function renderHubAcesso(){
 
 function gerarHub(modo){
  const c={app:identHub(),hub:clone(cfg.hub),preview:modo||null};
+ if(modo&&rotaPreview)c.rota=rotaPreview;
  c.hub.usuarios=(c.hub.usuarios||[]).filter(u=>u.email).map(u=>({nome:u.nome,email:u.email,
   senha:senhaHash(u.senha||'123456'),ativo:u.ativo!==false,produtos:u.produtos||[]}));
  const json=JSON.stringify(c).replace(/</g,'\\u003c').replace(/\u2028|\u2029/g,'');
@@ -5771,6 +5794,7 @@ function gerarQuiz(){
 function gerarMembros(modo){
  const c=clone(cfg);
  c.icones=ICONS;c.preview=modo||null;
+ if(modo&&rotaPreview)c.rota=rotaPreview;
  c.usuarios=c.usuarios.filter(u=>u.email).map(u=>({id:u.id,nome:u.nome,email:u.email,senha:senhaHash(u.senha||'123456'),
   avatar:u.avatar,plano:u.plano||'free',ativo:u.ativo!==false,criadoEm:u.criadoEm||hoje()}));
  c.nav=c.nav.map(n=>({label:n.label,icone:n.icone,tipo:n.tipo,alvo:n.tipo==='perfil'?'perfil':n.alvo,url:n.url||''}));
@@ -5781,9 +5805,15 @@ function gerarMembros(modo){
 function gerar(modo){return cfg.modoApp==='quiz'?gerarQuiz():cfg.modoApp==='ebook'?gerarEbook(modo):cfg.modoApp==='hub'?gerarHub(modo):gerarMembros(modo)}
 
 let tPrev;
-function toque(){clearTimeout(tPrev);tPrev=setTimeout(()=>{atualizarPreview();if(projetoAtual)salvarProjeto(true)},500)}
+function toque(){clearTimeout(tPrev);tPrev=setTimeout(()=>{atualizarPreview();if(projetoAtual)salvarProjeto(true)},180)}
 function setPreview(m){previewModo=m;atualizarPreview()}
-let urlPrev=null,urlPrevCheio=null;
+let urlPrev=null,urlPrevCheio=null,rotaPreview=null;
+if(typeof window!=='undefined'&&window.addEventListener){
+ window.addEventListener('message',e=>{
+  const d=e&&e.data;
+  if(d&&d.halley==='rota')rotaPreview=d.rota;
+ });
+}
 function porBlob(fr,html,qual){
  try{
   const nova=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));
@@ -5801,7 +5831,10 @@ function atualizarPreview(){
  const pvBar=document.querySelector('.pbar');
  if(pvBar)pvBar.style.display=(cfg.modoApp==='quiz'||cfg.modoApp==='ebook')?'none':'flex';
  document.getElementById('pv-login').classList.toggle('p',previewModo==='login');
- document.getElementById('pv-app').classList.toggle('p',previewModo==='app')}
+ document.getElementById('pv-app').classList.toggle('p',previewModo==='app');
+ /* se a tela cheia estiver aberta, ela acompanha junto */
+ const cheio=document.getElementById('fullPrev');
+ if(cheio&&cheio.classList.contains('on'))recarregarCheio()}
 
 
 /* ============ prévia em tela cheia ============ */
