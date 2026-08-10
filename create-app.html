@@ -227,7 +227,8 @@ details[open]>summary:before{content:"\25BE  "}
 <div class="top">
   <div class="brand"><div class="dot">H</div><div>Halley App Studio<small>gerador de apps de membros</small></div></div>
   <div class="modos">
-   <button id="modo-membros" onclick="setModo('membros')"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>App de Membros</button>
+   <button id="modo-hub" onclick="setModo('hub')"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><path d="M13 13h7v7h-7z"/></svg>Área de Membros</button>
+   <button id="modo-membros" onclick="setModo('membros')"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>App</button>
    <button id="modo-quiz" onclick="setModo('quiz')"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Quiz de Captação</button>
    <button id="modo-ebook" onclick="setModo('ebook')"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M9 3v18"/></svg>Ebook Web</button>
   </div>
@@ -244,48 +245,19 @@ details[open]>summary:before{content:"\25BE  "}
   <div class="faixa-modo" id="faixaModo"></div>
 
   <div class="panel" id="p-identidade">
-    <div class="card">
-      <h3>Identidade do app</h3>
-      <p class="hint">Aparece no topo da tela, na entrada e no ícone instalado no celular.</p>
-      <div class="grid2">
-        <div class="f"><label>Nome do app</label><input type="text" data-bind="app.nome"></div>
-        <div class="f"><label>Frase de apoio</label><input type="text" data-bind="app.slogan"></div>
-      </div>
-      <div class="f"><label>Logo / ícone</label>
-        <div class="row">
-          <div class="av" id="logoPrev" style="width:52px;height:52px;border-radius:14px">—</div>
-          <button class="btn sm" onclick="escolherImagem(d=>{cfg.app.logo=d;render()})">Enviar imagem</button>
-          <button class="btn sm d" onclick="cfg.app.logo=null;render()">Remover</button>
-          <span class="hint">PNG quadrado 512×512</span>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Cores e forma</h3>
-      <div class="grid3">
-        <div class="f"><label>Destaque</label><input type="color" data-bind="app.cor"></div>
-        <div class="f"><label>Fundo</label><input type="color" data-bind="app.fundo"></div>
-        <div class="f"><label>Cartões</label><input type="color" data-bind="app.card"></div>
-      </div>
-      <div class="grid2">
-        <div class="f"><label>Tema</label><select data-bind="app.tema"><option value="escuro">Escuro</option><option value="claro">Claro</option></select></div>
-        <div class="f"><label>Cantos</label><select data-bind="app.raio"><option value="18">Arredondado</option><option value="10">Suave</option><option value="4">Reto</option></select></div>
-      </div>
-      <div class="row">
-        <button class="btn sm" onclick="paleta('#00d4aa','#0e0f1a','#1b1e34')">Halley</button>
-        <button class="btn sm" onclick="paleta('#7c5cff','#0f0d17','#1a1727')">Violeta</button>
-        <button class="btn sm" onclick="paleta('#ff6b35','#12100e','#211c18')">Âmbar</button>
-        <button class="btn sm" onclick="paleta('#0ea5e9','#0b1220','#151f30')">Oceano</button>
-        <button class="btn sm" onclick="paleta('#ff85c0','#fffafd','#ffffff','claro')">Infantil</button>
-        <button class="btn sm" onclick="paleta('#e11d48','#fdfcfb','#ffffff','claro')">Claro</button>
-      </div>
-    </div>
+    <div id="painelIdentidade"></div>
   </div>
 
   <div class="panel" id="p-acesso">
     <div class="card">
       <h3>Tela de entrada</h3>
       <p class="hint">Quem entra usa o e-mail e a senha cadastrados na aba Usuários.</p>
+      <div class="f"><label>Como este app vai ser aberto</label>
+        <select data-bind="auth.modo" onchange="render()">
+          <option value="proprio">Sozinho — pede e-mail e senha (app avulso ou isca gratuita)</option>
+          <option value="hub">Dentro da Área de Membros — não pede login, o acesso já veio de lá</option>
+        </select>
+        <p class="hint" style="margin:6px 0 0">Escolhendo a Área de Membros, quem já entrou lá abre este app direto, sem digitar nada de novo.</p></div>
       <div class="f"><label class="sw big"><input type="checkbox" data-bind="auth.ativo" onchange="render()"><span>Exigir login para abrir o app</span></label></div>
       <div class="grid2">
         <div class="f"><label>Título</label><input type="text" data-bind="auth.titulo"></div>
@@ -367,6 +339,22 @@ details[open]>summary:before{content:"\25BE  "}
 
   <div class="panel" id="p-ebookaudio">
     <div id="painelEbookAudio"></div>
+  </div>
+
+  <div class="panel" id="p-hub">
+    <div id="painelHub"></div>
+  </div>
+
+  <div class="panel" id="p-hubacesso">
+    <div id="painelHubAcesso"></div>
+  </div>
+
+  <div class="panel" id="p-projetos">
+    <div id="painelProjetos"></div>
+  </div>
+
+  <div class="panel" id="p-formularios">
+    <div id="painelFormularios"></div>
   </div>
 
   <div class="panel" id="p-menu">
@@ -887,6 +875,12 @@ function aviso(m){const a=document.getElementById('aviso');a.innerHTML=m;a.class
  clearTimeout(tAv);tAv=setTimeout(()=>a.classList.remove('on'),2800)}
 function aplicarTema(){
  const r=document.documentElement.style,c=CFG.app,claro=c.tema==='claro';
+ if(c.fundoImagem){
+  document.body.style.backgroundImage='linear-gradient(rgba(0,0,0,'+((c.fundoEscurecer||55)/100)+'),rgba(0,0,0,'+((c.fundoEscurecer||55)/100)+')),url("'+c.fundoImagem+'")';
+  document.body.style.backgroundSize='cover';
+  document.body.style.backgroundPosition='center';
+  document.body.style.backgroundAttachment='fixed';
+ }
  r.setProperty('--acc',c.cor);r.setProperty('--bg',c.fundo);r.setProperty('--card',c.card);r.setProperty('--r',c.raio+'px');
  r.setProperty('--txt',claro?'#16181f':'#e9ecf5');
  r.setProperty('--txt2',claro?'#6b7280':'#8b93ad');
@@ -1609,7 +1603,7 @@ function vwForm(c){
   else{const t={email:'email',tel:'tel',numero:'number',data:'date'}[f.tipo]||'text';inp='<input id="'+f.id+'" type="'+t+'">'}
   return'<div class="campo"><label>'+esc(f.label)+(f.obr?' *':'')+'</label>'+inp+'</div>'}).join('')+
  '<button class="acao" onclick="enviarForm(\''+c.id+'\')">Enviar respostas</button>'+
- (feito(c.id)?'<button class="acao sec" onclick="baixarRespostas(\''+c.id+'\')">Baixar minhas respostas (CSV)</button>':'')+
+
  '</div>'+(c.html?'<div class="rico">'+c.html+'</div>':'')}
 function enviarForm(cid){
  const o=achar(cid),c=o.c,cs=campos(c),resp={};
@@ -1633,13 +1627,7 @@ function enviarForm(cid){
  }catch(e){}
  concluir(cid,G.xpForm||G.xpConteudo||10,'Formulário enviado.');
  aviso(esc(c.msgOk||'Recebido! Obrigado por responder.'));desenhar()}
-function baixarRespostas(cid){
- const l=S.obj('resp_'+cid,[]);if(!l.length)return aviso('Nenhuma resposta guardada');
- const ch=Object.keys(l[0].respostas);
- const csv=['data;usuario;email;'+ch.join(';')].concat(
-  l.map(r=>[r.data,r.usuario,r.email].concat(ch.map(k=>String(r.respostas[k]||'').replace(/;/g,','))).join(';'))).join('\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
- a.download='respostas.csv';a.click()}
+
 
 /* ============ painel e conquistas ============ */
 function telaPainel(){
@@ -1686,7 +1674,7 @@ function telaPerfil(){
  '<div class="c"><h3>Foto de perfil</h3><p>Use uma foto quadrada. Fica guardada só neste aparelho.</p>'+
   '<button class="acao sec" onclick="trocarFoto()">Escolher foto</button></div>'+
  '<button class="acao sec" id="b-instalar" onclick="instalar()" style="display:none">Instalar na tela inicial</button>'+
- '<button class="acao sec" onclick="sair()">Sair da conta</button>'+
+ (CFG.auth.modo==='hub'?'':'<button class="acao sec" onclick="sair()">Sair da conta</button>')+
  '<p style="text-align:center;color:var(--txt2);font-size:11.5px;margin-top:18px">'+esc(CFG.app.nome)+' · versão '+esc(CFG.app.versao)+'</p>'}
 function salvarPerfil(){const n=document.getElementById('pf-nome').value.trim();
  if(n.length<2)return aviso('Escreva um nome com 2 letras ou mais');
@@ -1714,7 +1702,11 @@ function desenhar(){
  if(R.pid==='perfil')conteudo=telaPerfil();
  else if(R.tela==='conteudo')conteudo=telaConteudo();
  else if(R.tela==='modulo')conteudo=telaModulo();
- else conteudo=telaPagina(pag(R.pid));
+ else{
+  const pp=pag(R.pid);
+  const primeira=(CFG.nav[0]||{}).alvo===R.pid;
+  conteudo=(primeira&&CFG.app.capa?'<img class="capa-topo" src="'+esc(CFG.app.capa)+'" alt="">':'')+telaPagina(pp);
+ }
  const voltavel=R.tela!=='pagina';
  const barra=gameOn()&&G.barra!==false&&R.pid!=='perfil';
  const nv=nivelInfo();
@@ -1761,7 +1753,8 @@ function instalar(){if(!promptPWA)return aviso('Use o menu do navegador e toque 
 
 /* ============ início ============ */
 aplicarTema();
-if(CFG.preview==='app'||!CFG.auth.ativo){
+const SEM_LOGIN=(!CFG.auth.ativo)||CFG.auth.modo==='hub';
+if(CFG.preview==='app'||SEM_LOGIN){
  U=usuarios()[0]||{nome:'Visitante',email:'visitante@app',plano:'todos',criadoEm:'2020-01-01',senha:''};abrirApp()}
 else{const s=S.obj('sessao',null);
  const u=s&&usuarios().find(x=>x.email.toLowerCase()===String(s.email).toLowerCase());
@@ -3061,8 +3054,9 @@ function init() {
   montarIndice();
   aplicarIdentidade();
   montarPaginas();
-  if (CFG.preview === 'app' && E.login && E.login.ativo) { S.user = (USERS[0] || {}).email || 'leitor'; showApp(); }
-  else if (!E.login || !E.login.ativo) { document.getElementById('login-screen').classList.add('hidden'); showApp(); }
+  const SEM_LOGIN = (!E.login || !E.login.ativo || E.login.modo === 'hub');
+  if (CFG.preview === 'app' && !SEM_LOGIN) { S.user = (USERS[0] || {}).email || 'leitor'; showApp(); }
+  else if (SEM_LOGIN) { document.getElementById('login-screen').classList.add('hidden'); showApp(); }
   else checkLogin();
   applyTheme();
   applyFont();
@@ -3792,7 +3786,7 @@ function aplicarIdentidade() {
   põe('inst-app-icon', E.appIcone || '📖');
   const em = document.getElementById('sb-email'); if (em) em.textContent = S.user || (E.autor || '');
   if (!E.audio || !E.audio.ativo) { const b = document.getElementById('tb-audio'); if (b) b.style.display = 'none' }
-  if (!E.login || !E.login.ativo) { const b = document.getElementById('tb-logout'); if (b) b.style.display = 'none' }
+  if (!E.login || !E.login.ativo || E.login.modo === 'hub') { const b = document.getElementById('tb-logout'); if (b) b.style.display = 'none' }
   if (E.audio && E.audio.vel) AU.speed = E.audio.vel;
 }
 
@@ -3853,6 +3847,367 @@ function pararMP3() {
    START
    ================================================ */
 init();
+[[/script]]
+</body>
+</html>
+</script>
+
+<script type="text/plain" id="tplHub">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Área de Membros</title>
+<style>
+:root{--acc:#00d4aa;--bg:#0b0d14;--card:#161a26;--txt:#f2f4f8;--txt2:#98a0b4;--line:#252b3b;--r:10px;--nav:60px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--txt);font:15px/1.5 "Inter","Segoe UI",system-ui,-apple-system,sans-serif}
+button,input{font:inherit;color:inherit}
+img{max-width:100%}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* entrada */
+#login{min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:30px 22px;
+ background:radial-gradient(600px 320px at 50% 0%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%)}
+.marca{text-align:center;margin-bottom:24px}
+.marca img,.marca .ini{width:76px;height:76px;border-radius:22px;object-fit:cover;margin:0 auto 14px;display:grid;place-items:center;
+ background:var(--acc);color:#04120e;font-size:29px;font-weight:900}
+.marca h1{margin:0;font-size:23px;letter-spacing:-.02em}
+.marca p{margin:6px 0 0;color:var(--txt2);font-size:13.5px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;max-width:420px;margin:0 auto;width:100%}
+.campo{margin-bottom:12px}
+.campo label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt2);margin-bottom:6px;font-weight:700}
+.campo input{width:100%;background:#0e1119;border:1px solid var(--line);border-radius:11px;padding:13px 14px}
+.campo input:focus{border-color:var(--acc);outline:none}
+.acao{width:100%;background:var(--acc);color:#04120e;border:0;border-radius:11px;padding:14px;font-weight:800;cursor:pointer;margin-top:6px}
+.acao.sec{background:transparent;color:var(--txt2);border:1px solid var(--line);font-weight:600;margin-top:9px}
+.acao.ouro{background:linear-gradient(135deg,#ffb020,#ff7a45);color:#241300;font-size:16px}
+.erro{background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.35);color:#ff8b95;padding:11px 13px;border-radius:10px;font-size:13px;margin-bottom:12px}
+
+/* topo */
+header{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:11px;padding:12px 16px;
+ padding-top:calc(12px + env(safe-area-inset-top));
+ background:linear-gradient(180deg,rgba(11,13,20,.96),rgba(11,13,20,.72) 70%,transparent);backdrop-filter:blur(8px)}
+header .lg{width:30px;height:30px;border-radius:9px;object-fit:cover;background:var(--acc);color:#04120e;display:grid;place-items:center;font-weight:900;font-size:13px;flex:none}
+header b{flex:1;font-size:15px;letter-spacing:-.01em}
+header .me{width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--line);cursor:pointer;
+ display:grid;place-items:center;font-weight:800;color:var(--acc);font-size:12.5px;flex:none}
+main{padding-bottom:calc(var(--nav) + 30px);animation:entra .25s ease}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* destaque */
+.hero{position:relative;margin:-58px 0 6px;min-height:62vh;display:flex;align-items:flex-end;padding:20px 16px 18px}
+.hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,13,20,.55) 0%,rgba(11,13,20,.1) 35%,var(--bg) 96%)}
+.hero .txt{position:relative;z-index:2;width:100%}
+.hero h2{margin:0 0 6px;font-size:26px;line-height:1.15;letter-spacing:-.03em}
+.hero p{margin:0 0 14px;color:var(--txt2);font-size:13.5px;max-width:520px}
+.hero .bts{display:flex;gap:10px;flex-wrap:wrap}
+.hero .bt{border:0;border-radius:9px;padding:12px 20px;font-weight:800;cursor:pointer;font-size:14px}
+.hero .bt.p{background:#fff;color:#111}
+.hero .bt.s{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(4px)}
+
+/* trilhos */
+.trilho{margin:20px 0 6px}
+.trilho h3{margin:0 0 10px;padding:0 16px;font-size:15.5px;letter-spacing:-.01em}
+.faixa{display:flex;gap:11px;overflow-x:auto;padding:2px 16px 14px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.faixa::-webkit-scrollbar{height:0}
+.card{flex:none;width:128px;scroll-snap-align:start;cursor:pointer;background:none;border:0;padding:0;text-align:left;color:inherit;
+ transition:transform .16s}
+.card:active{transform:scale(.96)}
+.card .poster{position:relative;width:128px;height:192px;border-radius:var(--r);overflow:hidden;background:var(--card);border:1px solid var(--line)}
+.card .poster img{width:100%;height:100%;object-fit:cover}
+.card .poster .semimg{width:100%;height:100%;display:grid;place-items:center;font-size:34px;
+ background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 26%,var(--card)),var(--card))}
+.card .selo{position:absolute;top:7px;left:7px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:800;
+ background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+.card .selo.meu{background:var(--acc);color:#04120e}
+.card .selo.pago{background:#ffb020;color:#241300}
+.card .cad{position:absolute;right:7px;bottom:7px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.62);
+ display:grid;place-items:center}
+.card .cad svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.4}
+.card b{display:block;font-size:12.5px;margin-top:8px;line-height:1.3}
+.card span{display:block;font-size:11px;color:var(--txt2);margin-top:2px}
+.vazio{padding:26px 18px;color:var(--txt2);font-size:13.5px;text-align:center;border:1px dashed var(--line);border-radius:12px;margin:0 16px}
+
+/* produto */
+.pcapa{position:relative;height:44vh;min-height:230px}
+.pcapa>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pcapa:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,13,20,.35),var(--bg))}
+.pvoltar{position:absolute;top:calc(14px + env(safe-area-inset-top));left:14px;z-index:5;width:36px;height:36px;border-radius:50%;
+ background:rgba(0,0,0,.55);border:0;color:#fff;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(4px);font-size:18px}
+.pcorpo{padding:0 16px 20px;margin-top:-40px;position:relative;z-index:3}
+.pcorpo h2{margin:0 0 4px;font-size:24px;letter-spacing:-.03em}
+.pmeta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--card);color:var(--txt2);border:1px solid var(--line)}
+.chip.on{background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc);border-color:transparent}
+.chip.o{background:rgba(255,176,32,.16);color:#ffb020;border-color:transparent}
+.rico{font-size:14.5px;line-height:1.7;color:var(--txt2)}
+.rico p{margin:0 0 12px}
+.rico strong{color:var(--txt)}
+.benef{list-style:none;padding:0;margin:14px 0}
+.benef li{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;font-size:14px}
+.benef li:before{content:"✓";color:var(--acc);font-weight:900;flex:none}
+.preco{display:flex;align-items:baseline;gap:9px;margin:16px 0 4px}
+.preco b{font-size:27px;letter-spacing:-.02em}
+.preco s{color:var(--txt2);font-size:14px}
+.preco span{color:var(--txt2);font-size:12.5px}
+.cx{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:16px}
+.cx h4{margin:0 0 8px;font-size:14px}
+.cx p{margin:0 0 10px;color:var(--txt2);font-size:12.5px}
+.cx .lin{display:flex;gap:8px}
+.cx .lin input{flex:1;background:#0e1119;border:1px solid var(--line);border-radius:10px;padding:11px 12px;text-transform:uppercase}
+.cx .lin button{background:var(--acc);color:#04120e;border:0;border-radius:10px;padding:0 16px;font-weight:800;cursor:pointer}
+
+/* visor do produto */
+#visor{position:fixed;inset:0;z-index:80;background:#000;display:none;flex-direction:column}
+#visor.on{display:flex}
+#visor .barra{display:flex;align-items:center;gap:10px;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));
+ background:var(--card);border-bottom:1px solid var(--line)}
+#visor .barra b{flex:1;font-size:14px}
+#visor .barra button{background:none;border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:7px 12px;
+ cursor:pointer;font-size:12.5px;font-weight:700}
+#visor iframe{flex:1;width:100%;border:0;background:#fff}
+
+/* perfil e menu */
+.perfil{padding:20px 16px}
+.perfil .foto{width:78px;height:78px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;
+ background:var(--card);border:1px solid var(--line);color:var(--acc);font-size:28px;font-weight:900}
+.perfil h2{text-align:center;margin:0;font-size:19px}
+.perfil .em{text-align:center;color:var(--txt2);font-size:13px;margin-bottom:18px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;background:color-mix(in srgb,var(--card) 97%,transparent);
+ backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;padding:9px 4px;cursor:pointer;color:var(--txt2);display:flex;flex-direction:column;
+ align-items:center;gap:4px;min-height:var(--nav);font-size:10.5px;font-weight:600}
+nav button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--acc)}
+#aviso{position:fixed;left:16px;right:16px;bottom:calc(var(--nav) + 16px);background:var(--card);border:1px solid var(--line);
+ border-left:3px solid var(--acc);border-radius:12px;padding:12px 15px;z-index:90;font-size:13.5px;font-weight:600;
+ opacity:0;transform:translateY(14px);transition:.25s;pointer-events:none}
+#aviso.on{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="visor"><div class="barra"><button onclick="fecharVisor()">← Voltar</button><b id="visor-tit"></b></div><iframe id="visor-fr" title="Produto"></iframe></div>
+<div id="aviso"></div>
+<script>
+const CFG = /*__CFG__*/{};
+const H = CFG.hub || {};
+const PRODS = H.produtos || [];
+const CHAVE = 'hub_' + ((CFG.app && CFG.app.id) || 'x');
+
+const S=(()=>{let mem={},ok=false;try{localStorage.setItem('_t','1');localStorage.removeItem('_t');ok=true}catch(e){}
+ return{get:k=>{try{return ok?localStorage.getItem(CHAVE+'_'+k):(mem[k]||null)}catch(e){return mem[k]||null}},
+  set:(k,v)=>{try{ok?localStorage.setItem(CHAVE+'_'+k,v):mem[k]=v}catch(e){mem[k]=v}},
+  del:k=>{try{ok?localStorage.removeItem(CHAVE+'_'+k):delete mem[k]}catch(e){delete mem[k]}},
+  obj:(k,f)=>{try{return JSON.parse(S.get(k))||f}catch(e){return f}},
+  put:(k,v)=>S.set(k,JSON.stringify(v))}})();
+function h(s){let x=5381;for(let i=0;i<s.length;i++)x=((x<<5)+x+s.charCodeAt(i))>>>0;return('0000000'+x.toString(16)).slice(-8)}
+const senhaHash=s=>h('hly:'+s)+h(s+':hly2#'+s.length);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ini=n=>(n||'?').trim().charAt(0).toUpperCase();
+const ICO={casa:'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+ grade:'M4 4h7v7H4z|M13 4h7v7h-7z|M4 13h7v7H4z|M13 13h7v7h-7z',
+ tag:'M3 12l9-9 9 9-9 9z|M9 9h.01',
+ pessoa:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z|M4 21c0-4 4-6 8-6s8 2 8 6',
+ cad:'M6 11h12v9H6z|M9 11V8a3 3 0 0 1 6 0v3'};
+const svg=n=>'<svg viewBox="0 0 24 24">'+(ICO[n]||ICO.grade).split('|').map(d=>'<path d="'+d+'"/>').join('')+'</svg>';
+let tAv;function aviso(m){const a=document.getElementById('aviso');a.innerHTML=m;a.classList.add('on');
+ clearTimeout(tAv);tAv=setTimeout(()=>a.classList.remove('on'),2800)}
+
+/* ---------- acesso ---------- */
+let U=null;
+const usuarios=()=>(H.usuarios||[]).concat(S.obj('novos',[]));
+const meusLocais=()=>S.obj('liberados',[]);
+function liberado(p){
+ if(!p)return false;
+ if(p.acesso==='todos')return true;
+ if(U&&(U.produtos||[]).indexOf(p.id)>=0)return true;
+ return meusLocais().indexOf(p.id)>=0;
+}
+function aplicarTema(){
+ const c=CFG.app||{},r=document.documentElement.style;
+ if(H.cor||c.cor)r.setProperty('--acc',H.cor||c.cor);
+ if(H.fundo)r.setProperty('--bg',H.fundo);
+ if(H.card)r.setProperty('--card',H.card);
+ document.title=H.nome||'Área de Membros';
+ let m=document.querySelector('meta[name=theme-color]');
+ if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m)}
+ m.content=H.fundo||'#0b0d14';
+ if(H.logo){const l=document.createElement('link');l.rel='icon';l.href=H.logo;document.head.appendChild(l)}
+ if(H.fundoImagem){
+  document.body.style.backgroundImage='linear-gradient(rgba(0,0,0,'+((H.fundoEscurecer||60)/100)+'),rgba(0,0,0,'+((H.fundoEscurecer||60)/100)+')),url("'+H.fundoImagem+'")';
+  document.body.style.backgroundSize='cover';document.body.style.backgroundPosition='center';
+  document.body.style.backgroundAttachment='fixed';
+ }
+}
+function telaLogin(erro){
+ document.getElementById('app').innerHTML=
+ '<div id="login"><div class="marca">'+
+  (H.logo?'<img src="'+H.logo+'" alt="">':'<div class="ini">'+ini(H.nome)+'</div>')+
+  '<h1>'+esc(H.nome||'Área de Membros')+'</h1>'+(H.slogan?'<p>'+esc(H.slogan)+'</p>':'')+'</div>'+
+ '<div class="box">'+(erro?'<div class="erro">'+esc(erro)+'</div>':'')+
+  '<div class="campo"><label>E-mail</label><input id="i-em" type="email" inputmode="email" autocomplete="email"></div>'+
+  '<div class="campo"><label>Senha</label><input id="i-sn" type="password" autocomplete="current-password"></div>'+
+  '<button class="acao" onclick="entrar()">Entrar</button>'+
+  (H.suporte?'<button class="acao sec" onclick="window.open(\''+esc(H.suporte)+'\',\'_blank\',\'noopener\')">Preciso de ajuda</button>':'')+
+ '</div></div>';
+ const s=document.getElementById('i-sn');if(s)s.onkeydown=e=>{if(e.key==='Enter')entrar()}}
+function entrar(){
+ const em=document.getElementById('i-em').value.trim().toLowerCase();
+ const sn=document.getElementById('i-sn').value;
+ const u=usuarios().find(x=>String(x.email).toLowerCase()===em);
+ if(!u||u.senha!==senhaHash(sn))return telaLogin('E-mail ou senha não conferem.');
+ if(u.ativo===false)return telaLogin('Este acesso está suspenso.');
+ U=u;S.put('sessao',{email:u.email});desenhar()}
+function sair(){S.del('sessao');U=null;telaLogin()}
+
+/* ---------- rota ---------- */
+let R={tela:'inicio',pid:null};
+function ir(t){R={tela:t,pid:null};desenhar();scrollTo(0,0)}
+function verProduto(id){R={tela:'produto',pid:id};desenhar();scrollTo(0,0)}
+
+/* ---------- catálogo ---------- */
+function cardHTML(p){
+ const meu=liberado(p);
+ return'<button class="card" onclick="verProduto(\''+p.id+'\')">'+
+  '<span class="poster">'+
+   (p.capa?'<img src="'+esc(p.capa)+'" alt="" loading="lazy">':'<span class="semimg">'+(p.emoji||'📦')+'</span>')+
+   '<span class="selo '+(meu?'meu':'pago')+'">'+(meu?'MEU':(p.selo||'À VENDA'))+'</span>'+
+   (meu?'':'<span class="cad">'+svg('cad')+'</span>')+
+  '</span><b>'+esc(p.titulo)+'</b><span>'+esc(p.subtitulo||'')+'</span></button>'}
+function trilho(titulo,lista){
+ if(!lista.length)return'';
+ return'<div class="trilho"><h3>'+esc(titulo)+'</h3><div class="faixa">'+lista.map(cardHTML).join('')+'</div></div>'}
+function telaInicio(){
+ const meus=PRODS.filter(liberado),loja=PRODS.filter(p=>!liberado(p));
+ const d=PRODS.find(p=>p.id===H.destaque)||meus[0]||PRODS[0];
+ let html='';
+ if(d){
+  const meu=liberado(d);
+  html+='<div class="hero">'+(d.banner||d.capa?'<img src="'+esc(d.banner||d.capa)+'" alt="">':'')+
+   '<div class="txt"><h2>'+esc(d.titulo)+'</h2>'+
+   '<p>'+esc(d.subtitulo||'')+'</p><div class="bts">'+
+   '<button class="bt p" onclick="'+(meu?'abrirProduto(\''+d.id+'\')':'verProduto(\''+d.id+'\')')+'">'+(meu?'▶  Abrir':'Quero conhecer')+'</button>'+
+   '<button class="bt s" onclick="verProduto(\''+d.id+'\')">Detalhes</button>'+
+   '</div></div></div>';
+ }
+ html+=trilho(H.tituloMeus||'Continuar de onde parou',meus);
+ const cats={};
+ loja.forEach(p=>{const c=p.categoria||H.tituloLoja||'Disponíveis para você';(cats[c]=cats[c]||[]).push(p)});
+ Object.keys(cats).forEach(c=>{html+=trilho(c,cats[c])});
+ if(!PRODS.length)html+='<div class="vazio">Nenhum produto no catálogo ainda.</div>';
+ return html}
+function telaMeus(){
+ const meus=PRODS.filter(liberado);
+ if(!meus.length)return'<div style="padding:20px 16px"><h2 style="margin:0 0 6px;font-size:22px">Meus produtos</h2>'+
+  '<div class="vazio" style="margin:16px 0 0">Você ainda não tem nenhum produto liberado. Veja o catálogo e desbloqueie com o seu código de compra.</div></div>';
+ return'<div style="padding:16px 0 0"><h2 style="margin:0 16px 4px;font-size:22px">Meus produtos</h2>'+
+  trilho('',meus)+'</div>'}
+function telaLoja(){
+ const loja=PRODS.filter(p=>!liberado(p));
+ const cats={};loja.forEach(p=>{const c=p.categoria||'Todos';(cats[c]=cats[c]||[]).push(p)});
+ return'<div style="padding:16px 0 0"><h2 style="margin:0 16px 10px;font-size:22px">'+esc(H.tituloLoja||'Descubra')+'</h2>'+
+  (loja.length?Object.keys(cats).map(c=>trilho(c,cats[c])).join(''):'<div class="vazio">Você já tem tudo. Obrigado!</div>')+'</div>'}
+function telaProduto(){
+ const p=PRODS.find(x=>x.id===R.pid);
+ if(!p)return'<div class="vazio" style="margin-top:40px">Produto não encontrado.</div>';
+ const meu=liberado(p);
+ const tipo={app:'Aplicativo',ebook:'Ebook web',link:'Conteúdo'}[p.tipo]||'Produto';
+ return'<div class="pcapa"><button class="pvoltar" onclick="ir(\'inicio\')">←</button>'+
+  (p.banner||p.capa?'<img src="'+esc(p.banner||p.capa)+'" alt="">':'')+'</div>'+
+ '<div class="pcorpo"><h2>'+esc(p.titulo)+'</h2>'+
+  '<div class="pmeta"><span class="chip '+(meu?'on':'')+'">'+(meu?'Liberado':'Bloqueado')+'</span>'+
+   '<span class="chip">'+tipo+'</span>'+(p.duracao?'<span class="chip">'+esc(p.duracao)+'</span>':'')+
+   (p.categoria?'<span class="chip">'+esc(p.categoria)+'</span>':'')+'</div>'+
+  (p.subtitulo?'<p class="rico"><strong>'+esc(p.subtitulo)+'</strong></p>':'')+
+  '<div class="rico">'+(p.descricao||'')+'</div>'+
+  (p.beneficios?'<ul class="benef">'+String(p.beneficios).split('\n').map(l=>l.trim()).filter(Boolean)
+    .map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul>':'')+
+  (meu
+   ?'<button class="acao" onclick="abrirProduto(\''+p.id+'\')">Abrir agora</button>'
+   :(p.preco?'<div class="preco"><b>'+esc(p.preco)+'</b>'+(p.precoDe?'<s>'+esc(p.precoDe)+'</s>':'')+
+      (p.parcela?'<span>'+esc(p.parcela)+'</span>':'')+'</div>':'')+
+    '<button class="acao ouro" onclick="comprar(\''+p.id+'\')">'+esc(p.botao||'Quero comprar')+'</button>'+
+    (p.quiz?'<button class="acao sec" onclick="abrirQuiz(\''+p.id+'\')">'+esc(p.botaoQuiz||'Ver se serve para mim')+'</button>':'')+
+    '<div class="cx"><h4>Já comprou?</h4><p>Digite o código que você recebeu para liberar o acesso neste aparelho.</p>'+
+    '<div class="lin"><input id="cod-'+p.id+'" placeholder="SEU-CODIGO" autocomplete="off">'+
+    '<button onclick="desbloquear(\''+p.id+'\')">Liberar</button></div></div>')+
+ '</div>'}
+function telaPerfil(){
+ const meus=PRODS.filter(liberado);
+ return'<div class="perfil"><div class="foto">'+ini(U?U.nome:'?')+'</div>'+
+  '<h2>'+esc(U?U.nome:'Visitante')+'</h2><div class="em">'+esc(U?U.email:'')+'</div>'+
+  '<div class="cx"><h4>Seus acessos</h4>'+
+   (meus.length?meus.map(p=>'<p style="color:var(--txt);margin:0 0 6px">• '+esc(p.titulo)+'</p>').join('')
+    :'<p>Nenhum produto liberado ainda.</p>')+'</div>'+
+  '<div class="cx"><h4>Liberar com código</h4><p>Recebeu um código depois da compra? Cole aqui.</p>'+
+   '<div class="lin"><input id="cod-geral" placeholder="SEU-CODIGO" autocomplete="off">'+
+   '<button onclick="desbloquear()">Liberar</button></div></div>'+
+  (H.suporte?'<button class="acao sec" onclick="window.open(\''+esc(H.suporte)+'\',\'_blank\',\'noopener\')">Falar com o suporte</button>':'')+
+  '<button class="acao sec" onclick="sair()">Sair da conta</button></div>'}
+
+/* ---------- ações ---------- */
+function comprar(id){
+ const p=PRODS.find(x=>x.id===id);if(!p)return;
+ if(!p.checkout)return aviso('Falta preencher o link do checkout deste produto no editor');
+ window.open(p.checkout,'_blank','noopener')}
+function abrirQuiz(id){
+ const p=PRODS.find(x=>x.id===id);if(!p||!p.quiz)return;
+ abrirVisor(p.quiz,p.titulo)}
+function abrirProduto(id){
+ const p=PRODS.find(x=>x.id===id);if(!p)return;
+ if(!liberado(p))return verProduto(id);
+ if(!p.arquivo)return aviso('Este produto ainda não tem arquivo ligado');
+ abrirVisor(p.arquivo,p.titulo)}
+function abrirVisor(url,titulo){
+ document.getElementById('visor-tit').textContent=titulo||'';
+ document.getElementById('visor-fr').src=url;
+ document.getElementById('visor').classList.add('on')}
+function fecharVisor(){
+ document.getElementById('visor').classList.remove('on');
+ document.getElementById('visor-fr').src='about:blank'}
+function desbloquear(id){
+ const campo=document.getElementById(id?('cod-'+id):'cod-geral');
+ const cod=(campo&&campo.value||'').trim().toUpperCase();
+ if(!cod)return aviso('Digite o código');
+ const alvos=id?PRODS.filter(p=>p.id===id):PRODS;
+ const achou=alvos.find(p=>String(p.codigos||'').split(/[\s,;\n]+/).map(x=>x.trim().toUpperCase()).filter(Boolean).indexOf(cod)>=0);
+ if(!achou)return aviso('Código não confere para este produto');
+ const l=meusLocais();if(l.indexOf(achou.id)<0){l.push(achou.id);S.put('liberados',l)}
+ aviso('<b>Acesso liberado:</b> '+esc(achou.titulo));
+ R={tela:'produto',pid:achou.id};desenhar()}
+
+/* ---------- casca ---------- */
+function desenhar(){
+ let corpo;
+ if(R.tela==='produto')corpo=telaProduto();
+ else if(R.tela==='meus')corpo=telaMeus();
+ else if(R.tela==='loja')corpo=telaLoja();
+ else if(R.tela==='perfil')corpo=telaPerfil();
+ else corpo=telaInicio();
+ const abas=[['inicio','Início','casa'],['meus','Meus','grade'],['loja',esc(H.abaLoja||'Descubra'),'tag'],['perfil','Perfil','pessoa']];
+ document.getElementById('app').innerHTML=
+  (R.tela==='produto'?'':'<header>'+
+   (H.logo?'<img class="lg" src="'+H.logo+'" alt="">':'<div class="lg">'+ini(H.nome)+'</div>')+
+   '<b>'+esc(H.nome||'Área de Membros')+'</b>'+
+   '<button class="me" onclick="ir(\'perfil\')">'+ini(U?U.nome:'?')+'</button></header>')+
+  '<main>'+corpo+'</main>'+
+  '<nav>'+abas.map(a=>'<button class="'+(R.tela===a[0]?'on':'')+'" onclick="ir(\''+a[0]+'\')">'+
+   svg(a[2])+'<span>'+a[1]+'</span></button>').join('')+'</nav>'}
+
+/* ---------- início ---------- */
+aplicarTema();
+if(CFG.preview==='app'||H.login===false){U=usuarios()[0]||{nome:'Visitante',email:'',produtos:[]};desenhar()}
+else{const s=S.obj('sessao',null);
+ const u=s&&usuarios().find(x=>String(x.email).toLowerCase()===String(s.email).toLowerCase());
+ if(u){U=u;desenhar()}else telaLogin()}
 [[/script]]
 </body>
 </html>
@@ -3946,16 +4301,17 @@ function seed(){
  const c1=uid('c'),c2=uid('c'),c3=uid('c');
  return{
  modoApp:'membros',
+ hub:seedHub(),
  ebook:seedEbook(),
  app:{id:uid('app'),nome:'Meu App',slogan:'Conteúdo na palma da mão',logo:null,
-  cor:'#00d4aa',fundo:'#0e0f1a',card:'#1b1e34',tema:'escuro',raio:'18',versao:'3.0'},
- auth:{ativo:true,titulo:'Bem-vindo de volta',subtitulo:'Entre para continuar de onde parou',
+  cor:'#00d4aa',fundo:'#0e0f1a',card:'#1b1e34',tema:'escuro',raio:'18',versao:'3.0',capa:'',fundoImagem:'',fundoEscurecer:55},
+ auth:{ativo:true,modo:'proprio',titulo:'Bem-vindo de volta',subtitulo:'Entre para continuar de onde parou',
   cadastro:false,lembrar:true,planoPadrao:'free',suporte:''},
  fx:{transicao:'fade',listas:'cascata',toque:'escala',conclusao:'confete',som:false,vibrar:false},
  game:{ativo:false,xpConteudo:10,xpModulo:50,xpQuiz:5,xpForm:15,streak:true,conquistas:true,barra:true,
   frase:'Um passo por dia constrói o resultado.',
   niveis:'Iniciante\nAprendiz\nPraticante\nConsistente\nAvançado\nVeterano\nEspecialista\nMestre\nLenda\nHalley'},
- quizStandalone:novoQuizStandalone(),
+ quizStandalone:Object.assign(novoQuizStandalone(),{nome:'Meu Quiz',logo:null,cor:'#00d4aa',fundo:'#0e0f1a',card:'#1b1e34',tema:'escuro',raio:'18'}),
  usuarios:[],
  paginas:[
   {id:p1,titulo:'Início',subtitulo:'Seu progresso',icone:'home',tipo:'painel',layout:'lista',tamNome:'m',tamDesc:'m',plano:'todos',drip:0,conteudo:'',modulos:[]},
@@ -3979,28 +4335,32 @@ function seed(){
 let cfg=seed(),abertos={};
 
 /* ============ abas ============ */
-const ABAS_MEMBROS=[['identidade','Identidade'],['acesso','Acesso'],['usuarios','Usuários'],['paginas','Páginas'],['modulos','Módulos'],['conteudos','Conteúdos'],['menu','Menu'],['efeitos','Efeitos'],['game','Gamificação'],['publicar','Publicar']];
-const ABAS_QUIZ=[['identidade','Identidade'],['quizmodo','Quiz'],['efeitos','Efeitos'],['publicar','Publicar']];
-const TODOS_PAINEIS=['identidade','acesso','usuarios','paginas','modulos','conteudos','menu','efeitos','game','quizmodo','ebook','ebookaudio','publicar'];
+const ABAS_MEMBROS=[['projetos','Projetos'],['identidade','Identidade'],['acesso','Acesso'],['usuarios','Usuários'],['paginas','Páginas'],['modulos','Módulos'],['conteudos','Conteúdos'],['formularios','Formulários'],['menu','Menu'],['efeitos','Efeitos'],['game','Gamificação'],['publicar','Publicar']];
+const ABAS_QUIZ=[['projetos','Projetos'],['identidade','Identidade'],['quizmodo','Quiz'],['efeitos','Efeitos'],['publicar','Publicar']];
+const TODOS_PAINEIS=['identidade','acesso','usuarios','paginas','modulos','conteudos','menu','efeitos','game','quizmodo','ebook','ebookaudio','hub','hubacesso','projetos','formularios','publicar'];
 let aba='paginas',previewModo='app';
-function abasAtuais(){return cfg.modoApp==='quiz'?ABAS_QUIZ:(cfg.modoApp==='ebook'?ABAS_EBOOK:ABAS_MEMBROS)}
+function abasAtuais(){return cfg.modoApp==='quiz'?ABAS_QUIZ:cfg.modoApp==='ebook'?ABAS_EBOOK:cfg.modoApp==='hub'?ABAS_HUB:ABAS_MEMBROS}
 const AVISO_MODO={
  quiz:'No modo Quiz de Captação o arquivo vira um funil de perguntas que termina no checkout. O resto do projeto fica guardado, mas escondido. Trocar agora?',
  ebook:'No modo Ebook Web o arquivo vira um livro digital com capa, capítulos, narração em áudio e conquistas. O resto do projeto fica guardado, mas escondido. Trocar agora?',
- membros:'Voltar para o App de Membros? O quiz e o ebook continuam guardados no projeto.'};
+ hub:'No modo Área de Membros o arquivo vira a porta de entrada: a vitrine com os apps e ebooks que o aluno comprou e os que estão à venda. O resto do projeto fica guardado, mas escondido. Trocar agora?',
+ membros:'Voltar para o modo App? Os outros modos continuam guardados no projeto.'};
 function setModo(m){
  if(cfg.modoApp===m)return;
  if(!confirm(AVISO_MODO[m]))return;
  cfg.modoApp=m;
- aba=(m==='quiz')?'quizmodo':(m==='ebook'?'ebook':'paginas');
+ aba=(m==='quiz')?'quizmodo':m==='ebook'?'ebook':m==='hub'?'hub':'paginas';
  previewModo='app';render()}
 function irAba(a){aba=a;render()}
 function renderTabs(){
+ document.getElementById('modo-hub').classList.toggle('on',cfg.modoApp==='hub');
  document.getElementById('modo-membros').classList.toggle('on',cfg.modoApp==='membros');
  document.getElementById('modo-quiz').classList.toggle('on',cfg.modoApp==='quiz');
  document.getElementById('modo-ebook').classList.toggle('on',cfg.modoApp==='ebook');
  const fm=document.getElementById('faixaModo');
- fm.innerHTML=cfg.modoApp==='ebook'
+ fm.innerHTML=cfg.modoApp==='hub'
+  ?'<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--acc)" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg><span><b>Modo Área de Membros</b> — a vitrine que guarda os apps e ebooks do aluno. O que ele comprou abre dentro dela; o que não comprou vira página de venda com checkout.</span>'
+  :cfg.modoApp==='ebook'
   ?'<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--acc)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M9 3v18"/></svg><span><b>Modo Ebook Web</b> — o arquivo gerado é o livro digital: capa, carta, sumário, capítulos, menu lateral, zoom, modo escuro, conquistas e narração em áudio parágrafo a parágrafo.</span>'
   :cfg.modoApp==='quiz'
   ?'<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--acc2)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span><b>Modo Quiz de Captação</b> — o arquivo gerado é só o quiz: pergunta, pergunta, dados do lead e um botão que leva para o checkout ou página de vendas. Não tem login nem menu de membros.</span>'
@@ -4521,7 +4881,7 @@ function renderConteudos(){
 /* ============================================
    MODO EBOOK WEB
    ============================================ */
-const ABAS_EBOOK=[['identidade','Identidade'],['ebook','Ebook'],['ebookaudio','Áudio & Acesso'],['publicar','Publicar']];
+const ABAS_EBOOK=[['projetos','Projetos'],['ebook','Ebook'],['ebookaudio','Áudio & Acesso'],['publicar','Publicar']];
 
 function novoCapitulo(n){return{id:uid('cap'),tag:'Capítulo '+n,titulo:'Título do capítulo '+n,subtitulo:'',
  desc:'Resumo curto para o sumário',menu:'',imagem:'',
@@ -4532,7 +4892,7 @@ function seedEbook(){return{
  titulo:'Respira',subtitulo:'Um Guia Gentil para Cuidar<br>da Sua Saúde Mental',autor:'Por Ana Clara',
  emoji:'🌸',appNome:'Respira ✨',appIcone:'🧘‍♀️',saudacao:'Bem-vinda! 💜',botaoCapa:'Começar a Ler',capaImagem:'',
  cores:{primary:'#c084fc',primaryDark:'#a855f7',secondary:'#f9a8d4',accent:'#fb7185',bg:'#fff9fc',card:'#ffffff',texto:'#3d2c35',bgEscuro:'#140e18',cardEscuro:'#1e1520'},
- login:{ativo:true,titulo:'Equilíbrio Mental',subtitulo:'Seu guia de saúde mental e bem-estar',
+ login:{ativo:true,modo:'proprio',titulo:'Equilíbrio Mental',subtitulo:'Seu guia de saúde mental e bem-estar',
   aviso:'🔒 Acesso exclusivo para leitoras cadastradas',
   usuarios:[]},
  carta:{ativo:true,tag:'💌 Carta da Autora',titulo:'Para Você, que Chegou até Aqui',menu:'Carta da Autora',
@@ -4754,6 +5114,11 @@ function renderEbookAudio(){
 
  <div class="card">
   <h3>Acesso ao ebook</h3>
+  <div class="f"><label>Como este ebook vai ser aberto</label>
+   <select onchange="cfg.ebook.login.modo=this.value;render()">
+    <option value="proprio" ${E.login.modo!=='hub'?'selected':''}>Sozinho — pede e-mail e senha</option>
+    <option value="hub" ${E.login.modo==='hub'?'selected':''}>Dentro da Área de Membros — abre direto, sem login</option>
+   </select></div>
   <div class="f"><label class="sw big"><input type="checkbox" ${E.login.ativo?'checked':''} onchange="cfg.ebook.login.ativo=this.checked;render()"><span>Exigir e-mail e senha para abrir</span></label></div>
   <div class="grid2">
    <div class="f"><label>Nome na tela de entrada</label><input type="text" value="${esc(E.login.titulo)}" oninput="cfg.ebook.login.titulo=this.value;toque()"></div>
@@ -4791,11 +5156,554 @@ function copiarListaAudio(){
  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Lista copiada')).catch(()=>toast('Copie da tela mesmo'))}
 
 function gerarEbook(modo){
- const c={app:clone(cfg.app),ebook:clone(cfg.ebook),preview:modo||null};
+ const c={app:identEbook(),ebook:clone(cfg.ebook),preview:modo||null};
  const json=JSON.stringify(c).replace(/</g,'\\u003c').replace(/\u2028|\u2029/g,'');
  return document.getElementById('tplEbook').textContent
   .replace('/*__CFG__*/{}',()=>json)
   .replace(/\[\[\/script\]\]/g,()=>'<'+'/script>').trim()}
+
+/* ============================================
+   MODO ÁREA DE MEMBROS (hub estilo Netflix)
+   ============================================ */
+const ABAS_HUB=[['projetos','Projetos'],['identidade','Identidade'],['hub','Catálogo'],['hubacesso','Acesso & Vendas'],['publicar','Publicar']];
+
+function novoProduto(tipo){
+ const t=tipo||'app';
+ return{id:uid('pr'),titulo:t==='ebook'?'Novo ebook':'Novo app',subtitulo:'Uma linha que vende o produto',
+  emoji:t==='ebook'?'📖':'📱',capa:'',banner:'',categoria:'',duracao:'',
+  descricao:'<p>Explique aqui o que a pessoa recebe ao comprar.</p>',
+  beneficios:'Acesso imediato e para sempre\nFunciona no celular e no computador\nSuporte direto comigo',
+  tipo:t,arquivo:t==='ebook'?'meu-ebook.html':'meu-app.html',
+  acesso:'venda',selo:'À VENDA',preco:'R$ 47',precoDe:'',parcela:'ou 12x de R$ 4,70',
+  botao:'Quero comprar agora',checkout:'',quiz:'',botaoQuiz:'Ver se serve para mim',
+  codigos:'LIBERA-'+Math.random().toString(36).slice(2,7).toUpperCase()}}
+
+function seedHub(){
+ const a=novoProduto('app'),b=novoProduto('ebook'),c=novoProduto('app');
+ a.titulo='Método Completo';a.subtitulo='O passo a passo que já é seu';a.acesso='comprado';a.categoria='Meus cursos';
+ a.arquivo='meu-app.html';a.selo='INCLUÍDO';
+ b.titulo='Guia da Ansiedade';b.subtitulo='Leitura leve, com áudio e conquistas';b.categoria='Ebooks';
+ b.arquivo='meu-ebook.html';b.preco='R$ 27';b.checkout='https://pay.exemplo.com/ebook';b.quiz='quiz.html';
+ c.titulo='Mentoria Avançada';c.subtitulo='Para quem já aplicou o método';c.categoria='Avançado';
+ c.preco='R$ 297';c.precoDe='R$ 497';c.parcela='ou 12x de R$ 29,70';c.checkout='https://pay.exemplo.com/mentoria';
+ return{
+  nome:'Minha Área de Membros',slogan:'Tudo o que você comprou, num lugar só',logo:null,
+  cor:'#00d4aa',fundo:'#0b0d14',card:'#161a26',fundoImagem:'',fundoEscurecer:60,login:true,suporte:'',
+  destaque:a.id,tituloMeus:'Continuar de onde parou',tituloLoja:'Descubra',abaLoja:'Descubra',
+  produtos:[a,b,c],
+  usuarios:[]}}
+
+function addProduto(t){const p=novoProduto(t);cfg.hub.produtos.push(p);abertos[p.id]=true;render();toast('Produto criado')}
+function dupProduto(i){const p=clone(cfg.hub.produtos[i]);p.id=uid('pr');p.titulo+=' (cópia)';
+ cfg.hub.produtos.splice(i+1,0,p);abertos[p.id]=true;render();toast('Produto duplicado')}
+function delProduto(i){const p=cfg.hub.produtos[i];if(!confirm('Remover "'+p.titulo+'" do catálogo?'))return;
+ cfg.hub.usuarios.forEach(u=>{u.produtos=(u.produtos||[]).filter(x=>x!==p.id)});
+ if(cfg.hub.destaque===p.id)cfg.hub.destaque='';
+ cfg.hub.produtos.splice(i,1);render()}
+function movProduto(i,d){const a=cfg.hub.produtos;if(i+d<0||i+d>=a.length)return;[a[i],a[i+d]]=[a[i+d],a[i]];render()}
+function addUsuarioHub(){cfg.hub.usuarios.push({id:uid('u'),nome:'Novo aluno',email:'',senha:'123456',ativo:true,produtos:[]});render()}
+function dupUsuarioHub(i){const u=clone(cfg.hub.usuarios[i]);u.id=uid('u');u.nome+=' (cópia)';u.email='';
+ cfg.hub.usuarios.splice(i+1,0,u);render();toast('Duplicado')}
+function delUsuarioHub(i){if(!confirm('Remover '+(cfg.hub.usuarios[i].nome||'este aluno')+'?'))return;
+ cfg.hub.usuarios.splice(i,1);render()}
+function togProdutoUsuario(iu,pid,on){
+ const u=cfg.hub.usuarios[iu];u.produtos=u.produtos||[];
+ const j=u.produtos.indexOf(pid);
+ if(on&&j<0)u.produtos.push(pid); if(!on&&j>=0)u.produtos.splice(j,1);
+ render()}
+
+function renderHub(){
+ const H=cfg.hub,el=document.getElementById('painelHub');
+ el.innerHTML=`
+ <div class="card">
+  <h3>Vitrine</h3>
+  <p class="hint">Nome, logo, cores e fundo desta área ficam na aba <b>Identidade</b>.</p>
+  <div class="grid3">
+   <div class="f"><label>Trilho dos comprados</label><input type="text" value="${esc(H.tituloMeus)}" oninput="cfg.hub.tituloMeus=this.value;toque()"></div>
+   <div class="f"><label>Trilho da loja</label><input type="text" value="${esc(H.tituloLoja)}" oninput="cfg.hub.tituloLoja=this.value;toque()"></div>
+   <div class="f"><label>Produto em destaque</label>
+    <select onchange="cfg.hub.destaque=this.value;render()">
+     <option value="">— o primeiro comprado —</option>
+     ${H.produtos.map(p=>`<option value="${p.id}" ${H.destaque===p.id?'selected':''}>${esc(p.titulo)}</option>`).join('')}
+    </select></div>
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>Catálogo <span class="tag">${H.produtos.length}</span></h3>
+  <p class="hint">Cada produto é um app ou ebook gerado nos outros modos. Coloque o arquivo na mesma pasta e escreva o nome dele no campo <b>Arquivo</b>.</p>
+  ${H.produtos.map((p,i)=>{
+   const b='cfg.hub.produtos['+i+']';
+   const donos=H.usuarios.filter(u=>(u.produtos||[]).indexOf(p.id)>=0).length;
+   return`<div class="mod">
+    <div class="head">
+     ${p.capa?`<img class="av" src="${p.capa}" alt="">`:`<div class="av">${esc(p.emoji||'📦')}</div>`}
+     <div class="t">${esc(p.titulo)}<small>${p.tipo==='ebook'?'Ebook web':p.tipo==='link'?'Conteúdo':'Aplicativo'} · ${p.acesso==='todos'?'aberto a todos':(donos+' aluno(s) com acesso')}${p.preco?' · '+esc(p.preco):''}</small></div>
+     <button class="btn sm" onclick="movProduto(${i},-1)">↑</button>
+     <button class="btn sm" onclick="movProduto(${i},1)">↓</button>
+     <button class="btn sm" onclick="dupProduto(${i})">Duplicar</button>
+     <button class="btn sm d" onclick="delProduto(${i})">Remover</button>
+    </div>
+    <details ${abertos[p.id]?'open':''} ontoggle="abertos['${p.id}']=this.open"><summary>Editar produto</summary>
+     <div class="grid2">
+      <div class="f"><label>Título</label><input type="text" value="${esc(p.titulo)}" oninput="${b}.titulo=this.value;toque()"></div>
+      <div class="f"><label>Chamada curta</label><input type="text" value="${esc(p.subtitulo)}" oninput="${b}.subtitulo=this.value;toque()"></div>
+     </div>
+     <div class="grid4">
+      <div class="f"><label>O que é</label><select onchange="${b}.tipo=this.value;render()">
+        <option value="app" ${p.tipo==='app'?'selected':''}>Aplicativo</option>
+        <option value="ebook" ${p.tipo==='ebook'?'selected':''}>Ebook web</option>
+        <option value="link" ${p.tipo==='link'?'selected':''}>Outro conteúdo</option></select></div>
+      <div class="f"><label>Categoria (vira um trilho)</label><input type="text" value="${esc(p.categoria)}" placeholder="Ebooks" oninput="${b}.categoria=this.value;toque()"></div>
+      <div class="f"><label>Detalhe</label><input type="text" value="${esc(p.duracao)}" placeholder="12 aulas · 2h" oninput="${b}.duracao=this.value;toque()"></div>
+      <div class="f"><label>Emoji (sem capa)</label><input type="text" value="${esc(p.emoji)}" oninput="${b}.emoji=this.value;toque()"></div>
+     </div>
+     <div class="grid2">
+      ${campoImgSimples(b+'.capa',p.capa,'Capa vertical (o pôster do trilho)')}
+      ${campoImgSimples(b+'.banner',p.banner,'Banner largo (topo da página do produto)')}
+     </div>
+     <div class="f"><label>Arquivo que abre quando liberado</label>
+      <input type="text" value="${esc(p.arquivo)}" placeholder="meu-app.html" oninput="${b}.arquivo=this.value.trim();toque()">
+      <p class="hint" style="margin:6px 0 0">Gere o app ou o ebook nos outros modos, salve com esse nome exato e suba junto com esta área de membros.</p></div>
+     <div class="f"><label>Descrição (HTML)</label>
+      <textarea style="min-height:110px" oninput="${b}.descricao=this.value;toque()">${esc(p.descricao)}</textarea></div>
+     <div class="f"><label>Benefícios (um por linha)</label>
+      <textarea style="min-height:90px" oninput="${b}.beneficios=this.value;toque()">${esc(p.beneficios)}</textarea></div>
+     <div class="grid3">
+      <div class="f"><label>Quem já tem acesso</label><select onchange="${b}.acesso=this.value;render()">
+        <option value="venda" ${p.acesso!=='todos'?'selected':''}>Só quem comprou</option>
+        <option value="todos" ${p.acesso==='todos'?'selected':''}>Todos que entram</option></select></div>
+      <div class="f"><label>Etiqueta do pôster</label><input type="text" value="${esc(p.selo)}" oninput="${b}.selo=this.value;toque()"></div>
+      <div class="f"><label>Preço</label><input type="text" value="${esc(p.preco)}" oninput="${b}.preco=this.value;toque()"></div>
+     </div>
+     <div class="grid3">
+      <div class="f"><label>Preço antigo (riscado)</label><input type="text" value="${esc(p.precoDe)}" oninput="${b}.precoDe=this.value;toque()"></div>
+      <div class="f"><label>Parcelamento</label><input type="text" value="${esc(p.parcela)}" oninput="${b}.parcela=this.value;toque()"></div>
+      <div class="f"><label>Texto do botão</label><input type="text" value="${esc(p.botao)}" oninput="${b}.botao=this.value;toque()"></div>
+     </div>
+     <div class="grid2">
+      <div class="f"><label>Link do checkout / página de vendas</label>
+       <input type="text" value="${esc(p.checkout)}" placeholder="https://pay.kiwify.com.br/..." oninput="${b}.checkout=this.value.trim();toque()"></div>
+      <div class="f"><label>Quiz antes da compra (arquivo ou link)</label>
+       <input type="text" value="${esc(p.quiz)}" placeholder="quiz.html" oninput="${b}.quiz=this.value.trim();toque()">
+       <p class="hint" style="margin:6px 0 0">Gere no modo Quiz de Captação e ponha o nome do arquivo aqui.</p></div>
+     </div>
+     <div class="f"><label>Códigos que liberam o acesso (um por linha)</label>
+      <textarea style="min-height:70px" oninput="${b}.codigos=this.value;toque()">${esc(p.codigos)}</textarea>
+      <p class="hint" style="margin:6px 0 0">Depois da compra você manda um destes códigos. O aluno cola na página do produto e o acesso abre naquele aparelho.</p></div>
+    </details></div>`}).join('')}
+  <div class="row">
+   <button class="btn p" onclick="addProduto('app')">+ App</button>
+   <button class="btn b" onclick="addProduto('ebook')">+ Ebook web</button>
+   <button class="btn" onclick="addProduto('link')">+ Outro conteúdo</button>
+  </div>
+ </div>`}
+
+function campoImgSimples(base,val,rot){
+ return`<div class="f"><label>${rot}</label><div class="row">
+  ${val?`<img class="mini" src="${val}" alt="">`:'<span class="hint">sem imagem</span>'}
+  <button class="btn sm" onclick="escolherImagem(d=>{${base}=d;render()},900,true)">Enviar</button>
+  ${val?`<button class="btn sm d" onclick="${base}='';render()">Remover</button>`:''}
+ </div><input type="text" style="margin-top:10px" placeholder="ou cole o endereço"
+  value="${esc(val&&val.indexOf('data:')===0?'':val)}" oninput="${base}=this.value;toque()"></div>`}
+
+function renderHubAcesso(){
+ const H=cfg.hub,el=document.getElementById('painelHubAcesso');
+ el.innerHTML=`
+ <div class="card">
+  <h3>Entrada</h3>
+  <div class="f"><label class="sw big"><input type="checkbox" ${H.login!==false?'checked':''} onchange="cfg.hub.login=this.checked;render()"><span>Pedir e-mail e senha para abrir a área</span></label></div>
+  <div class="f"><label>Link de suporte</label><input type="text" value="${esc(H.suporte)}" placeholder="https://wa.me/55..." oninput="cfg.hub.suporte=this.value.trim();toque()"></div>
+ </div>
+ <div class="card">
+  <h3>Alunos <span class="tag">${H.usuarios.length}</span></h3>
+  <p class="hint">Marque o que cada um já comprou. O que não estiver marcado aparece como bloqueado, com a página de venda.</p>
+  ${H.usuarios.map((u,i)=>`
+  <div class="item">
+   <div class="head">
+    <div class="av">${esc((u.nome||'?').charAt(0).toUpperCase())}</div>
+    <div class="t">${esc(u.nome||'Sem nome')}<small>${esc(u.email||'sem e-mail')} · ${(u.produtos||[]).length} produto(s)</small></div>
+    <span class="tag ${u.ativo!==false?'ok':'no'}">${u.ativo!==false?'ativo':'suspenso'}</span>
+    <button class="btn sm" onclick="dupUsuarioHub(${i})">Duplicar</button>
+    <button class="btn sm d" onclick="delUsuarioHub(${i})">Remover</button>
+   </div>
+   <div class="grid3">
+    <div class="f"><label>Nome</label><input type="text" value="${esc(u.nome)}" oninput="cfg.hub.usuarios[${i}].nome=this.value;toque()"></div>
+    <div class="f"><label>E-mail</label><input type="email" value="${esc(u.email)}" oninput="cfg.hub.usuarios[${i}].email=this.value.trim();toque()"></div>
+    <div class="f"><label>Senha</label><input type="text" value="${esc(u.senha)}" oninput="cfg.hub.usuarios[${i}].senha=this.value;toque()"></div>
+   </div>
+   <label>Produtos liberados</label>
+   <div class="opc" style="margin-bottom:10px">
+    ${H.produtos.map(p=>{const tem=(u.produtos||[]).indexOf(p.id)>=0;
+     return`<button class="${tem?'on':''}" onclick="togProdutoUsuario(${i},'${p.id}',${tem?'false':'true'})">${esc(p.titulo)}<small>${tem?'liberado':'bloqueado'}</small></button>`}).join('')}
+   </div>
+   <label class="sw"><input type="checkbox" ${u.ativo!==false?'checked':''} onchange="cfg.hub.usuarios[${i}].ativo=this.checked;render()"><span>Acesso ativo</span></label>
+  </div>`).join('')}
+  <button class="btn p" onclick="addUsuarioHub()">+ Adicionar aluno</button>
+ </div>
+ <div class="card">
+  <h3>Como a venda funciona aqui</h3>
+  <ol class="steps">
+   <li>O aluno entra e vê o que já é dele em <b>Meus produtos</b>, e o resto em <b>Descubra</b>.</li>
+   <li>Tocando num produto bloqueado, abre a página dele: capa, descrição, benefícios, preço e o botão que leva ao seu <b>checkout</b>. Se você preencher o campo do quiz, aparece também o botão para fazer o quiz antes.</li>
+   <li>Depois da compra você tem dois caminhos: mandar um <b>código</b> (o aluno cola e libera na hora) ou marcar o produto no cadastro dele aqui e gerar o arquivo de novo.</li>
+   <li>Ao abrir um produto liberado, o app ou ebook roda dentro da própria área, com o botão de voltar no topo.</li>
+  </ol>
+  <div class="note" style="margin-top:12px"><b>Como organizar os arquivos:</b> deixe tudo na mesma pasta antes de publicar — <code>index.html</code> (esta área), <code>meu-app.html</code>, <code>meu-ebook.html</code>, <code>quiz.html</code>. O nome no campo <b>Arquivo</b> precisa ser igual ao do arquivo.</div>
+ </div>`}
+
+function gerarHub(modo){
+ const c={app:identHub(),hub:clone(cfg.hub),preview:modo||null};
+ c.hub.usuarios=(c.hub.usuarios||[]).filter(u=>u.email).map(u=>({nome:u.nome,email:u.email,
+  senha:senhaHash(u.senha||'123456'),ativo:u.ativo!==false,produtos:u.produtos||[]}));
+ const json=JSON.stringify(c).replace(/</g,'\\u003c').replace(/\u2028|\u2029/g,'');
+ return document.getElementById('tplHub').textContent
+  .replace('/*__CFG__*/{}',()=>json)
+  .replace(/\[\[\/script\]\]/g,()=>'<'+'/script>').trim()}
+
+/* ============================================
+   PROJETOS SALVOS NO NAVEGADOR
+   ============================================ */
+const PRJ=(()=>{let mem={},ok=false;
+ try{localStorage.setItem('_t','1');localStorage.removeItem('_t');ok=true}catch(e){}
+ return{get:k=>{try{return ok?localStorage.getItem('halley_'+k):(mem[k]||null)}catch(e){return mem[k]||null}},
+  set:(k,v)=>{try{ok?localStorage.setItem('halley_'+k,v):mem[k]=v}catch(e){mem[k]=v}},
+  ok:()=>ok}})();
+function listaProjetos(){try{return JSON.parse(PRJ.get('projetos'))||[]}catch(e){return[]}}
+function gravarLista(l){PRJ.set('projetos',JSON.stringify(l))}
+let projetoAtual=PRJ.get('projeto_atual')||'';
+const agoraTxt=()=>new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+const nomeSugerido=()=>(cfg.modoApp==='hub'?(cfg.hub&&cfg.hub.nome):cfg.modoApp==='ebook'?(cfg.ebook&&cfg.ebook.titulo):(cfg.app&&cfg.app.nome))||'Projeto';
+
+function salvarProjeto(silencioso){
+ const l=listaProjetos();
+ let p=l.find(x=>x.id===projetoAtual);
+ if(!p){p={id:uid('prj'),nome:nomeSugerido()};l.unshift(p);projetoAtual=p.id;PRJ.set('projeto_atual',projetoAtual)}
+ p.cfg=clone(cfg);p.atualizado=agoraTxt();p.modo=cfg.modoApp;
+ gravarLista(l);
+ if(!silencioso){render();toast('Projeto salvo no navegador')}
+ else{const el=document.getElementById('painelProjetos');if(el&&aba==='projetos')renderProjetos()}
+}
+function novoProjeto(){
+ if(!confirm('Criar um projeto novo em branco? O atual continua salvo na lista.'))return;
+ cfg=seed();abertos={};projetoAtual='';PRJ.set('projeto_atual','');
+ salvarProjeto(true);render();toast('Projeto novo criado')}
+function abrirProjeto(id){
+ const p=listaProjetos().find(x=>x.id===id);if(!p)return;
+ cfg=migrar(Object.assign(seed(),clone(p.cfg)));
+ projetoAtual=id;PRJ.set('projeto_atual',id);
+ aba=(cfg.modoApp==='quiz')?'quizmodo':cfg.modoApp==='ebook'?'ebook':cfg.modoApp==='hub'?'hub':'paginas';
+ abertos={};render();toast('Abriu: '+p.nome)}
+function renomearProjeto(id){
+ const l=listaProjetos(),p=l.find(x=>x.id===id);if(!p)return;
+ const n=prompt('Nome do projeto:',p.nome);if(!n||!n.trim())return;
+ p.nome=n.trim();gravarLista(l);render()}
+function duplicarProjeto(id){
+ const l=listaProjetos(),p=l.find(x=>x.id===id);if(!p)return;
+ const c=clone(p);c.id=uid('prj');c.nome=p.nome+' (cópia)';c.atualizado=agoraTxt();
+ l.unshift(c);gravarLista(l);render();toast('Projeto duplicado')}
+function excluirProjeto(id){
+ const l=listaProjetos(),p=l.find(x=>x.id===id);if(!p)return;
+ if(!confirm('Excluir "'+p.nome+'"? Isso não tem volta.'))return;
+ gravarLista(l.filter(x=>x.id!==id));
+ if(projetoAtual===id){projetoAtual='';PRJ.set('projeto_atual','')}
+ render();toast('Projeto excluído')}
+function baixarProjeto(id){
+ const p=listaProjetos().find(x=>x.id===id);if(!p)return;
+ baixar(slug(p.nome)+'.json',JSON.stringify(p.cfg,null,2),'application/json')}
+
+function renderProjetos(){
+ const el=document.getElementById('painelProjetos');if(!el)return;
+ const l=listaProjetos();
+ const nomeModo=m=>({hub:'Área de Membros',membros:'App',ebook:'Ebook Web',quiz:'Quiz'})[m]||'App';
+ el.innerHTML=`
+ <div class="card">
+  <h3>Projetos</h3>
+  <p class="hint">Ficam guardados neste navegador. Abra um deles e continue exatamente de onde parou — com os quatro modos juntos.</p>
+  ${PRJ.ok()?'':'<div class="note" style="margin-bottom:14px"><b>Este navegador está bloqueando o armazenamento.</b> A lista não vai persistir ao fechar. Use Salvar projeto (arquivo .json) como cópia de segurança.</div>'}
+  <div class="row">
+   <button class="btn p" onclick="salvarProjeto()">Salvar o projeto aberto</button>
+   <button class="btn b" onclick="novoProjeto()">+ Projeto novo</button>
+   <button class="btn" onclick="projetoImportar()">Abrir arquivo .json</button>
+  </div>
+  <p class="hint" style="margin:12px 0 0">Projeto aberto: <b>${esc((l.find(x=>x.id===projetoAtual)||{}).nome||'ainda não salvo')}</b></p>
+ </div>
+ <div class="card">
+  <h3>Salvos <span class="tag">${l.length}</span></h3>
+  ${l.length?l.map(p=>`
+   <div class="item">
+    <div class="head">
+     <div class="av">${nomeModo(p.modo).charAt(0)}</div>
+     <div class="t">${esc(p.nome)}${p.id===projetoAtual?' <span class="tag ok">aberto</span>':''}
+      <small>${nomeModo(p.modo)} · salvo em ${esc(p.atualizado||'—')}</small></div>
+     ${p.id===projetoAtual?'':`<button class="btn sm p" onclick="abrirProjeto('${p.id}')">Abrir</button>`}
+     <button class="btn sm" onclick="renomearProjeto('${p.id}')">Renomear</button>
+     <button class="btn sm" onclick="duplicarProjeto('${p.id}')">Duplicar</button>
+     <button class="btn sm" onclick="baixarProjeto('${p.id}')">Baixar .json</button>
+     <button class="btn sm d" onclick="excluirProjeto('${p.id}')">Excluir</button>
+    </div>
+   </div>`).join(''):'<div class="empty">Nenhum projeto salvo ainda. Clique em “Salvar o projeto aberto”.</div>'}
+ </div>`}
+
+/* ============================================
+   FORMULÁRIOS RESPONDIDOS (só para você)
+   ============================================ */
+let RESP={campos:[],linhas:[]};
+function formulariosDoProjeto(){
+ const r=[];
+ (cfg.paginas||[]).forEach(p=>(p.modulos||[]).forEach(m=>(m.conteudos||[]).forEach(c=>{
+  if(c.tipo==='form')r.push({titulo:c.titulo,modulo:m.titulo,envio:c.envioTipo||(c.webhook?'planilha':'aparelho'),
+   webhook:c.webhook||'',email:c.email||'',campos:c.campos||''})})));
+ return r}
+function lerCSV(txt){
+ const linhas=String(txt).replace(/\r/g,'').split('\n').filter(l=>l.trim().length);
+ if(!linhas.length)return{campos:[],linhas:[]};
+ const sep=(linhas[0].split(';').length>=linhas[0].split(',').length)?';':',';
+ const parte=l=>{const out=[];let cur='',asp=false;
+  for(let i=0;i<l.length;i++){const ch=l[i];
+   if(ch==='"'){if(asp&&l[i+1]==='"'){cur+='"';i++}else asp=!asp}
+   else if(ch===sep&&!asp){out.push(cur);cur=''}
+   else cur+=ch}
+  out.push(cur);return out.map(x=>x.trim())};
+ const campos=parte(linhas[0]);
+ return{campos:campos,linhas:linhas.slice(1).map(parte)}}
+function importarRespostas(){
+ const i=document.createElement('input');i.type='file';i.accept='.csv,.txt';
+ i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{RESP=lerCSV(r.result);render();toast(RESP.linhas.length+' resposta(s) carregada(s)')};
+  r.readAsText(f,'utf-8')};
+ i.click()}
+function colarRespostas(){
+ const t=document.getElementById('colaCSV');if(!t||!t.value.trim())return toast('Cole o conteúdo do CSV primeiro');
+ RESP=lerCSV(t.value);render();toast(RESP.linhas.length+' resposta(s) carregada(s)')}
+function limparRespostas(){RESP={campos:[],linhas:[]};render()}
+function colunaNome(){
+ const i=RESP.campos.findIndex(c=>/nome|usuario|usuário|aluno|lead/i.test(c));
+ return i>=0?i:0}
+function baixarRespostaCSV(i){
+ const l=RESP.linhas[i];
+ const csv=RESP.campos.map((c,k)=>'"'+String(c).replace(/"/g,'""')+'";"'+String(l[k]||'').replace(/"/g,'""')+'"').join('\n');
+ baixar('resposta-'+slug(l[colunaNome()]||('lead-'+(i+1)))+'.csv','\ufeff'+csv,'text/csv')}
+function baixarTodasCSV(){
+ if(!RESP.linhas.length)return toast('Carregue as respostas primeiro');
+ const asp=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+ const csv=[RESP.campos.map(asp).join(';')].concat(RESP.linhas.map(l=>l.map(asp).join(';'))).join('\n');
+ baixar('respostas.csv','\ufeff'+csv,'text/csv')}
+function pdfResposta(i){
+ const l=RESP.linhas[i],nome=l[colunaNome()]||('Lead '+(i+1));
+ const linhasHTML=RESP.campos.map((c,k)=>`<tr><th>${esc(c)}</th><td>${esc(l[k]||'')}</td></tr>`).join('');
+ abrirImpressao('<h1>'+esc(nome)+'</h1><table>'+linhasHTML+'</table>','Resposta — '+nome)}
+function pdfTodas(){
+ if(!RESP.linhas.length)return toast('Carregue as respostas primeiro');
+ const blocos=RESP.linhas.map((l,i)=>'<section><h1>'+esc(l[colunaNome()]||('Lead '+(i+1)))+'</h1><table>'+
+  RESP.campos.map((c,k)=>`<tr><th>${esc(c)}</th><td>${esc(l[k]||'')}</td></tr>`).join('')+'</table></section>').join('');
+ abrirImpressao(blocos,'Respostas')}
+function abrirImpressao(corpo,titulo){
+ const w=window.open('','_blank');
+ if(!w)return toast('O navegador bloqueou a janela. Libere os pop-ups e tente de novo.');
+ w.document.write('<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>'+esc(titulo)+'</title><style>'+
+  'body{font:14px/1.6 "Segoe UI",system-ui,sans-serif;color:#111;padding:34px;max-width:760px;margin:0 auto}'+
+  'h1{font-size:20px;margin:0 0 14px;border-bottom:2px solid #111;padding-bottom:8px}'+
+  'section{page-break-after:always}section:last-child{page-break-after:auto}'+
+  'table{width:100%;border-collapse:collapse;margin-bottom:26px}'+
+  'th,td{border:1px solid #d5d5d5;padding:9px 11px;text-align:left;vertical-align:top;font-size:13px}'+
+  'th{width:34%;background:#f5f5f7;font-weight:700}'+
+  '@media print{body{padding:0}}</style></head><body>'+corpo+
+  '<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
+ w.document.close()}
+
+function renderFormularios(){
+ const el=document.getElementById('painelFormularios');if(!el)return;
+ const fs=formulariosDoProjeto();
+ const destino=f=>f.envio==='email'?('e-mail: '+(f.email||'sem endereço')):f.envio==='planilha'?('planilha do Drive'+(f.webhook?'':' — falta o link')):'só no aparelho do lead';
+ el.innerHTML=`
+ <div class="card">
+  <h3>Formulários do app <span class="tag">${fs.length}</span></h3>
+  <p class="hint">O lead não baixa nada: ele só responde. As respostas chegam para você pelo destino configurado em cada formulário.</p>
+  ${fs.length?fs.map(f=>`
+   <div class="item"><div class="head">
+    <div class="av">${ico('file')}</div>
+    <div class="t">${esc(f.titulo)}<small>${esc(f.modulo)} · ${esc(destino(f))}</small></div>
+    ${f.envio==='planilha'&&f.webhook?`<button class="btn sm" onclick="window.open('https://drive.google.com/drive/recent','_blank')">Abrir o Drive</button>`:''}
+   </div></div>`).join(''):'<div class="empty">Nenhum formulário criado ainda. Crie um em Conteúdos → + Formulário.</div>'}
+ </div>
+
+ <div class="card">
+  <h3>Respostas recebidas</h3>
+  <p class="hint">Na planilha do Google clique em <b>Arquivo → Fazer download → CSV</b> e traga o arquivo para cá. Também dá para colar o conteúdo direto.</p>
+  <div class="row">
+   <button class="btn p" onclick="importarRespostas()">Enviar arquivo CSV</button>
+   <button class="btn" onclick="colarRespostas()">Usar o texto colado</button>
+   ${RESP.linhas.length?'<button class="btn" onclick="baixarTodasCSV()">Baixar tudo em CSV</button><button class="btn" onclick="pdfTodas()">Gerar PDF de todos</button><button class="btn d" onclick="limparRespostas()">Limpar</button>':''}
+  </div>
+  <div class="f" style="margin-top:14px"><label>Colar o CSV aqui (opcional)</label>
+   <textarea id="colaCSV" style="min-height:90px" placeholder="data;usuario;email;Sua mensagem&#10;2026-08-10;Wander;wander@..."></textarea></div>
+  ${RESP.linhas.length?`
+   <label>${RESP.linhas.length} lead(s)</label>
+   ${RESP.linhas.map((l,i)=>`
+    <div class="item" style="margin-bottom:8px"><div class="head" style="margin:0">
+     <div class="av">${esc(String(l[colunaNome()]||'?').charAt(0).toUpperCase())}</div>
+     <div class="t">${esc(l[colunaNome()]||('Lead '+(i+1)))}
+      <small>${RESP.campos.slice(0,3).map((c,k)=>esc(c)+': '+esc(String(l[k]||'—').slice(0,28))).join(' · ')}</small></div>
+     <button class="btn sm" onclick="baixarRespostaCSV(${i})">CSV</button>
+     <button class="btn sm b" onclick="pdfResposta(${i})">PDF</button>
+    </div></div>`).join('')}
+  `:'<div class="empty" style="margin-top:14px">Nenhuma resposta carregada. Envie o CSV da planilha para ver a lista aqui.</div>'}
+  <div class="note" style="margin-top:14px"><b>Sobre o PDF:</b> abre uma janela já formatada e chama a impressão do navegador — escolha <b>Salvar como PDF</b>. Assim não depende de nenhum programa extra.</div>
+ </div>`}
+
+/* ============================================
+   IDENTIDADE — cada modo tem a sua
+   ============================================ */
+function paletaApp(c,f,cd,tema){cfg.app.cor=c;cfg.app.fundo=f;cfg.app.card=cd;cfg.app.tema=tema||'escuro';render()}
+function paletaHub(c,f,cd){cfg.hub.cor=c;cfg.hub.fundo=f;cfg.hub.card=cd;render()}
+function paletaQuiz(c,f,cd,tema){const q=cfg.quizStandalone;q.cor=c;q.fundo=f;q.card=cd;q.tema=tema||'escuro';render()}
+
+function blocoImagem(base,val,rot,tam,dica){
+ return`<div class="f"><label>${rot}</label><div class="row">
+  ${val?`<img class="mini" src="${val}" alt="">`:'<span class="hint">sem imagem</span>'}
+  <button class="btn sm" onclick="escolherImagem(d=>{${base}=d;render()},${tam||900},true)">Enviar</button>
+  ${val?`<button class="btn sm d" onclick="${base}='';render()">Remover</button>`:''}
+  ${dica?`<span class="hint">${dica}</span>`:''}
+ </div></div>`}
+
+function renderIdentidade(){
+ const el=document.getElementById('painelIdentidade');if(!el)return;
+ const m=cfg.modoApp;
+
+ if(m==='ebook'){
+  el.innerHTML=`<div class="card"><h3>Identidade do ebook</h3>
+   <p class="hint">A capa, o nome, o autor e as cores do ebook ficam na aba <b>Ebook</b> — assim nada se mistura com os outros modos.</p>
+   <button class="btn p" onclick="irAba('ebook')">Ir para a aba Ebook</button></div>`;
+  return}
+
+ if(m==='hub'){
+  const H=cfg.hub;
+  el.innerHTML=`
+  <div class="card">
+   <h3>Identidade da Área de Membros</h3>
+   <p class="hint">Vale só para a vitrine. O App, o Ebook e o Quiz têm cada um a sua identidade.</p>
+   <div class="grid2">
+    <div class="f"><label>Nome</label><input type="text" value="${esc(H.nome)}" oninput="cfg.hub.nome=this.value;toque()"></div>
+    <div class="f"><label>Frase de apoio</label><input type="text" value="${esc(H.slogan)}" oninput="cfg.hub.slogan=this.value;toque()"></div>
+   </div>
+   ${blocoImagem('cfg.hub.logo',H.logo,'Logo',512,'quadrada')}
+  </div>
+  <div class="card">
+   <h3>Cores e fundo</h3>
+   <div class="grid3">
+    <div class="f"><label>Destaque</label><input type="color" value="${esc(H.cor||'#00d4aa')}" oninput="cfg.hub.cor=this.value;toque()"></div>
+    <div class="f"><label>Fundo</label><input type="color" value="${esc(H.fundo)}" oninput="cfg.hub.fundo=this.value;toque()"></div>
+    <div class="f"><label>Cartões</label><input type="color" value="${esc(H.card)}" oninput="cfg.hub.card=this.value;toque()"></div>
+   </div>
+   <div class="row" style="margin-bottom:14px">
+    <button class="btn sm" onclick="paletaHub('#00d4aa','#0b0d14','#161a26')">Halley</button>
+    <button class="btn sm" onclick="paletaHub('#e50914','#0a0a0a','#181818')">Cinema</button>
+    <button class="btn sm" onclick="paletaHub('#7c5cff','#0d0b16','#1a1626')">Violeta</button>
+    <button class="btn sm" onclick="paletaHub('#ffb020','#12100c','#1e1a14')">Âmbar</button>
+   </div>
+   ${blocoImagem('cfg.hub.fundoImagem',H.fundoImagem,'Imagem de fundo',1400)}
+   <div class="f"><label>Escurecer o fundo (%)</label>
+    <input type="number" min="0" max="95" value="${H.fundoEscurecer===undefined?60:H.fundoEscurecer}" oninput="cfg.hub.fundoEscurecer=parseInt(this.value)||0;toque()"></div>
+  </div>`;
+  return}
+
+ if(m==='quiz'){
+  const Q=cfg.quizStandalone;
+  el.innerHTML=`
+  <div class="card">
+   <h3>Identidade do Quiz</h3>
+   <p class="hint">Vale só para o funil de captação. Não mexe no App nem na Área de Membros.</p>
+   <div class="f"><label>Nome que aparece no topo</label><input type="text" value="${esc(Q.nome||'')}" oninput="cfg.quizStandalone.nome=this.value;toque()"></div>
+   ${blocoImagem('cfg.quizStandalone.logo',Q.logo,'Logo do topo',512,'quadrada')}
+  </div>
+  <div class="card">
+   <h3>Cores</h3>
+   <div class="grid3">
+    <div class="f"><label>Destaque</label><input type="color" value="${esc(Q.cor||'#00d4aa')}" oninput="cfg.quizStandalone.cor=this.value;toque()"></div>
+    <div class="f"><label>Fundo</label><input type="color" value="${esc(Q.fundo||'#0e0f1a')}" oninput="cfg.quizStandalone.fundo=this.value;toque()"></div>
+    <div class="f"><label>Cartões</label><input type="color" value="${esc(Q.card||'#1b1e34')}" oninput="cfg.quizStandalone.card=this.value;toque()"></div>
+   </div>
+   <div class="grid2">
+    <div class="f"><label>Tema</label><select onchange="cfg.quizStandalone.tema=this.value;render()">
+     <option value="escuro" ${Q.tema!=='claro'?'selected':''}>Escuro</option>
+     <option value="claro" ${Q.tema==='claro'?'selected':''}>Claro</option></select></div>
+    <div class="f"><label>Cantos</label><select onchange="cfg.quizStandalone.raio=this.value;render()">
+     <option value="18" ${(Q.raio||'18')==='18'?'selected':''}>Arredondado</option>
+     <option value="10" ${Q.raio==='10'?'selected':''}>Suave</option>
+     <option value="4" ${Q.raio==='4'?'selected':''}>Reto</option></select></div>
+   </div>
+   <div class="row">
+    <button class="btn sm" onclick="paletaQuiz('#00d4aa','#0e0f1a','#1b1e34')">Halley</button>
+    <button class="btn sm" onclick="paletaQuiz('#7c5cff','#0f0d17','#1a1727')">Violeta</button>
+    <button class="btn sm" onclick="paletaQuiz('#ff6b35','#12100e','#211c18')">Âmbar</button>
+    <button class="btn sm" onclick="paletaQuiz('#e11d48','#fdfcfb','#ffffff','claro')">Claro</button>
+   </div>
+  </div>`;
+  return}
+
+ /* modo App */
+ const A=cfg.app;
+ el.innerHTML=`
+ <div class="card">
+  <h3>Identidade do App</h3>
+  <p class="hint">Vale só para este app. A Área de Membros, o Ebook e o Quiz têm identidade própria.</p>
+  <div class="grid2">
+   <div class="f"><label>Nome do app</label><input type="text" value="${esc(A.nome)}" oninput="cfg.app.nome=this.value;toque()"></div>
+   <div class="f"><label>Frase de apoio</label><input type="text" value="${esc(A.slogan)}" oninput="cfg.app.slogan=this.value;toque()"></div>
+  </div>
+  ${blocoImagem('cfg.app.logo',A.logo,'Logo / ícone',512,'PNG quadrado 512×512')}
+ </div>
+ <div class="card">
+  <h3>Capa e fundo</h3>
+  <p class="hint">A capa aparece no topo da primeira tela. O fundo vale para o app inteiro.</p>
+  <div class="grid2">
+   ${blocoImagem('cfg.app.capa',A.capa,'Capa do topo',1000)}
+   ${blocoImagem('cfg.app.fundoImagem',A.fundoImagem,'Imagem de fundo',1400)}
+  </div>
+  <div class="f"><label>Escurecer o fundo (%)</label>
+   <input type="number" min="0" max="95" value="${A.fundoEscurecer===undefined?55:A.fundoEscurecer}" oninput="cfg.app.fundoEscurecer=parseInt(this.value)||0;toque()"></div>
+ </div>
+ <div class="card">
+  <h3>Cores e forma</h3>
+  <div class="grid3">
+   <div class="f"><label>Destaque</label><input type="color" value="${esc(A.cor)}" oninput="cfg.app.cor=this.value;toque()"></div>
+   <div class="f"><label>Fundo</label><input type="color" value="${esc(A.fundo)}" oninput="cfg.app.fundo=this.value;toque()"></div>
+   <div class="f"><label>Cartões</label><input type="color" value="${esc(A.card)}" oninput="cfg.app.card=this.value;toque()"></div>
+  </div>
+  <div class="grid2">
+   <div class="f"><label>Tema</label><select onchange="cfg.app.tema=this.value;render()">
+    <option value="escuro" ${A.tema!=='claro'?'selected':''}>Escuro</option>
+    <option value="claro" ${A.tema==='claro'?'selected':''}>Claro</option></select></div>
+   <div class="f"><label>Cantos</label><select onchange="cfg.app.raio=this.value;render()">
+    <option value="18" ${A.raio==='18'?'selected':''}>Arredondado</option>
+    <option value="10" ${A.raio==='10'?'selected':''}>Suave</option>
+    <option value="4" ${A.raio==='4'?'selected':''}>Reto</option></select></div>
+  </div>
+  <div class="row">
+   <button class="btn sm" onclick="paletaApp('#00d4aa','#0e0f1a','#1b1e34')">Halley</button>
+   <button class="btn sm" onclick="paletaApp('#7c5cff','#0f0d17','#1a1727')">Violeta</button>
+   <button class="btn sm" onclick="paletaApp('#ff6b35','#12100e','#211c18')">Âmbar</button>
+   <button class="btn sm" onclick="paletaApp('#0ea5e9','#0b1220','#151f30')">Oceano</button>
+   <button class="btn sm" onclick="paletaApp('#ff85c0','#fffafd','#ffffff','claro')">Infantil</button>
+   <button class="btn sm" onclick="paletaApp('#e11d48','#fdfcfb','#ffffff','claro')">Claro</button>
+  </div>
+ </div>`}
+
+/* identidade que vai dentro de cada arquivo gerado */
+function identHub(){
+ const H=cfg.hub;
+ return{id:(cfg.app.id||'app')+'_hub',nome:H.nome,slogan:H.slogan,logo:H.logo,
+  cor:H.cor||'#00d4aa',fundo:H.fundo,card:H.card,tema:'escuro',raio:'12',versao:cfg.app.versao||'1.0'}}
+function identQuiz(){
+ const Q=cfg.quizStandalone;
+ return{id:(cfg.app.id||'app')+'_quiz',nome:Q.nome||'Quiz',slogan:'',logo:Q.logo||null,
+  cor:Q.cor||'#00d4aa',fundo:Q.fundo||'#0e0f1a',card:Q.card||'#1b1e34',
+  tema:Q.tema||'escuro',raio:Q.raio||'18',versao:cfg.app.versao||'1.0'}}
+function identEbook(){
+ const E=cfg.ebook,c=E.cores||{};
+ return{id:(cfg.app.id||'app')+'_ebook',nome:E.titulo,slogan:'',logo:E.capaImagem||null,
+  cor:c.primary||'#c084fc',fundo:c.bg||'#fff9fc',card:c.card||'#ffffff',tema:'claro',raio:'16',versao:'3.0'}}
 
 /* ============ menu ============ */
 function addNav(){if(cfg.nav.length>=5&&!confirm('Mais de 5 botões espremem o rodapé. Adicionar mesmo assim?'))return;
@@ -4855,7 +5763,7 @@ function escolherImagem(cb,tam,manter){
 
 /* ============ geração ============ */
 function gerarQuiz(){
- const c={app:clone(cfg.app),fx:clone(cfg.fx),quizStandalone:clone(cfg.quizStandalone)};
+ const c={app:identQuiz(),fx:clone(cfg.fx),quizStandalone:clone(cfg.quizStandalone)};
  const json=JSON.stringify(c).replace(/</g,'\\u003c').replace(/\u2028|\u2029/g,'');
  return document.getElementById('tplQuiz').textContent
   .replace('/*__CFG__*/{}',()=>json)
@@ -4870,10 +5778,10 @@ function gerarMembros(modo){
  return document.getElementById('tpl').textContent
   .replace('/*__CFG__*/{}',()=>json)
   .replace(/\[\[\/script\]\]/g,()=>'<'+'/script>').trim()}
-function gerar(modo){return cfg.modoApp==='quiz'?gerarQuiz():(cfg.modoApp==='ebook'?gerarEbook(modo):gerarMembros(modo))}
+function gerar(modo){return cfg.modoApp==='quiz'?gerarQuiz():cfg.modoApp==='ebook'?gerarEbook(modo):cfg.modoApp==='hub'?gerarHub(modo):gerarMembros(modo)}
 
 let tPrev;
-function toque(){clearTimeout(tPrev);tPrev=setTimeout(atualizarPreview,500)}
+function toque(){clearTimeout(tPrev);tPrev=setTimeout(()=>{atualizarPreview();if(projetoAtual)salvarProjeto(true)},500)}
 function setPreview(m){previewModo=m;atualizarPreview()}
 let urlPrev=null,urlPrevCheio=null;
 function porBlob(fr,html,qual){
@@ -4949,6 +5857,8 @@ function baixar(nome,txt,mime){const a=document.createElement('a');
  a.download=nome;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
 const slug=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'app';
 function baixarApp(){
+ if(cfg.modoApp==='hub'){
+  baixar('index.html',gerar(null),'text/html');toast('Área de membros gerada como index.html');return}
  if(cfg.modoApp==='ebook'){
   if(!cfg.ebook.capitulos.length)return toast('Crie ao menos um capítulo antes de gerar');
   baixar(slug(cfg.ebook.titulo)+'-ebook.html',gerar(null),'text/html');toast('Ebook gerado');return}
@@ -5021,6 +5931,18 @@ function migrar(d){
  d.game=Object.assign(clone(base.game),d.game||{});
  if(d.game.ativo===undefined)d.game.ativo=false;
  if(!d.modoApp)d.modoApp='membros';
+ if(d.auth&&!d.auth.modo)d.auth.modo='proprio';
+ if(d.quizStandalone){const q=d.quizStandalone,a=d.app||{};
+  if(!q.nome)q.nome=a.nome||'Meu Quiz';
+  if(q.logo===undefined)q.logo=a.logo||null;
+  if(!q.cor)q.cor=a.cor||'#00d4aa';
+  if(!q.fundo)q.fundo=a.fundo||'#0e0f1a';
+  if(!q.card)q.card=a.card||'#1b1e34';
+  if(!q.tema)q.tema=a.tema||'escuro';
+  if(!q.raio)q.raio=a.raio||'18'}
+ if(d.hub&&!d.hub.cor)d.hub.cor=(d.app&&d.app.cor)||'#00d4aa';
+ if(d.app&&d.app.fundoEscurecer===undefined)d.app.fundoEscurecer=55;
+ if(!d.hub)d.hub=seedHub();
  if(!d.ebook)d.ebook=seedEbook();
  else{const se=seedEbook();['cores','login','carta','sumario','final','audio'].forEach(k=>{d.ebook[k]=Object.assign(clone(se[k]),d.ebook[k]||{})});if(!d.ebook.capitulos)d.ebook.capitulos=se.capitulos;if(!d.ebook.niveis)d.ebook.niveis=se.niveis}
  d.quizStandalone=Object.assign(clone(base.quizStandalone),d.quizStandalone||{});
@@ -5070,8 +5992,12 @@ function renderQuizModo(){
 function render(){
  const col=document.getElementById('colEditor');
  const y=window.scrollY,yc=col?col.scrollTop:0;
- renderTabs();aplicarBinds();renderFx();renderUsuarios();renderPaginas();renderModulos();renderConteudos();renderMenu();renderQuizModo();renderEbook();renderEbookAudio();
+ renderTabs();aplicarBinds();renderIdentidade();renderFx();renderUsuarios();renderPaginas();renderModulos();renderConteudos();renderMenu();renderQuizModo();renderEbook();renderEbookAudio();renderHub();renderHubAcesso();renderProjetos();renderFormularios();
  document.getElementById('gameBox').classList.toggle('desligado',!cfg.game.ativo);
+ const cp=document.getElementById('capaPrev');
+ if(cp)cp.innerHTML=cfg.app.capa?'<img class="mini" src="'+cfg.app.capa+'" alt="">':'<span class="hint">sem capa</span>';
+ const fp=document.getElementById('fundoPrev');
+ if(fp)fp.innerHTML=cfg.app.fundoImagem?'<img class="mini" src="'+cfg.app.fundoImagem+'" alt="">':'<span class="hint">sem fundo</span>';
  const lp=document.getElementById('logoPrev');
  lp.innerHTML=cfg.app.logo?'<img src="'+cfg.app.logo+'" style="width:100%;height:100%;border-radius:14px;object-fit:cover">'
   :esc(String(cfg.app.nome||'A').charAt(0).toUpperCase());
