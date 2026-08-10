@@ -683,6 +683,16 @@ p.ps{margin:0 0 18px;color:var(--txt2);font-size:13.5px}
 .vp-tela>img.thumb,.vp-tela>video.thumb{object-fit:cover}
 .vp.tocando .ply{display:none}
 .vp.simples .vp-ctrl{display:none}
+.vp-aviso ~ .vp-ctrl,.vp:has(.vp-aviso) .vp-ctrl{display:none}
+.vp-aviso{cursor:default}
+.vp-aviso .thumb{filter:brightness(.32) saturate(.6)}
+.vp-cobre{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:7px;text-align:center;padding:18px;color:#fff}
+.vp-cobre b{font-size:14.5px}
+.vp-cobre span{font-size:12px;line-height:1.5;max-width:340px;color:rgba(255,255,255,.82)}
+.vp-cobre .vp-fora{font-size:12px;font-weight:700;color:var(--acc);text-decoration:none;
+ border:1px solid var(--acc);padding:7px 14px;border-radius:20px;margin-top:4px}
+
 .vp.tocando .vp-tela{cursor:default}
 .vp-erro{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;
  color:#fff;background:#111;font-size:13px;line-height:1.5}
@@ -1153,12 +1163,37 @@ const PL={};let plSeq=0;
 function relogio(s){s=Math.max(0,Math.floor(s||0));
  const m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
 
+/* O YouTube exige um endereço http(s) válido na página: sem isso ele
+   devolve o erro 153. Acontece na prévia do editor e no arquivo aberto
+   por duplo clique. Nesses casos mostramos um aviso claro no lugar do
+   quadro quebrado — publicado, o vídeo toca aqui dentro normalmente. */
+function semOrigem(){
+ try{
+  if(location.protocol!=='http:'&&location.protocol!=='https:')return true;
+  if(String(location.origin)==='null')return true;
+  return false;
+ }catch(e){return true}
+}
+function cartaoYT(vid){
+ const local=(location.protocol==='file:');
+ return'<div class="vp"><div class="vp-tela vp-aviso">'+
+  '<img class="thumb" src="https://i.ytimg.com/vi/'+vid+'/hqdefault.jpg" alt="" loading="lazy">'+
+  '<div class="vp-cobre">'+
+   '<b>Vídeo do YouTube</b>'+
+   '<span>'+(local
+    ?'Abrindo o arquivo direto do computador o YouTube bloqueia o player. Publique o app (Netlify, Cloudflare, sua hospedagem) e ele toca aqui dentro.'
+    :'A prévia não tem endereço próprio, então o YouTube recusa tocar aqui. No app publicado o vídeo roda dentro da tela.')+'</span>'+
+   '<a class="vp-fora" href="https://www.youtube.com/watch?v='+vid+'" target="_blank" rel="noopener">Ver no YouTube só para conferir</a>'+
+  '</div></div></div>'}
+
 function player(url){
  const e=embed(url);
  if(e.t==='nada')
   return'<div class="c"><h3>Sem vídeo</h3><p>Cole o link no editor. Aceita YouTube, Google Drive, Vimeo, Loom, Dailymotion e arquivos .mp4.</p></div>';
  if(e.t==='if')
   return'<div class="fr"><iframe src="'+esc(e.u)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div>';
+
+ if(e.t==='yt'&&semOrigem())return cartaoYT(e.id);
 
  const id='vp'+(++plSeq);
  PL[id]={tipo:e.t,vid:e.id,u:e.u,lista:e.lista,aberto:false,tocando:false,vel:1,mudo:false};
@@ -1788,6 +1823,16 @@ main.tr-zoom{animation:trZoom .26s ease}
 .vp-tela>img.thumb,.vp-tela>video.thumb{object-fit:cover}
 .vp.tocando .ply{display:none}
 .vp.simples .vp-ctrl{display:none}
+.vp-aviso ~ .vp-ctrl,.vp:has(.vp-aviso) .vp-ctrl{display:none}
+.vp-aviso{cursor:default}
+.vp-aviso .thumb{filter:brightness(.32) saturate(.6)}
+.vp-cobre{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:7px;text-align:center;padding:18px;color:#fff}
+.vp-cobre b{font-size:14.5px}
+.vp-cobre span{font-size:12px;line-height:1.5;max-width:340px;color:rgba(255,255,255,.82)}
+.vp-cobre .vp-fora{font-size:12px;font-weight:700;color:var(--acc);text-decoration:none;
+ border:1px solid var(--acc);padding:7px 14px;border-radius:20px;margin-top:4px}
+
 .vp.tocando .vp-tela{cursor:default}
 .vp-erro{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;
  color:#fff;background:#111;font-size:13px;line-height:1.5}
@@ -1947,12 +1992,37 @@ const PL={};let plSeq=0;
 function relogio(s){s=Math.max(0,Math.floor(s||0));
  const m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
 
+/* O YouTube exige um endereço http(s) válido na página: sem isso ele
+   devolve o erro 153. Acontece na prévia do editor e no arquivo aberto
+   por duplo clique. Nesses casos mostramos um aviso claro no lugar do
+   quadro quebrado — publicado, o vídeo toca aqui dentro normalmente. */
+function semOrigem(){
+ try{
+  if(location.protocol!=='http:'&&location.protocol!=='https:')return true;
+  if(String(location.origin)==='null')return true;
+  return false;
+ }catch(e){return true}
+}
+function cartaoYT(vid){
+ const local=(location.protocol==='file:');
+ return'<div class="vp"><div class="vp-tela vp-aviso">'+
+  '<img class="thumb" src="https://i.ytimg.com/vi/'+vid+'/hqdefault.jpg" alt="" loading="lazy">'+
+  '<div class="vp-cobre">'+
+   '<b>Vídeo do YouTube</b>'+
+   '<span>'+(local
+    ?'Abrindo o arquivo direto do computador o YouTube bloqueia o player. Publique o app (Netlify, Cloudflare, sua hospedagem) e ele toca aqui dentro.'
+    :'A prévia não tem endereço próprio, então o YouTube recusa tocar aqui. No app publicado o vídeo roda dentro da tela.')+'</span>'+
+   '<a class="vp-fora" href="https://www.youtube.com/watch?v='+vid+'" target="_blank" rel="noopener">Ver no YouTube só para conferir</a>'+
+  '</div></div></div>'}
+
 function player(url){
  const e=embed(url);
  if(e.t==='nada')
   return'<div class="c"><h3>Sem vídeo</h3><p>Cole o link no editor. Aceita YouTube, Google Drive, Vimeo, Loom, Dailymotion e arquivos .mp4.</p></div>';
  if(e.t==='if')
   return'<div class="fr"><iframe src="'+esc(e.u)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe></div>';
+
+ if(e.t==='yt'&&semOrigem())return cartaoYT(e.id);
 
  const id='vp'+(++plSeq);
  PL[id]={tipo:e.t,vid:e.id,u:e.u,lista:e.lista,aberto:false,tocando:false,vel:1,mudo:false};
@@ -4237,7 +4307,7 @@ function campoPlano(base,val,oque){
  <p class="hint" style="margin:6px 0 0">Plano é a etiqueta de cada usuário na aba Usuários. "Todos" libera para qualquer pessoa logada.</p></div>`}
 
 const DICA={
- video:'Aceita YouTube, Vimeo, Google Drive (link de compartilhamento), Dailymotion, Loom, Streamable, Twitch e arquivos .mp4/.webm. Também aceita o código &lt;iframe&gt; completo de outras plataformas.',
+ video:'Aceita YouTube, Vimeo, Google Drive (link de compartilhamento), Dailymotion, Loom, Streamable, Twitch e arquivos .mp4/.webm. Também aceita o código &lt;iframe&gt; completo de outras plataformas.<br><b>Atenção:</b> o YouTube não toca na prévia nem no arquivo aberto por duplo clique — ele exige um endereço https. Publicado, toca dentro do app. Para testar antes, use Google Drive ou um .mp4.',
  texto:'HTML simples: &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;&lt;li&gt;, &lt;img&gt;, &lt;blockquote&gt;.',
  imagem:'Uma imagem por linha:  legenda | endereço da imagem.',
  audio:'Link de um arquivo .mp3 ou .m4a. A capa é opcional.',
